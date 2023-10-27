@@ -10,7 +10,7 @@
 #include <vector>
 
 
-
+#include "panels.h"
 
 
 
@@ -233,7 +233,7 @@ int main()
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-
+        /*
         glUniform1f(glGetUniformLocation(shaderProgram, "size"), size);
         glUniform4f(glGetUniformLocation(shaderProgram, "color"), color[0], color[1], color[2], color[3]);
         // draw our first triangle
@@ -254,6 +254,12 @@ int main()
         ImGui::ColorEdit4("Color", color);
 
         ImGui::End();
+        */
+        ///
+        ///
+        ///
+        Window_ObjectSelection();
+        Window_SceneTree();
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

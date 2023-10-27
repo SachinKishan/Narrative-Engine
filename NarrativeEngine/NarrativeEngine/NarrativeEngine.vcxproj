@@ -167,6 +167,8 @@
     <ClInclude Include="imgui_cpp\imstb_rectpack.h" />
     <ClInclude Include="imgui_cpp\imstb_textedit.h" />
     <ClInclude Include="imgui_cpp\imstb_truetype.h" />
+    <ClInclude Include="panels.h" />
+    <ClInclude Include="scene.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -74,5 +74,11 @@
     <ClInclude Include="imgui_cpp\imstb_truetype.h">
       <Filter>Source Files\imgui_cpp</Filter>
     </ClInclude>
+    <ClInclude Include="panels.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="scene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
