@@ -1,23 +1,13 @@
 #pragma once
 #include <codecvt>
-#include <string>
 #include <vector>
 
 #include <Windows.h>
 #include <commdlg.h>
 #include <fstream>
 
-class GameObject
-{
-public:
-	std::string name;
-    
-    GameObject(const std::string& name) : name(name) {}
+#include "gameobject.h"
 
-    bool operator==(const GameObject& other) const {
-        return name == other.name;
-    }
-};
 
 class Scene
 {
@@ -205,6 +195,8 @@ void CreateNewScene()
     else {
         wprintf(L"Failed to create the file.\n");
     }
+
+
     Manager_Scene.resetCurrentSceneData();
     Manager_Scene.filepath = szFile;
     // Example file path

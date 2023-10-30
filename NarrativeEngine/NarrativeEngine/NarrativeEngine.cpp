@@ -10,6 +10,12 @@
 #include <vector>
 
 
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+#include "camera.h"
 #include "panels.h"
 
 
@@ -97,7 +103,7 @@ int main()
 
     // glfw window creation
     // --------------------
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Engine", NULL, NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -156,6 +162,9 @@ int main()
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
+
+
+
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
     float vertices[] = {
@@ -204,6 +213,34 @@ int main()
 
 
 
+
+
+
+
+
+
+    //setting up pre-made data
+    /////
+    ///for now
+    ///each object is a triangle
+    ///associate each game object with a render data object
+    ///for now, the render data will be quad data
+    ///let colors be default white for now
+    ///allow user to select the quad they want, view its data move it around
+    ///
+    ///this is pretty hard- switch to binary files?
+    ///finally, allow user to save the render object data, the transform data
+
+
+
+
+
+
+
+
+
+
+
     //IMGUI INITIALISATION
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
@@ -215,6 +252,19 @@ int main()
     float size = 1;
     bool draw = false;
     float color[4] = { 0.8f, 0.3f,0.02f,1.0f };
+
+    //camera
+    Camera camera(glm::vec3(5.0f, 1.0f, -5.0f));
+    float lastX = SCR_WIDTH / 2.0f;
+    float lastY = SCR_HEIGHT / 2.0f;
+    bool firstMouse = true;
+
+    // timing
+    float deltaTime = 0.0f;
+    float lastFrame = 0.0f;
+    glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+    glm::mat4 view = camera.GetViewMatrix();
+
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -258,14 +308,49 @@ int main()
         ///
         ///
         ///
-        Window_ObjectSelection();
+        ///
+        ///
+        ///
+
+        if(Manager_Scene.sceneLoaded)
+        {
+	       //render the scene
+	       for(GameObject g:Manager_Scene.currentScene.gameObjectList)
+	       {
+
+                Shader s = g.renderData.material.shader;
+                s.use();
+
+                s.setMat4("projection", projection);
+                /*if (g.renderData.isSkyBox)
+                {
+                    view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
+                }*/
+	       		view = camera.GetViewMatrix();
+                s.setMat4("view", view);
+                s.setMat4("model", g.transform.model);
+
+                if (g.renderData.material.isTextured)
+                {
+                    glBindTexture(GL_TEXTURE_2D, g.renderData.material.textureID);
+                    //glBindTexture(GL_TEXTURE_CUBE_MAP,g.renderData.material.textureID);
+                }
+                else
+                    s.setVec4("objColor", g.renderData.material.color);
+
+                g.renderData.draw();
+	       }
+
+
+        }
+
+
+    	Window_ObjectSelection();
         Window_SceneTree();
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-
-        //long long totalSum = performMultithreadedSum();
 
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)

@@ -158,6 +158,8 @@
     <ClCompile Include="NarrativeEngine.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="camera.h" />
+    <ClInclude Include="gameobject.h" />
     <ClInclude Include="imgui_cpp\imconfig.h" />
     <ClInclude Include="imgui_cpp\imgui.h" />
     <ClInclude Include="imgui_cpp\imgui_impl_glfw.h" />
@@ -169,6 +171,7 @@
     <ClInclude Include="imgui_cpp\imstb_truetype.h" />
     <ClInclude Include="panels.h" />
     <ClInclude Include="scene.h" />
+    <ClInclude Include="shader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

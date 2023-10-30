@@ -53,9 +53,14 @@ inline void Window_SceneTree()
             Manager_Scene.currentScene.AddToScene(newGameObject);
         }
         //display scene contents
+       
         for (const GameObject& obj : Manager_Scene.currentScene.gameObjectList) 
         {
+            std::string selectedName="example";
             ImGui::Text(obj.name.c_str());
+            if (ImGui::Selectable(obj.name.c_str(), selectedName == obj.name)) {
+                std::cout<< obj.name; // Set the selected item index
+            }
         }
         //save scene
         if(ImGui::Button("Save Scene"))
@@ -90,3 +95,4 @@ inline void Window_Debug()//window for debugging
 {
 	
 }
+
