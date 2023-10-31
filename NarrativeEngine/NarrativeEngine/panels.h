@@ -9,6 +9,18 @@
  *
  */
 
+class Selector
+{
+
+public:
+    GameObject currentObject;
+
+    Selector() { currentObject = GameObject(); }
+    void changeSelection(GameObject obj)
+    {
+        currentObject = obj;
+    }
+}manager_Selection;
 
 inline void Window_Basic()
 {
@@ -56,11 +68,13 @@ inline void Window_SceneTree()
        
         for (const GameObject& obj : Manager_Scene.currentScene.gameObjectList) 
         {
-            std::string selectedName="example";
-            ImGui::Text(obj.name.c_str());
-           /* if (ImGui::Selectable(obj.name.c_str(), selectedName == obj.name)) {
-                std::cout<< obj.name; // Set the selected item index
-            }*/
+            std::string selectedName="xample";
+            //ImGui::Text(obj.name.c_str());
+            if (ImGui::Selectable(obj.name.c_str(), selectedName == obj.name)) {
+                selectedName = obj.name;
+                manager_Selection.changeSelection(obj);
+                std::cout<< selectedName; // Set the selected item index
+            }
         }
         //save scene
         if(ImGui::Button("Save Scene"))
@@ -85,9 +99,33 @@ inline void Window_ObjectSelection()
 {
 
     ImGui::Begin("Object Selection");
+    
+    GameObject selectedObject = manager_Selection.currentObject;
 
+	ImGui::Text(selectedObject.name.c_str());
+    
 
+    ImGui::Text("Position");
+    ImGui::InputFloat("X##Position", &selectedObject.transform.translation.x);
+   // ImGui::SameLine();
+    ImGui::InputFloat("Y##Position", &selectedObject.transform.translation.y);
+  //  ImGui::SameLine();
+    ImGui::InputFloat("Z##Position", &selectedObject.transform.translation.z);
+    
+    ImGui::Text("Rotation");
+    ImGui::InputFloat("X##Rotation", &selectedObject.transform.rotation.x);
+    //ImGui::SameLine();
+    ImGui::InputFloat("Y##Rotation", &selectedObject.transform.rotation.y);
+    //ImGui::SameLine();
+    ImGui::InputFloat("Z##Rotation", &selectedObject.transform.rotation.z);
 
+    ImGui::Text("Scale");
+    ImGui::InputFloat("X##Scale", &selectedObject.transform.scale.x);
+    //ImGui::SameLine();
+    ImGui::InputFloat("Y##Scale", &selectedObject.transform.scale.y);
+    //ImGui::SameLine();
+    ImGui::InputFloat("Z##Scale", &selectedObject.transform.scale.z);
+    
     ImGui::End();
 }
 

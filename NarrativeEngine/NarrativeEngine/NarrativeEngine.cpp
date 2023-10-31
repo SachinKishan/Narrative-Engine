@@ -319,8 +319,8 @@ int main()
 	       {
 
                 Shader s = g.renderData->material.shader;
-                std::cout << std::endl<<g.name;
-                std::cout << std::endl <<g.transform.translation.z<<std::endl;
+                //std::cout << std::endl<<g.name;
+                //std::cout << std::endl <<g.transform.translation.z<<std::endl;
                 s.use();
 
                 s.setMat4("projection", projection);

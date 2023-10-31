@@ -257,7 +257,10 @@ public:
     ObjectTransform transform;//transform data of the gameobject
 
     std::string name;//name of the game object
-
+    GameObject() {
+        // Set default values or perform initialization if needed
+        name = "blip";
+    }
 
 	GameObject(const std::string& name) : name(name)//test constructor
 	{
