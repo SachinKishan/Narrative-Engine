@@ -254,7 +254,7 @@ int main()
     float color[4] = { 0.8f, 0.3f,0.02f,1.0f };
 
     //camera
-    Camera camera(glm::vec3(5.0f, 1.0f, -5.0f));
+    Camera camera(glm::vec3(0.0f, 0.0f, -5.0f));
     float lastX = SCR_WIDTH / 2.0f;
     float lastY = SCR_HEIGHT / 2.0f;
     bool firstMouse = true;
@@ -312,33 +312,32 @@ int main()
         ///
         ///
 
-        if(Manager_Scene.sceneLoaded)
+        if (Manager_Scene.sceneLoaded)
         {
 	       //render the scene
 	       for(GameObject g:Manager_Scene.currentScene.gameObjectList)
 	       {
 
-                Shader s = g.renderData.material.shader;
+                Shader s = g.renderData->material.shader;
+                std::cout << std::endl<<g.name;
+                std::cout << std::endl <<g.transform.translation.z<<std::endl;
                 s.use();
 
                 s.setMat4("projection", projection);
-                /*if (g.renderData.isSkyBox)
-                {
-                    view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
-                }*/
+               
 	       		view = camera.GetViewMatrix();
                 s.setMat4("view", view);
                 s.setMat4("model", g.transform.model);
-
-                if (g.renderData.material.isTextured)
+                /*
+                if (g.renderData->material.isTextured)
                 {
-                    glBindTexture(GL_TEXTURE_2D, g.renderData.material.textureID);
+                    glBindTexture(GL_TEXTURE_2D, g.renderData->material.textureID);
                     //glBindTexture(GL_TEXTURE_CUBE_MAP,g.renderData.material.textureID);
                 }
-                else
-                    s.setVec4("objColor", g.renderData.material.color);
-
-                g.renderData.draw();
+               // else
+                    //s.setVec4("objColor", g.renderData->material.color);
+                    */
+                g.renderData->draw();
 	       }
 
 

@@ -58,9 +58,9 @@ inline void Window_SceneTree()
         {
             std::string selectedName="example";
             ImGui::Text(obj.name.c_str());
-            if (ImGui::Selectable(obj.name.c_str(), selectedName == obj.name)) {
+           /* if (ImGui::Selectable(obj.name.c_str(), selectedName == obj.name)) {
                 std::cout<< obj.name; // Set the selected item index
-            }
+            }*/
         }
         //save scene
         if(ImGui::Button("Save Scene"))

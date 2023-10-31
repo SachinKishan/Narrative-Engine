@@ -9,6 +9,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include<filesystem>
 
 class Shader
 {
@@ -94,6 +95,9 @@ public:
         try
         {
             // open files
+            //std::cout << "Vertex Path: " << vertexPath << std::endl;
+            //std::cout << "Fragment Path: " << fragmentPath << std::endl;
+
             vShaderFile.open(vertexPath);
             fShaderFile.open(fragmentPath);
             std::stringstream vShaderStream, fShaderStream;

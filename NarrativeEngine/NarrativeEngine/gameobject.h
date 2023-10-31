@@ -4,6 +4,7 @@
 #include "shader.h"
 
 
+
 struct Material
 {
 public:
@@ -51,8 +52,8 @@ struct ObjectTransform
     glm::mat4 model;
     ObjectTransform()
     {
-        translation = glm::vec3(0, 0, 0);
-        rotation = glm::vec3(0, 0, 0);
+        translation = glm::vec3(0, 0, -7);
+        rotation = glm::vec3(45, 45, 45);
         scale = glm::vec3(1, 1, 1);
         CalculateModel();
     }
@@ -248,11 +249,11 @@ public:
     }
 };
 
-
+#include<filesystem>
 class GameObject
 {
 public:
-    ObjectRenderData renderData;//stores
+    std::shared_ptr<ObjectRenderData> renderData;//stores
     ObjectTransform transform;//transform data of the gameobject
 
     std::string name;//name of the game object
@@ -260,7 +261,19 @@ public:
 
 	GameObject(const std::string& name) : name(name)//test constructor
 	{
-		
+        std::filesystem::current_path("C://Users//sachi//OneDrive//Documents//GitHub//Game Engine//PlipPlop//NarrativeEngine//NarrativeEngine//Shaders"); //setting path
+        auto path = std::filesystem::current_path();
+
+        std::cout << path;
+        renderData = std::make_shared<Plane>();// new Plane();
+        const Material mat(glm::vec4(1, 1, 1, 1));
+        renderData->SetMaterial(mat);
+          Shader s("defaultShader.vert","defaultShader.frag");
+          renderData->material.setShader(s);
+
+        std::cout << "\n GAME OBJECT CREATED \n";
+       
+    //"C://Users//sachi//OneDrive//Documents//GitHub//Game Engine//PlipPlop//NarrativeEngine//NarrativeEngine//Shaders"
 	}
     bool operator==(const GameObject& other) const {
         return name == other.name;

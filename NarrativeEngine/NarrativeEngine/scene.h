@@ -31,7 +31,13 @@ public:
 			gameObjectList.end());
 	}
 };
-
+std::string convertWStringToString(const std::wstring& wstr)
+{
+    int size_needed = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, NULL, 0, NULL, NULL);
+    std::string strTo(size_needed, 0);
+    WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, &strTo[0], size_needed, NULL, NULL);
+    return strTo;
+}
 class SceneEditorManager
 {
 private:
@@ -53,7 +59,8 @@ public:
     {
         if (&currentScene!=nullptr)
         {
-            currentScene.sceneName = std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(fileName);
+            
+            currentScene.sceneName = convertWStringToString(fileName);
         }
         else
         {
