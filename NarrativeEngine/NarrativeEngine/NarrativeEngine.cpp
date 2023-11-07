@@ -24,8 +24,8 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 
 // settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 1600;
+const unsigned int SCR_HEIGHT = 1200;
 
 const char* vertexShaderSource = "#version 330 core\n"
 "layout (location = 0) in vec3 aPos;\n"
@@ -315,10 +315,10 @@ int main()
         if (Manager_Scene.sceneLoaded)
         {
 	       //render the scene
-	       for(GameObject g:Manager_Scene.currentScene.gameObjectList)
+	       for(std::shared_ptr<GameObject> g:Manager_Scene.currentScene.gameObjectList)
 	       {
 
-                Shader s = g.renderData->material.shader;
+                Shader s = g->renderData->material.shader;
                 //std::cout << std::endl<<g.name;
                 //std::cout << std::endl <<g.transform.translation.z<<std::endl;
                 s.use();
@@ -327,7 +327,7 @@ int main()
                
 	       		view = camera.GetViewMatrix();
                 s.setMat4("view", view);
-                s.setMat4("model", g.transform.model);
+                s.setMat4("model", g->transform.model);
                 /*
                 if (g.renderData->material.isTextured)
                 {
@@ -337,7 +337,7 @@ int main()
                // else
                     //s.setVec4("objColor", g.renderData->material.color);
                     */
-                g.renderData->draw();
+                g->renderData->draw();
 	       }
 
 

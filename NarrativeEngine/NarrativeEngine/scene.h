@@ -13,17 +13,15 @@ class Scene
 {
 public:
 	std::string sceneName;
-	std::vector<GameObject> gameObjectList;
+	std::vector<std::shared_ptr<GameObject>> gameObjectList;
 
 
-public:
-
-	void AddToScene(const GameObject &object)
+	void AddToScene(const std::shared_ptr<GameObject> &object)
 	{
 		gameObjectList.push_back(object);
 	}
 
-	void RemoveFromScene(const GameObject& object)
+	void RemoveFromScene(const std::shared_ptr<GameObject> object)
 	{
 		gameObjectList.erase(
 			std::remove(
@@ -38,7 +36,7 @@ std::string convertWStringToString(const std::wstring& wstr)
     WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, &strTo[0], size_needed, NULL, NULL);
     return strTo;
 }
-class SceneEditorManager
+inline class SceneEditorManager
 {
 private:
 	
@@ -80,7 +78,22 @@ public:
         if (inFile.is_open()) {
             std::string line;
             while (std::getline(inFile, line)) {
-                currentScene.AddToScene(GameObject(line));
+                std::istringstream iss(line);
+                std::string name;
+                glm::vec3 translation, rotation, scale;
+
+                iss >> name >> translation.x >> translation.y >> translation.z
+                    >> rotation.x >> rotation.y >> rotation.z
+                    >> scale.x >> scale.y >> scale.z;
+
+                // Create ObjectTransform based on parsed data
+                ObjectTransform transform(translation, rotation, scale);
+
+                // Create a GameObject using the read data
+                std::shared_ptr<GameObject> newGameObject = std::make_shared<GameObject>(name,transform);
+                //newGameObject->transform = transform; // Assign the ObjectTransform
+                currentScene.AddToScene(newGameObject);
+
                 std::cout << "Scene data has been read and stored\n";
             }
             inFile.close();
@@ -88,6 +101,7 @@ public:
         else {
             std::cerr << "Failed to open the file for reading." << std::endl;
         }
+
     }
 
 
@@ -140,14 +154,24 @@ void LoadScene()//loads file into the scene manager
 
 
 
-void SaveScene(std::vector<GameObject> gameObjects)
+inline void SaveScene(std::vector<std::shared_ptr<GameObject>> gameObjects)
 {
 	//file saving
     std::ofstream outFile(Manager_Scene.filepath , std::ios::out | std::ios::trunc);
 
     if (outFile.is_open()) {
-        for (const GameObject &gameObject : gameObjects) {
-            outFile << gameObject.name << '\n'; // Write each string on a new line
+        for (const std::shared_ptr<GameObject> &gameObject : gameObjects) {
+            outFile << gameObject->name<<" "; // Write each string on a new line
+            outFile << gameObject->transform.translation.x << " ";
+            outFile << gameObject->transform.translation.y << " ";
+            outFile << gameObject->transform.translation.z << " ";
+            outFile << gameObject->transform.rotation.x << " ";
+            outFile << gameObject->transform.rotation.y << " ";
+            outFile << gameObject->transform.rotation.z << " ";
+            outFile << gameObject->transform.scale.x << " ";
+            outFile << gameObject->transform.scale.y << " ";
+            outFile << gameObject->transform.scale.z;
+            outFile << "\n";
         }
         outFile.close();
         std::wcout << "File '" << Manager_Scene.filepath << "' created and data written successfully." << std::endl;

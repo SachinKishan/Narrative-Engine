@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+
 #include "scene.h"
 /**
  * Every window has the following
@@ -13,12 +15,15 @@ class Selector
 {
 
 public:
-    GameObject currentObject;
-
-    Selector() { currentObject = GameObject(); }
-    void changeSelection(GameObject obj)
+    std::shared_ptr<GameObject> currentObject;
+    Selector()
     {
-        currentObject = obj;
+        currentObject = std::make_shared<GameObject>();
+    }
+
+    void changeSelection(std::shared_ptr<GameObject>& obj)
+    {
+        currentObject=(obj);
     }
 }manager_Selection;
 
@@ -61,17 +66,18 @@ inline void Window_SceneTree()
         //add to scene contents
         if (ImGui::Button("Add Object"))
         {
-            const GameObject newGameObject("Example");
+        	const std::shared_ptr<GameObject> newGameObject= std::make_shared<GameObject>("example" + std::to_string(Manager_Scene.currentScene.gameObjectList.size()));
             Manager_Scene.currentScene.AddToScene(newGameObject);
         }
         //display scene contents
        
-        for (const GameObject& obj : Manager_Scene.currentScene.gameObjectList) 
+        for ( std::shared_ptr<GameObject>& obj : Manager_Scene.currentScene.gameObjectList) 
         {
-            std::string selectedName="xample";
+            std::string selectedName = "";
             //ImGui::Text(obj.name.c_str());
-            if (ImGui::Selectable(obj.name.c_str(), selectedName == obj.name)) {
-                selectedName = obj.name;
+            if (ImGui::Selectable(obj->name.c_str(), selectedName == obj->name)) {
+                selectedName = obj->name;
+                std::shared_ptr<GameObject> currentObject = std::make_shared<GameObject>(obj->name);
                 manager_Selection.changeSelection(obj);
                 std::cout<< selectedName; // Set the selected item index
             }
@@ -97,35 +103,51 @@ inline void Window_SceneTree()
 
 inline void Window_ObjectSelection()
 {
-
     ImGui::Begin("Object Selection");
-    
-    GameObject selectedObject = manager_Selection.currentObject;
 
-	ImGui::Text(selectedObject.name.c_str());
-    
+    if (manager_Selection.currentObject) {
+        std::shared_ptr<GameObject>& selectedObject = manager_Selection.currentObject;
 
-    ImGui::Text("Position");
-    ImGui::InputFloat("X##Position", &selectedObject.transform.translation.x);
-   // ImGui::SameLine();
-    ImGui::InputFloat("Y##Position", &selectedObject.transform.translation.y);
-  //  ImGui::SameLine();
-    ImGui::InputFloat("Z##Position", &selectedObject.transform.translation.z);
-    
-    ImGui::Text("Rotation");
-    ImGui::InputFloat("X##Rotation", &selectedObject.transform.rotation.x);
-    //ImGui::SameLine();
-    ImGui::InputFloat("Y##Rotation", &selectedObject.transform.rotation.y);
-    //ImGui::SameLine();
-    ImGui::InputFloat("Z##Rotation", &selectedObject.transform.rotation.z);
+        ImGui::Text(selectedObject->name.c_str());
 
-    ImGui::Text("Scale");
-    ImGui::InputFloat("X##Scale", &selectedObject.transform.scale.x);
-    //ImGui::SameLine();
-    ImGui::InputFloat("Y##Scale", &selectedObject.transform.scale.y);
-    //ImGui::SameLine();
-    ImGui::InputFloat("Z##Scale", &selectedObject.transform.scale.z);
-    
+        // Create temporary variables to track changes
+        glm::vec3 position = selectedObject->transform.translation;
+        glm::vec3 rotation = selectedObject->transform.rotation;
+        glm::vec3 scale = selectedObject->transform.scale;
+
+        ImGui::Text("Position");
+        ImGui::SliderFloat("X Pos", &position.x, -50.0f, 50.0f);
+        ImGui::SliderFloat("Y Pos", &position.y, -50.0f, 50.0f);
+        ImGui::SliderFloat("Z Pos", &position.z, -50.0f, 50.0f);
+
+
+        ImGui::Text("Rotation");
+        //ImGui::InputFloat("X##Rotation", &rotation.x);
+        ImGui::SliderFloat("X Rot", &rotation.x, -180.0f, 180.0f);
+        ImGui::SliderFloat("Y Rot", &rotation.y, -180.0f, 180.0f);
+        ImGui::SliderFloat("Z Rot", &rotation.z, -180.0f, 180.0f);
+        //ImGui::InputFloat("Z##Rotation", &rotation.z);
+
+        ImGui::Text("Scale");
+        //ImGui::InputFloat("X##Scale", &scale.x);
+        ImGui::SliderFloat("X Scale", &scale.x, 0.0f, 1.0f);
+        ImGui::SliderFloat("Y Scale", &scale.y, 0.0f, 1.0f);
+        ImGui::SliderFloat("Z Scale", &scale.z, 0.0f, 1.0f);
+
+        //ImGui::InputFloat("Y##Scale", &scale.y);
+        //ImGui::InputFloat("Z##Scale", &scale.z);
+
+        // Apply changes if modified
+        if (position != selectedObject->transform.translation ||
+            rotation != selectedObject->transform.rotation ||
+            scale != selectedObject->transform.scale) {
+            selectedObject->transform.translation = position;
+            selectedObject->transform.rotation = rotation;
+            selectedObject->transform.scale = scale;
+            selectedObject->transform.CalculateModel();
+        }
+    }
+
     ImGui::End();
 }
 
