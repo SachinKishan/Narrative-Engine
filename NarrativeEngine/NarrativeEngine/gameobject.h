@@ -14,7 +14,6 @@ public:
     Shader shader;
     Material()
     {
-
         color = glm::vec4(1, 1, 1, 1);
         isTextured = false;
     }
@@ -293,8 +292,9 @@ public:
         renderData = std::make_shared<Cube>();// new Plane();
         const Material mat(glm::vec4(1, 1, 1, 1));
         renderData->SetMaterial(mat);
-          Shader s("defaultShader.vert","defaultShader.frag");
-          renderData->material.setShader(s);
+    	Shader s("defaultShader.vert","defaultShader.frag");
+    	renderData->material.setShader(s);
+        
 
         std::cout << "\n GAME OBJECT CREATED \n";
        
@@ -302,8 +302,6 @@ public:
 
     GameObject(const std::string name, ObjectTransform transformData):name(name),transform(transformData)
     {
-       // std::filesystem::current_path("C://Users//sachi//OneDrive//Documents//GitHub//Game Engine//PlipPlop//NarrativeEngine//NarrativeEngine//Shaders"); //setting path
-       // auto path = std::filesystem::current_path();
         std::wstring exePath = GetExePath();
         std::filesystem::path shadersPath = std::filesystem::path(exePath) / "Shaders"; // Assuming Shaders folder is in the same directory as the executable
 
@@ -315,9 +313,27 @@ public:
     	renderData = std::make_shared<Cube>();// new Plane();
         const Material mat(glm::vec4(1, 1, 1, 1));
         renderData->SetMaterial(mat);
-        Shader s("defaultShader.vert", "defaultShader.frag");
+        Shader s("defaultShader.vert", "colorShader.frag");
         renderData->material.setShader(s);
 
+        std::cout << "\n GAME OBJECT CREATED \n";
+    }
+    GameObject(const std::string name, ObjectTransform transformData, glm::vec3 color) :name(name), transform(transformData)
+    {
+        std::wstring exePath = GetExePath();
+        std::filesystem::path shadersPath = std::filesystem::path(exePath) / "Shaders"; // Assuming Shaders folder is in the same directory as the executable
+
+        // Set the path to the shaders
+        std::filesystem::current_path(shadersPath);
+        auto path = std::filesystem::current_path();
+
+        std::cout << path;
+        renderData = std::make_shared<Cube>();// new Plane();
+        const Material mat(glm::vec4(1, 1, 1, 1));
+        renderData->SetMaterial(mat);
+        Shader s("defaultShader.vert", "colorShader.frag");
+        renderData->material.setShader(s);
+        renderData->material.color = glm::vec4(color,1);
         std::cout << "\n GAME OBJECT CREATED \n";
     }
 

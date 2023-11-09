@@ -81,16 +81,18 @@ public:
                 std::istringstream iss(line);
                 std::string name;
                 glm::vec3 translation, rotation, scale;
-
-                iss >> name >> translation.x >> translation.y >> translation.z
-                    >> rotation.x >> rotation.y >> rotation.z
-                    >> scale.x >> scale.y >> scale.z;
+                glm::vec4 color;
+                iss >> name
+            		>> translation.x>> translation.y >> translation.z
+                    >> rotation.x>> rotation.y>> rotation.z
+                    >> scale.x >> scale.y >> scale.z
+            		>> color.r>>color.g>>color.b;
 
                 // Create ObjectTransform based on parsed data
                 ObjectTransform transform(translation, rotation, scale);
 
                 // Create a GameObject using the read data
-                std::shared_ptr<GameObject> newGameObject = std::make_shared<GameObject>(name,transform);
+                std::shared_ptr<GameObject> newGameObject = std::make_shared<GameObject>(name,transform,color);
                 //newGameObject->transform = transform; // Assign the ObjectTransform
                 currentScene.AddToScene(newGameObject);
 
@@ -170,7 +172,11 @@ inline void SaveScene(std::vector<std::shared_ptr<GameObject>> gameObjects)
             outFile << gameObject->transform.rotation.z << " ";
             outFile << gameObject->transform.scale.x << " ";
             outFile << gameObject->transform.scale.y << " ";
-            outFile << gameObject->transform.scale.z;
+            outFile << gameObject->transform.scale.z<< " ";
+            outFile << gameObject->renderData->material.color.r<< " ";
+            outFile << gameObject->renderData->material.color.g<< " ";
+            outFile << gameObject->renderData->material.color.b<< " ";
+
             outFile << "\n";
         }
         outFile.close();

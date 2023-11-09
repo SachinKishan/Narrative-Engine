@@ -1,7 +1,6 @@
 #pragma once
 
 #include <functional>
-
 #include "scene.h"
 /**
  * Every window has the following
@@ -77,7 +76,7 @@ inline void Window_SceneTree()
             //ImGui::Text(obj.name.c_str());
             if (ImGui::Selectable(obj->name.c_str(), selectedName == obj->name)) {
                 selectedName = obj->name;
-                std::shared_ptr<GameObject> currentObject = std::make_shared<GameObject>(obj->name);
+                //std::shared_ptr<GameObject> currentObject = std::make_shared<GameObject>(obj->name);
                 manager_Selection.changeSelection(obj);
                 std::cout<< selectedName; // Set the selected item index
             }
@@ -105,37 +104,83 @@ inline void Window_ObjectSelection()
 {
     ImGui::Begin("Object Selection");
 
-    if (manager_Selection.currentObject) {
+    if (manager_Selection.currentObject!=nullptr) {
         std::shared_ptr<GameObject>& selectedObject = manager_Selection.currentObject;
 
-        ImGui::Text(selectedObject->name.c_str());
+        
+//        ImGui::Text(selectedObject->name.c_str());
+        ImGui::Text("Object name: ");
+        ImGui::SameLine();
+        // Input field to change the object's name
+        char objectName[256]; // Assuming a maximum name length of 255 characters
+        memset(objectName, 0, sizeof(objectName)); // Clear the memory
+        strcpy_s(objectName, selectedObject->name.c_str());
+    	ImGui::InputText("##ObjectName", objectName, IM_ARRAYSIZE(objectName));
 
-        // Create temporary variables to track changes
+        // Set the object's name if it's changed
+        if (strcmp(objectName, selectedObject->name.c_str()) != 0) {
+            selectedObject->name = objectName;
+        }
+
+        //transform edit
         glm::vec3 position = selectedObject->transform.translation;
+        glm::vec3 bposition = selectedObject->transform.translation;
         glm::vec3 rotation = selectedObject->transform.rotation;
+        glm::vec3 brotation = selectedObject->transform.rotation;
         glm::vec3 scale = selectedObject->transform.scale;
+        glm::vec3 bscale = selectedObject->transform.scale;
 
         ImGui::Text("Position");
         ImGui::SliderFloat("X Pos", &position.x, -50.0f, 50.0f);
+        ImGui::SameLine();
+        ImGui::InputFloat("", &bposition.x);
         ImGui::SliderFloat("Y Pos", &position.y, -50.0f, 50.0f);
-        ImGui::SliderFloat("Z Pos", &position.z, -50.0f, 50.0f);
-
+        ImGui::SameLine();
+        ImGui::InputFloat("", &bposition.y);
+    	ImGui::SliderFloat("Z Pos", &position.z, -50.0f, 50.0f);
+        ImGui::SameLine();
+        ImGui::InputFloat("", &bposition.z);
 
         ImGui::Text("Rotation");
-        //ImGui::InputFloat("X##Rotation", &rotation.x);
         ImGui::SliderFloat("X Rot", &rotation.x, -180.0f, 180.0f);
+        ImGui::SameLine();
+        ImGui::InputFloat("", &brotation.x);
         ImGui::SliderFloat("Y Rot", &rotation.y, -180.0f, 180.0f);
-        ImGui::SliderFloat("Z Rot", &rotation.z, -180.0f, 180.0f);
-        //ImGui::InputFloat("Z##Rotation", &rotation.z);
+        ImGui::SameLine();
+        ImGui::InputFloat("", &brotation.y);
+    	ImGui::SliderFloat("Z Rot", &rotation.z, -180.0f, 180.0f);
+        ImGui::SameLine();
+        ImGui::InputFloat("", &brotation.z);
 
         ImGui::Text("Scale");
-        //ImGui::InputFloat("X##Scale", &scale.x);
-        ImGui::SliderFloat("X Scale", &scale.x, 0.0f, 1.0f);
-        ImGui::SliderFloat("Y Scale", &scale.y, 0.0f, 1.0f);
-        ImGui::SliderFloat("Z Scale", &scale.z, 0.0f, 1.0f);
+        ImGui::SliderFloat("X Scale", &scale.x, 0.0f, 10.0f);
+        ImGui::SameLine();
+        ImGui::InputFloat("", &bscale.x);
+        ImGui::SliderFloat("Y Scale", &scale.y, 0.0f, 10.0f);
+        ImGui::SameLine();
+        ImGui::InputFloat("", &bscale.y);
+        ImGui::SliderFloat("Z Scale", &scale.z, 0.0f, 10.0f);
+        ImGui::SameLine();
+        ImGui::InputFloat("", &bscale.z);
 
-        //ImGui::InputFloat("Y##Scale", &scale.y);
-        //ImGui::InputFloat("Z##Scale", &scale.z);
+
+        
+        //color edit
+        if (selectedObject && selectedObject->renderData) {
+            float newColor[4] = {
+                selectedObject->renderData->material.color.x,
+                selectedObject->renderData->material.color.y,
+                selectedObject->renderData->material.color.z,
+                selectedObject->renderData->material.color.w
+            };
+            ImGui::ColorEdit4("Color", newColor);
+            if (newColor[0] != selectedObject->renderData->material.color.x ||
+                newColor[1] != selectedObject->renderData->material.color.y ||
+                newColor[2] != selectedObject->renderData->material.color.z ||
+                newColor[3] != selectedObject->renderData->material.color.w) {
+                selectedObject->renderData->material.color = glm::vec4(newColor[0], newColor[1], newColor[2], newColor[3]);
+            }
+        }
 
         // Apply changes if modified
         if (position != selectedObject->transform.translation ||
@@ -146,7 +191,12 @@ inline void Window_ObjectSelection()
             selectedObject->transform.scale = scale;
             selectedObject->transform.CalculateModel();
         }
+    	
+
+
+
     }
+
 
     ImGui::End();
 }
@@ -155,4 +205,3 @@ inline void Window_Debug()//window for debugging
 {
 	
 }
-
