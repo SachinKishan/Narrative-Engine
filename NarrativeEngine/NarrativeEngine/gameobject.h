@@ -341,3 +341,65 @@ public:
         return name == other.name;
     }
 };
+
+
+
+class ScreenQuad : public ObjectRenderData
+{
+public:
+
+    ScreenQuad()
+    {
+        VerticesInit();
+        VBOInit();
+        VAOInit();
+    
+    }
+
+    void VerticesInit() override
+    {
+        vertices =
+        {
+           -1.0f,  1.0f,  0.0f, 1.0f,
+        -1.0f, -1.0f,  0.0f, 0.0f,
+         1.0f, -1.0f,  1.0f, 0.0f,
+
+        -1.0f,  1.0f,  0.0f, 1.0f,
+         1.0f, -1.0f,  1.0f, 0.0f,
+         1.0f,  1.0f,  1.0f, 1.0f
+        };
+    }
+
+    void VBOInit() override
+    {
+        glGenBuffers(1, &VBO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
+
+    }
+
+    void VAOInit() override
+    {
+        glGenVertexArrays(1, &VAO);
+        glBindVertexArray(VAO);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+        glEnableVertexAttribArray(1);
+        glBindVertexArray(0);
+    }
+
+    void deInitialize() override
+    {
+        glDeleteVertexArrays(1, &VAO);
+    }
+
+    void draw() override
+    {
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glBindVertexArray(0);
+
+    }
+};
+
