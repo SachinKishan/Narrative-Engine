@@ -139,6 +139,8 @@ void LoadScene()//loads file into the scene manager
         // For example, print the selected file's path
         wprintf(L"Selected File: %s\n", szFile);
         Manager_Scene.filepath = szFile;
+        Manager_Scene.sceneLoaded = true;
+
     	//std::wcout<<Manager_Scene.filepath;
     }
     else {
@@ -228,6 +230,8 @@ void CreateNewScene()
         outFile.close();
 
         wprintf(L"File '%s' with extension '%s' created successfully.\n", szFile, ".plip");
+        Manager_Scene.sceneLoaded = true;
+
     }
     else {
         wprintf(L"Failed to create the file.\n");

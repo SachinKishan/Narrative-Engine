@@ -300,7 +300,7 @@ public:
        
 	}
 
-    GameObject(const std::string name, ObjectTransform transformData):name(name),transform(transformData)
+    GameObject(const std::string name, ObjectTransform transformData) :name(name), transform(transformData)
     {
         std::wstring exePath = GetExePath();
         std::filesystem::path shadersPath = std::filesystem::path(exePath) / "Shaders"; // Assuming Shaders folder is in the same directory as the executable

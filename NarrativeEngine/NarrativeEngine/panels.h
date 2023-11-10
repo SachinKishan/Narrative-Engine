@@ -47,13 +47,11 @@ inline void Window_SceneTree()
         {
             std::cout << "Create scene pressed\n";
             CreateNewScene();
-            Manager_Scene.sceneLoaded = true;
         }
-        else if(ImGui::Button("Load Scene"))
+        else if (ImGui::Button("Load Scene"))
         {
             std::cout << "Load scene pressed\n";
             LoadScene();
-        	Manager_Scene.sceneLoaded = true;
         }
     }
     else
@@ -133,35 +131,35 @@ inline void Window_ObjectSelection()
         ImGui::Text("Position");
         ImGui::SliderFloat("X Pos", &position.x, -50.0f, 50.0f);
         ImGui::SameLine();
-        ImGui::InputFloat("", &bposition.x);
+        ImGui::InputFloat("##XPos", &position.x);
         ImGui::SliderFloat("Y Pos", &position.y, -50.0f, 50.0f);
         ImGui::SameLine();
-        ImGui::InputFloat("", &bposition.y);
+        ImGui::InputFloat("##YPos", &position.y);
     	ImGui::SliderFloat("Z Pos", &position.z, -50.0f, 50.0f);
         ImGui::SameLine();
-        ImGui::InputFloat("", &bposition.z);
+        ImGui::InputFloat("##ZPos", &position.z);
 
         ImGui::Text("Rotation");
         ImGui::SliderFloat("X Rot", &rotation.x, -180.0f, 180.0f);
         ImGui::SameLine();
-        ImGui::InputFloat("", &brotation.x);
+        ImGui::InputFloat("##XRot", &rotation.x);
         ImGui::SliderFloat("Y Rot", &rotation.y, -180.0f, 180.0f);
         ImGui::SameLine();
-        ImGui::InputFloat("", &brotation.y);
+        ImGui::InputFloat("##YRot", &rotation.y);
     	ImGui::SliderFloat("Z Rot", &rotation.z, -180.0f, 180.0f);
         ImGui::SameLine();
-        ImGui::InputFloat("", &brotation.z);
+        ImGui::InputFloat("##ZRot", &rotation.z);
 
         ImGui::Text("Scale");
         ImGui::SliderFloat("X Scale", &scale.x, 0.0f, 10.0f);
         ImGui::SameLine();
-        ImGui::InputFloat("", &bscale.x);
+        ImGui::InputFloat("##XSc", &scale.x);
         ImGui::SliderFloat("Y Scale", &scale.y, 0.0f, 10.0f);
         ImGui::SameLine();
-        ImGui::InputFloat("", &bscale.y);
+        ImGui::InputFloat("##YSc", &scale.y);
         ImGui::SliderFloat("Z Scale", &scale.z, 0.0f, 10.0f);
         ImGui::SameLine();
-        ImGui::InputFloat("", &bscale.z);
+        ImGui::InputFloat("##ZSc", &scale.z);
 
 
         
