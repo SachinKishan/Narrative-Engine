@@ -4,6 +4,14 @@ I've seen a lot of story teller/writer based tools such as twine which usually a
 
 Currently in it's first few weeks of development.
 
+Features accomplished:
+1. Scene loading, editing, saving
+2. Scene rendering
+
+What's next?
+1. Player movement, control
+2. UI and text displays
+
 This engine is meant to be a hobby project for my portfolio. If you have any suggestions, let me know at sachinkishan02@gmail.com or Twitter- @SachinKishan9
 
 
