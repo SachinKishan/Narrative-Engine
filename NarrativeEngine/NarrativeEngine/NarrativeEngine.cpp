@@ -177,12 +177,6 @@ int main()
     
     glEnable(GL_DEPTH_TEST);
 
-
-
-
-
-
-
     //render buffer things
     unsigned int framebuffer;
     glGenFramebuffers(1, &framebuffer);
@@ -190,14 +184,13 @@ int main()
     unsigned int textureColorbuffer;
     glGenTextures(1, &textureColorbuffer);
     glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 800, 600, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SCR_WIDTH/1.5, SCR_HEIGHT/1.5, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D, 0);
 
     // attach it to currently bound framebuffer object
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
-
 
     unsigned int rbo;
     glGenRenderbuffers(1, &rbo);
@@ -241,8 +234,8 @@ int main()
         // ------
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        //glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+        //glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
         glEnable(GL_DEPTH_TEST);
@@ -253,27 +246,36 @@ int main()
         ImGui::NewFrame();
        
         render();
-       /* glBindFramebuffer(GL_FRAMEBUFFER, 0); // back to default
-        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0); // back to default
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         //screenShader.use();
-        glDisable(GL_DEPTH_TEST);
-        */
-        //glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
+        //glDisable(GL_DEPTH_TEST);
+        render();
+        glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
         //quad->draw();
 
         ///buffer window
-        //ImGui::Begin("BUFFER WINDOW FRAMEBUFFER ");
+        ///
+        ///
+        
+        const float window_width = ImGui::GetContentRegionAvail().x;
+        const float window_height = ImGui::GetContentRegionAvail().y;
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, window_width, window_height);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
 
-       /* ImGui::GetWindowDrawList()->AddImage(
+        ImGui::Begin("BUFFER WINDOW FRAMEBUFFER ");
+
+        ImVec2 imageSize(SCR_WIDTH / 1.5, SCR_HEIGHT / 1.5);  
+        ImVec2 imagePos = ImGui::GetCursorScreenPos();
+
+        ImGui::GetWindowDrawList()->AddImage(
             (void*)textureColorbuffer,
-            ImVec2(ImGui::GetCursorScreenPos()),
-            ImVec2(ImGui::GetCursorScreenPos().x + SCR_WIDTH / 2,
-                ImGui::GetCursorScreenPos().y + SCR_HEIGHT / 2), ImVec2(0, 1), ImVec2(1, 0));
+            imagePos,
+            ImVec2(imagePos.x + imageSize.x, imagePos.y + imageSize.y),
+            ImVec2(0, 1), ImVec2(1, 0));
 
-                */
-
-       // ImGui::End();
+        ImGui::End();
 
     	Window_ObjectSelection();
         Window_SceneTree();
@@ -319,16 +321,11 @@ void processInput(GLFWwindow* window)
         camera.ProcessKeyboard(RIGHT, deltaTime);
 }
 
-// glfw: whenever the window size changed (by OS or user resize) this callback function executes
-// ---------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
 }
 
-
-// glfw: whenever the mouse moves, this callback is called
-// -------------------------------------------------------
 void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 {
 
@@ -344,18 +341,16 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
         }
 
         float xoffset = xpos - lastX;
-        float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+        float yoffset = lastY - ypos; 
 
         lastX = xpos;
         lastY = ypos;
-	if (glfwGetKey(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS)
     {
         camera.ProcessMouseMovement(xoffset, yoffset);
     }
 }
 
-// glfw: whenever the mouse scroll wheel scrolls, this callback is called
-// ----------------------------------------------------------------------
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
     camera.ProcessMouseScroll(static_cast<float>(yoffset));
