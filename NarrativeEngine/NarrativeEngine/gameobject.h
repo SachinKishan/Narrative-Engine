@@ -273,31 +273,18 @@ public:
 
 	GameObject(const std::string name) : name(name)//test constructor
 	{
-        //std::filesystem::current_path("C://Users//sachi//OneDrive//Documents//GitHub//Game Engine//PlipPlop//NarrativeEngine//NarrativeEngine//Shaders"); //setting path
-
-
-        //std::filesystem::path exePath = std::filesystem::absolute(std::filesystem::path(argv[0]));
-        //std::filesystem::path shadersPath = exePath.parent_path() / "Shaders"; // Assuming Shaders folder is in the same directory as the executable
-
         std::wstring exePath = GetExePath();
         std::filesystem::path shadersPath = std::filesystem::path(exePath) / "Shaders"; // Assuming Shaders folder is in the same directory as the executable
-
         // Set the path to the shaders
         std::filesystem::current_path(shadersPath);
-
-
     	auto path = std::filesystem::current_path();
-
         std::cout << path;
         renderData = std::make_shared<Cube>();// new Plane();
         const Material mat(glm::vec4(1, 1, 1, 1));
         renderData->SetMaterial(mat);
     	Shader s("defaultShader.vert","defaultShader.frag");
     	renderData->material.setShader(s);
-        
-
         std::cout << "\n GAME OBJECT CREATED \n";
-       
 	}
 
     GameObject(const std::string name, ObjectTransform transformData) :name(name), transform(transformData)
@@ -342,6 +329,77 @@ public:
     }
 };
 
+class Light:public GameObject
+{
+public:
+    Light() {
+        // Set default values or perform initialization if needed
+        name = "nothing selected";
+    }
+
+    Light(const std::string name)
+    {
+        GameObject::name = name;
+        std::wstring exePath = GetExePath();
+        std::filesystem::path shadersPath = std::filesystem::path(exePath) / "Shaders"; // Assuming Shaders folder is in the same directory as the executable
+        // Set the path to the shaders
+        std::filesystem::current_path(shadersPath);
+        auto path = std::filesystem::current_path();
+        std::cout << path;
+        renderData = std::make_shared<Cube>();// new Plane();
+        const Material mat(glm::vec4(1, 1, 1, 1));
+        renderData->SetMaterial(mat);
+        Shader s("defaultShader.vert", "lightfragmentshader.frag");
+        renderData->material.setShader(s);
+        std::cout << "\n GAME OBJECT CREATED \n";
+    }
+
+    Light(const std::string name, ObjectTransform transformData) 
+    {
+        GameObject::name = name;
+        GameObject::transform = transformData;
+        std::wstring exePath = GetExePath();
+        std::filesystem::path shadersPath = std::filesystem::path(exePath) / "Shaders"; // Assuming Shaders folder is in the same directory as the executable
+
+        // Set the path to the shaders
+        std::filesystem::current_path(shadersPath);
+        auto path = std::filesystem::current_path();
+
+        std::cout << path;
+        renderData = std::make_shared<Cube>();// new Plane();
+        const Material mat(glm::vec4(1, 1, 1, 1));
+        renderData->SetMaterial(mat);
+        Shader s("defaultShader.vert", "lightfragmentshader.frag");
+        renderData->material.setShader(s);
+
+        std::cout << "\n GAME OBJECT CREATED \n";
+    }
+    Light(const std::string name, ObjectTransform transformData, glm::vec3 color)
+	{
+        GameObject::name = name;
+        GameObject::transform = transformData;
+
+        std::wstring exePath = GetExePath();
+        std::filesystem::path shadersPath = std::filesystem::path(exePath) / "Shaders"; // Assuming Shaders folder is in the same directory as the executable
+
+        // Set the path to the shaders
+        std::filesystem::current_path(shadersPath);
+        auto path = std::filesystem::current_path();
+
+        std::cout << path;
+        renderData = std::make_shared<Cube>();// new Plane();
+        const Material mat(glm::vec4(1, 1, 1, 1));
+        renderData->SetMaterial(mat);
+        Shader s("defaultShader.vert", "lightfragmentshader.frag");
+        renderData->material.setShader(s);
+        renderData->material.color = glm::vec4(color, 1);
+        std::cout << "\n GAME OBJECT CREATED \n";
+    }
+
+    bool operator==(const GameObject& other) const {
+        return name == other.name;
+    }
+};
 
 
 class ScreenQuad : public ObjectRenderData

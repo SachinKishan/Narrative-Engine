@@ -66,6 +66,13 @@ inline void Window_SceneTree()
         	const std::shared_ptr<GameObject> newGameObject= std::make_shared<GameObject>("example" + std::to_string(Manager_Scene.currentScene.gameObjectList.size()));
             Manager_Scene.currentScene.AddToScene(newGameObject);
         }
+        if (ImGui::Button("Add Light"))
+        {
+            const std::shared_ptr<Light> newGameObject = std::make_shared<Light>("light" + std::to_string(Manager_Scene.currentScene.lightList.size()));
+        	Manager_Scene.currentScene.AddLight(newGameObject);
+        }
+
+
         //display scene contents
        
         for ( std::shared_ptr<GameObject>& obj : Manager_Scene.currentScene.gameObjectList) 

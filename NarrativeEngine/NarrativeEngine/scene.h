@@ -14,13 +14,16 @@ class Scene
 public:
 	std::string sceneName;
 	std::vector<std::shared_ptr<GameObject>> gameObjectList;
-
+    std::vector<std::shared_ptr<Light>> lightList;
 
 	void AddToScene(const std::shared_ptr<GameObject> &object)
 	{
 		gameObjectList.push_back(object);
 	}
-
+    void AddLight(const std::shared_ptr<Light> &light)
+	{
+        lightList.push_back(light);
+	}
 	void RemoveFromScene(const std::shared_ptr<GameObject> object)
 	{
 		gameObjectList.erase(
