@@ -81,23 +81,37 @@ public:
         if (inFile.is_open()) {
             std::string line;
             while (std::getline(inFile, line)) {
+                
+
                 std::istringstream iss(line);
                 std::string name;
                 glm::vec3 translation, rotation, scale;
                 glm::vec4 color;
+                int type;
+                iss >> type;
                 iss >> name
-            		>> translation.x>> translation.y >> translation.z
-                    >> rotation.x>> rotation.y>> rotation.z
+                    >> translation.x >> translation.y >> translation.z
+                    >> rotation.x >> rotation.y >> rotation.z
                     >> scale.x >> scale.y >> scale.z
-            		>> color.r>>color.g>>color.b;
-
+                    >> color.r >> color.g >> color.b;
                 // Create ObjectTransform based on parsed data
                 ObjectTransform transform(translation, rotation, scale);
+                if (type == ObjectType::type_Light)
+                {
+                    std::shared_ptr<Light> newGameObject= std::make_shared<Light>(name, transform, color);
+                    currentScene.AddToScene(newGameObject);
+                    currentScene.AddLight(newGameObject);
+
+                }
+                else if(type==ObjectType::type_Platform)
+                {
+                    std::shared_ptr<Platform> newGameObject= std::make_shared<Platform>(name, transform, color);
+                    currentScene.AddToScene(newGameObject);
+
+                }
 
                 // Create a GameObject using the read data
-                std::shared_ptr<GameObject> newGameObject = std::make_shared<GameObject>(name,transform,color);
                 //newGameObject->transform = transform; // Assign the ObjectTransform
-                currentScene.AddToScene(newGameObject);
 
                 std::cout << "Scene data has been read and stored\n";
             }
@@ -168,6 +182,7 @@ inline void SaveScene(std::vector<std::shared_ptr<GameObject>> gameObjects)
 
     if (outFile.is_open()) {
         for (const std::shared_ptr<GameObject> &gameObject : gameObjects) {
+            outFile << gameObject->objectType << " ";
             outFile << gameObject->name<<" "; // Write each string on a new line
             outFile << gameObject->transform.translation.x << " ";
             outFile << gameObject->transform.translation.y << " ";

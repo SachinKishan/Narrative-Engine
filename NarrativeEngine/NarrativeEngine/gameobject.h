@@ -259,9 +259,18 @@ inline std::wstring GetExePath() {
     return std::wstring(buffer).substr(0, pos);
 }
 
+enum ObjectType
+{
+	type_Platform,
+    type_Light,
+    type_Player,
+    type_Interactable
+};
+
 class GameObject
 {
 public:
+    ObjectType objectType;
     std::shared_ptr<ObjectRenderData> renderData;//stores
     std::string name;//name of the game object
     ObjectTransform transform;//transform data of the gameobject
@@ -341,7 +350,7 @@ public:
     Platform(const std::string name)
     {
         GameObject::name = name;
-
+        objectType = ObjectType::type_Platform;
         std::wstring exePath = GetExePath();
         std::filesystem::path shadersPath = std::filesystem::path(exePath) / "Shaders"; // Assuming Shaders folder is in the same directory as the executable
         // Set the path to the shaders
@@ -358,6 +367,7 @@ public:
 
     Platform(const std::string name, ObjectTransform transformData) 
     {
+        objectType = ObjectType::type_Platform;
 
         GameObject::name = name;
         transform = transformData;
@@ -383,6 +393,7 @@ public:
 
         GameObject::name = name;
         transform = transformData;
+        objectType = ObjectType::type_Platform;
 
         std::wstring exePath = GetExePath();
         std::filesystem::path shadersPath = std::filesystem::path(exePath) / "Shaders"; // Assuming Shaders folder is in the same directory as the executable
@@ -415,6 +426,8 @@ public:
     Light(const std::string name)
     {
         GameObject::name = name;
+        objectType = ObjectType::type_Light;
+
         std::wstring exePath = GetExePath();
         std::filesystem::path shadersPath = std::filesystem::path(exePath) / "Shaders"; // Assuming Shaders folder is in the same directory as the executable
         // Set the path to the shaders
@@ -432,6 +445,8 @@ public:
     Light(const std::string name, ObjectTransform transformData) 
     {
         GameObject::name = name;
+        objectType = ObjectType::type_Light;
+
         GameObject::transform = transformData;
         std::wstring exePath = GetExePath();
         std::filesystem::path shadersPath = std::filesystem::path(exePath) / "Shaders"; // Assuming Shaders folder is in the same directory as the executable
@@ -453,6 +468,7 @@ public:
 	{
         GameObject::name = name;
         GameObject::transform = transformData;
+        objectType = ObjectType::type_Light;
 
         std::wstring exePath = GetExePath();
         std::filesystem::path shadersPath = std::filesystem::path(exePath) / "Shaders"; // Assuming Shaders folder is in the same directory as the executable
