@@ -43,52 +43,6 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 
-void looper()
-{
-    long long sum = 0;
-    for (int i = 0; i < 1000000000; ++i) {
-        sum += i;
-    }
-}
-
-
-const int numThreads = 8;  // Number of threads to use
-
-// Function to calculate the sum for a specific range
-long long calculatePartialSum(int start, int end) {
-    long long sum = 0;
-    for (int i = start; i < end; ++i) {
-        sum += i;
-    }
-    return sum;
-}
-
-// Function to perform multithreaded summation
-long long performMultithreadedSum() {
-    // Create a vector to store thread objects
-    std::vector<std::thread> threads;
-
-    // Divide the work among threads
-    int range = 1000000000 / numThreads;
-    long long totalSum = 0;
-
-    for (int i = 0; i < numThreads; ++i) {
-        int start = i * range;
-        int end = (i + 1) * range;
-        threads.emplace_back([start, end, &totalSum] {
-            totalSum += calculatePartialSum(start, end);
-            });
-    }
-
-    // Join all the threads
-    for (auto& thread : threads) {
-        thread.join();
-    }
-
-    return totalSum;
-}
-
-
 void render()
 {
     if (Manager_Scene.sceneLoaded)

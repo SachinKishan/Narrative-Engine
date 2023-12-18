@@ -67,9 +67,15 @@ inline void Window_SceneTree()
             Manager_Scene.currentScene.AddToScene(newGameObject);
         }
         if (ImGui::Button("Add Light"))
+        {  
+            const std::shared_ptr<Light> newLight = std::make_shared<Light>("light" + std::to_string(Manager_Scene.currentScene.lightList.size()));
+        	Manager_Scene.currentScene.AddLight(newLight);
+        	Manager_Scene.currentScene.AddToScene(newLight);
+        }
+        if(ImGui::Button("Add platform"))
         {
-            const std::shared_ptr<Light> newGameObject = std::make_shared<Light>("light" + std::to_string(Manager_Scene.currentScene.lightList.size()));
-        	Manager_Scene.currentScene.AddLight(newGameObject);
+            const std::shared_ptr<Platform> newGameObject = std::make_shared<Platform>("platform" + std::to_string(Manager_Scene.currentScene.gameObjectList.size()));
+            Manager_Scene.currentScene.AddToScene(newGameObject);
         }
 
 
