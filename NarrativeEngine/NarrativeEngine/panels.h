@@ -191,6 +191,17 @@ inline void Window_ObjectSelection()
                 selectedObject->renderData->material.color = glm::vec4(newColor[0], newColor[1], newColor[2], newColor[3]);
             }
         }
+        if(selectedObject->objectType==ObjectType::type_Light)
+        {
+            std::shared_ptr<Light> lightObject = std::dynamic_pointer_cast<Light>(selectedObject);
+            if (lightObject) 
+            {
+                float intensity = lightObject->getIntensity();
+                ImGui::SliderFloat("Light Intensity", &intensity, 0.0f, 10.0f);
+                if (intensity != lightObject->getIntensity())lightObject->setIntensity(intensity);
+            }
+
+        }
 
         // Apply changes if modified
         if (position != selectedObject->transform.translation ||

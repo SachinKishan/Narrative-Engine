@@ -11,10 +11,10 @@
 #include <vector>
 
 
-
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
 
 #include "camera.h"
 //camera
@@ -54,8 +54,26 @@ void render()
 
             Shader s = g->renderData->material.shader;
             s.use();
-
-
+            
+            if(g->objectType==ObjectType::type_Platform && !Manager_Scene.currentScene.lightList.empty())
+            {
+                
+                //s.setVec3("lightPos", Manager_Scene.currentScene.lightList[0]->transform.translation);
+                //s.setVec3("lightColor", Manager_Scene.currentScene.lightList[0]->renderData->material.color);
+                s.setInt("numberoflights", Manager_Scene.currentScene.lightList.size());
+                for (auto it = Manager_Scene.currentScene.lightList.begin(); it != Manager_Scene.currentScene.lightList.end(); ++it)
+                {
+                    
+                    int lightIndex = std::distance(Manager_Scene.currentScene.lightList.begin(), it);
+                    std::string uniformPos = "pointLights[" + std::to_string(lightIndex) + "].position";
+                    std::string uniformColor = "pointLights[" + std::to_string(lightIndex) + "].color";
+                    s.setVec3(uniformPos, (*it)->transform.translation);
+                    s.setVec3(uniformColor, (*it)->renderData->material.color*(*it)->getIntensity());
+                    
+                }
+                
+            }
+            
             s.setMat4("projection", projection);
 
             view = camera.GetViewMatrix();
@@ -299,6 +317,14 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 
         lastX = xpos;
         lastY = ypos;
+    if(glfwGetKey(window,GLFW_KEY_SPACE)==GLFW_PRESS)
+    {
+        std::cout << std::endl;
+        std::cout << std::endl <<"X: " << xpos;
+        std::cout << std::endl <<"Y: " << ypos;
+    }
+
+
 	if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS)
     {
         camera.ProcessMouseMovement(xoffset, yoffset);
