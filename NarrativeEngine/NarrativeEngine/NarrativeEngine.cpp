@@ -55,11 +55,9 @@ void render()
             Shader s = g->renderData->material.shader;
             s.use();
             
-            if(g->objectType==ObjectType::type_Platform && !Manager_Scene.currentScene.lightList.empty())
+            if(g->objectType==ObjectType::type_Platform)
             {
                 
-                //s.setVec3("lightPos", Manager_Scene.currentScene.lightList[0]->transform.translation);
-                //s.setVec3("lightColor", Manager_Scene.currentScene.lightList[0]->renderData->material.color);
                 s.setInt("numberoflights", Manager_Scene.currentScene.lightList.size());
                 for (auto it = Manager_Scene.currentScene.lightList.begin(); it != Manager_Scene.currentScene.lightList.end(); ++it)
                 {

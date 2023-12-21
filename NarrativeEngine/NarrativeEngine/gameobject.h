@@ -359,7 +359,7 @@ public:
         renderData = std::make_shared<Cube>();// new Plane();
         const Material mat(glm::vec4(1, 1, 1, 1));
         renderData->SetMaterial(mat);
-        Shader s("defaultShader.vert", "defaultShader.frag");
+        Shader s("defaultShader.vert", "defaultShaderwithlighting.frag");
         renderData->material.setShader(s);
         std::cout << "\n GAME OBJECT CREATED \n";
     }
@@ -382,7 +382,7 @@ public:
         renderData = std::make_shared<Cube>();// new Plane();
         const Material mat(glm::vec4(1, 1, 1, 1));
         renderData->SetMaterial(mat);
-        Shader s("defaultShader.vert", "colorShader.frag");
+        Shader s("defaultShader.vert", "defaultShaderwithlighting.frag");
         renderData->material.setShader(s);
 
         std::cout << "\n GAME OBJECT CREATED \n";

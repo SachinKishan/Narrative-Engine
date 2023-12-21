@@ -53,6 +53,7 @@ public:
     void resetCurrentSceneData()
     {
         currentScene.gameObjectList.clear();
+        currentScene.lightList.clear();
         currentScene.sceneName.clear();
     }
 
