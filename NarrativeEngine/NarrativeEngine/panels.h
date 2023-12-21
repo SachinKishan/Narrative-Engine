@@ -61,12 +61,7 @@ inline void Window_SceneTree()
         ImGui::Text(Manager_Scene.currentScene.sceneName.c_str());
 
         //add to scene contents
-       /* if (ImGui::Button("Add Object"))
-        {
-        	const std::shared_ptr<GameObject> newGameObject= std::make_shared<GameObject>("example" + std::to_string(Manager_Scene.currentScene.gameObjectList.size()));
-            Manager_Scene.currentScene.AddToScene(newGameObject);
-        }
-        */
+       
         if (ImGui::Button("Add Light"))
         {  
             const std::shared_ptr<Light> newLight = std::make_shared<Light>("light" + std::to_string(Manager_Scene.currentScene.lightList.size()));
@@ -78,7 +73,28 @@ inline void Window_SceneTree()
             const std::shared_ptr<Platform> newGameObject = std::make_shared<Platform>("platform" + std::to_string(Manager_Scene.currentScene.gameObjectList.size()));
             Manager_Scene.currentScene.AddToScene(newGameObject);
         }
+        if(ImGui::Button("Remove object"))
+        {
+	        if(manager_Selection.currentObject!=nullptr)
+	        {
+                std::vector<std::shared_ptr<GameObject>>& currentVector = Manager_Scene.currentScene.gameObjectList;
 
+                Manager_Scene.currentScene.gameObjectList.erase(std::find(
+                    Manager_Scene.currentScene.gameObjectList.begin(), Manager_Scene.currentScene.gameObjectList.end(), 
+                    manager_Selection.currentObject));
+
+                if(manager_Selection.currentObject->objectType==ObjectType::type_Light)
+                {
+                    Manager_Scene.currentScene.lightList.erase(std::find(
+                        Manager_Scene.currentScene.lightList.begin(), Manager_Scene.currentScene.lightList.end(),
+                        manager_Selection.currentObject));
+                }
+                for (auto element : Manager_Scene.currentScene.lightList)
+                {
+                    std::cout <<std::endl <<element->name;
+                }
+	        }
+        }
 
         //display scene contents
        
