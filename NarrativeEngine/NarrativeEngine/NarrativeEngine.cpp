@@ -361,6 +361,8 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
         std::cout<<std::endl<<"Viewport: " << x << " " << y;
         glm::vec3 converted = convertMouseSpace(x, y);
         std::cout <<std::endl<< "Converted" << converted.x << " " << converted.y << " " << converted.z;
-        ray_collision(camera.Position, converted, Manager_Scene.currentScene.gameObjectList);
+        std::shared_ptr<GameObject> obj = nullptr;
+    	ray_collision(camera.Position, converted, Manager_Scene.currentScene.gameObjectList,obj);
+        manager_Selection.changeSelection(obj);
     }
 }

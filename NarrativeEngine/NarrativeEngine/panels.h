@@ -22,7 +22,10 @@ public:
 
     void changeSelection(std::shared_ptr<GameObject>& obj)
     {
-        currentObject=(obj);
+        if (obj != nullptr)
+            currentObject = (obj);
+        else
+            std::cerr <<std::endl <<"ERROR: OBJECT SELECTION IS NULL!"<<std::endl;
     }
 }manager_Selection;
 
@@ -166,13 +169,17 @@ inline void Window_SceneTree()
        
         for ( std::shared_ptr<GameObject>& obj : Manager_Scene.currentScene.gameObjectList) 
         {
+            
             std::string selectedName = "";
+            if(manager_Selection.currentObject != nullptr)
+	        	selectedName = manager_Selection.currentObject->name;
             //ImGui::Text(obj.name.c_str());
             if (ImGui::Selectable(obj->name.c_str(), selectedName == obj->name)) {
                 selectedName = obj->name;
                 //std::shared_ptr<GameObject> currentObject = std::make_shared<GameObject>(obj->name);
                 manager_Selection.changeSelection(obj);
                 std::cout<< selectedName; // Set the selected item index
+
             }
         }
         //save scene

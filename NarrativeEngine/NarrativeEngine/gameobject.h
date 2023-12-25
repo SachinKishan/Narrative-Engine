@@ -561,7 +561,7 @@ public:
     }
 };
 
-bool ray_collision(glm::vec3 origin, glm::vec3 dir, std::vector<std::shared_ptr<GameObject>> gameObjects)
+bool ray_collision(glm::vec3 origin, glm::vec3 dir, std::vector<std::shared_ptr<GameObject>> gameObjects, std::shared_ptr<GameObject>& obj)
 {
     float totaldist = 0;
 	glm::vec3 current_pos = origin;
@@ -578,7 +578,7 @@ bool ray_collision(glm::vec3 origin, glm::vec3 dir, std::vector<std::shared_ptr<
             {
                 std::cout <<std::endl <<"COLLISION";
                 std::cout <<std::endl<< gameObject->name;
-                //obj= gameObject;
+                obj= gameObject;
                 return true;
             }
             calc_distance = glm::distance(gameObject->transform.translation, current_pos);
