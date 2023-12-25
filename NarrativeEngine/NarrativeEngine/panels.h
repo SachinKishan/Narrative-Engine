@@ -30,7 +30,56 @@ inline void Window_Basic()
 {
     ImGui::Begin("Hello 222");
     ImGui::Text("Hello world!");
-    ImGui::End();
+
+
+    ImGui::BeginGroup();
+    ImGui::Button("hello");
+    ImGui::Text("whoopee");
+
+
+	ImGui::EndGroup();
+
+    if (ImGui::BeginMainMenuBar()) {
+        if (ImGui::BeginMenu("File")) {
+            // File menu items
+            if (ImGui::MenuItem("Open")) {
+                // Handle open action
+            }
+            if (ImGui::MenuItem("Save")) {
+                // Handle save action
+            }
+            if (ImGui::MenuItem("Exit")) {
+                // Handle exit action
+            }
+
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("Edit")) {
+            // Edit menu items
+            if (ImGui::MenuItem("Cut")) {
+                // Handle cut action
+            }
+            if (ImGui::MenuItem("Copy")) {
+                // Handle copy action
+            }
+            if (ImGui::MenuItem("Paste")) {
+                // Handle paste action
+            }
+
+            ImGui::EndMenu();
+        }
+
+        // Add more menus as needed
+
+        ImGui::EndMainMenuBar();
+    }
+
+    // Rest of your ImGui rendering code
+    ImGui::Text("Hello, world!");
+
+	ImGui::End();
+
 
 
 }
@@ -60,18 +109,35 @@ inline void Window_SceneTree()
         //scene name
         ImGui::Text(Manager_Scene.currentScene.sceneName.c_str());
 
-        //add to scene contents
-       
-        if (ImGui::Button("Add Light"))
-        {  
-            const std::shared_ptr<Light> newLight = std::make_shared<Light>("light" + std::to_string(Manager_Scene.currentScene.lightList.size()));
-        	Manager_Scene.currentScene.AddLight(newLight);
-        	Manager_Scene.currentScene.AddToScene(newLight);
-        }
-        if(ImGui::Button("Add platform"))
+        
+        if(ImGui::BeginMenu("Add"))
         {
-            const std::shared_ptr<Platform> newGameObject = std::make_shared<Platform>("platform" + std::to_string(Manager_Scene.currentScene.gameObjectList.size()));
-            Manager_Scene.currentScene.AddToScene(newGameObject);
+            //add to scene contents
+
+            if (ImGui::Button("Add Light"))
+            {
+                const std::shared_ptr<Light> newLight = std::make_shared<Light>("light" + std::to_string(Manager_Scene.currentScene.lightList.size()));
+                Manager_Scene.currentScene.AddLight(newLight);
+                Manager_Scene.currentScene.AddToScene(newLight);
+            }
+            if (ImGui::Button("Add platform"))
+            {
+                const std::shared_ptr<Platform> newGameObject = std::make_shared<Platform>("platform" + std::to_string(Manager_Scene.currentScene.gameObjectList.size()));
+                Manager_Scene.currentScene.AddToScene(newGameObject);
+            }
+            if (ImGui::Button("Add Player"))
+            {
+
+            }
+            if (ImGui::Button("Add Movement Position"))
+            {
+
+            }
+            if (ImGui::Button("Add Interactable"))
+            {
+
+            }
+            ImGui::EndMenu();
         }
         if(ImGui::Button("Remove object"))
         {

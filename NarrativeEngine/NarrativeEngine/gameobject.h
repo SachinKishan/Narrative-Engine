@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 
+#include "collision.h"
 #include "shader.h"
 
 
@@ -273,7 +274,7 @@ public:
     std::shared_ptr<ObjectRenderData> renderData;//stores
     std::string name;//name of the game object
     ObjectTransform transform;//transform data of the gameobject
-
+    SphereCollider collider;
     GameObject() {
         // Set default values or perform initialization if needed
         name = "nothing selected";
@@ -560,3 +561,44 @@ public:
     }
 };
 
+bool ray_collision(glm::vec3 origin, glm::vec3 dir, std::vector<std::shared_ptr<GameObject>> gameObjects)
+{
+    float totaldist = 0;
+	glm::vec3 current_pos = origin;
+    for (int i = 0; i < MAX_RAY_ITERATIONS; i++)
+    {
+        float min_dist = std::numeric_limits<float>::infinity();
+        double calc_distance = 0;
+        //find if collision
+        std::cout << std::endl;
+        //search shortest dist
+        for (std::shared_ptr<GameObject>& gameObject : gameObjects)
+        {
+            if (gameObject->collider.CollisionTest(gameObject->transform.translation, current_pos))
+            {
+                std::cout <<std::endl <<"COLLISION";
+                std::cout <<std::endl<< gameObject->name;
+                //obj= gameObject;
+                return true;
+            }
+            calc_distance = glm::distance(gameObject->transform.translation, current_pos);
+            std::cout << std::endl << gameObject->name << " " << calc_distance << " ";
+
+            if (calc_distance < min_dist)
+            {
+
+                min_dist = calc_distance;
+            }
+
+        }
+        //travel that dist
+        totaldist += min_dist;
+        if (min_dist < 0.0001)std::cout << "\nSMALL\n ";
+        std::cout << "total dist: " << totaldist;
+        current_pos = origin+dir * totaldist;
+        std::cout<<"\nCurrent pos: "<<current_pos.x<<" "<<current_pos.y<<" "<<current_pos.z;
+        //if we go beyond, stop
+        if (totaldist > 100000) { std::cout << "reached infinity"; return false; }
+    }
+    return false;
+}

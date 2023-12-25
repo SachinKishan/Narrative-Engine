@@ -17,10 +17,11 @@
 
 
 #include "camera.h"
+
 //camera
 // settings
-const unsigned int SCR_WIDTH = 1600;
-const unsigned int SCR_HEIGHT = 1200;
+const unsigned int SCR_WIDTH = 1200;
+const unsigned int SCR_HEIGHT = 800;
 
 Camera camera(glm::vec3(0.0f, 0.0f, -5.0f));
 float lastX = SCR_WIDTH / 2.0f;
@@ -34,10 +35,12 @@ glm::mat4 view = camera.GetViewMatrix();
 
 
 #include "panels.h"
+#include "collision.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
@@ -117,6 +120,7 @@ int main()
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
 
     // glad: load all OpenGL function pointers
     // ---------------------------------------
@@ -223,11 +227,6 @@ int main()
         //glDisable(GL_DEPTH_TEST);
         render();
         glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
-        //quad->draw();
-
-        ///buffer window
-        ///
-        ///
         
         const float window_width = ImGui::GetContentRegionAvail().x;
         const float window_height = ImGui::GetContentRegionAvail().y;
@@ -249,7 +248,7 @@ int main()
 
     	Window_ObjectSelection();
         Window_SceneTree();
-
+        //Window_Basic();
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
@@ -299,7 +298,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 {
 
-    
         float xpos = static_cast<float>(xposIn);
         float ypos = static_cast<float>(yposIn);
 
@@ -329,8 +327,40 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
     }
 }
 
+
+glm::vec3 convertMouseSpace(int x,int y)
+{
+	//viewport normalise to screen space
+    float n_x = (2.0f * x) / SCR_WIDTH - 1.0f;
+    float n_y = 1.0f - (2.0f * y) / SCR_HEIGHT;
+    float n_z = 1.0f;
+    glm::vec3 n_ray(n_x, n_y, n_z);
+    glm::vec4 ray_clip(n_ray.x, n_ray.y, -1.0, 1.0);
+    glm::vec4 eye_ray = glm::inverse(projection) * ray_clip;
+    eye_ray = glm::vec4(eye_ray.x, eye_ray.y, -1.0, 0.0);
+   // glm::vec3 world_ray(glm::inverse(camera.GetViewMatrix()) * eye_ray);
+    glm::vec3 world_ray = glm::vec3(eye_ray.x, eye_ray.y, -1.0);
+    world_ray = normalize(world_ray);
+    return world_ray;//this is the direction of the ray
+}
+
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
     camera.ProcessMouseScroll(static_cast<float>(yoffset));
 }
 
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+    bool collided;
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+    {
+        std::cout << std::endl << "Mouse";
+
+        double x = 0, y = 0;
+        glfwGetCursorPos(window, &x, &y);
+        std::cout<<std::endl<<"Viewport: " << x << " " << y;
+        glm::vec3 converted = convertMouseSpace(x, y);
+        std::cout <<std::endl<< "Converted" << converted.x << " " << converted.y << " " << converted.z;
+        ray_collision(camera.Position, converted, Manager_Scene.currentScene.gameObjectList);
+    }
+}

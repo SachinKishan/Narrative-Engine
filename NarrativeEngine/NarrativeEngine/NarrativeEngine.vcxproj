@@ -163,6 +163,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
+    <ClInclude Include="collision.h" />
     <ClInclude Include="gameobject.h" />
     <ClInclude Include="imgui_cpp\imconfig.h" />
     <ClInclude Include="imgui_cpp\imgui.h" />
