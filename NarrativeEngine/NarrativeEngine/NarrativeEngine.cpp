@@ -20,8 +20,8 @@
 
 //camera
 // settings
-const unsigned int SCR_WIDTH = 1200;
-const unsigned int SCR_HEIGHT = 800;
+ unsigned int SCR_WIDTH = 1200;
+ unsigned int SCR_HEIGHT = 800;
 
 Camera camera(glm::vec3(0.0f, 0.0f, -5.0f));
 float lastX = SCR_WIDTH / 2.0f;
@@ -31,7 +31,7 @@ bool firstMouse = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-glm::mat4 view = camera.GetViewMatrix();
+glm::mat4 view;
 
 
 #include "panels.h"
@@ -46,6 +46,17 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 
+
+void framebufferSizeCallback(GLFWwindow* window, int width, int height)
+{
+    glViewport(0, 0, (GLsizei)width, (GLsizei)height);
+    SCR_WIDTH = width;
+    SCR_HEIGHT = height;
+    projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+    //    std::cout << SCR_WIDTH << " x " << SCR_HEIGHT;
+
+	glfwPostEmptyEvent();
+}
 void render()
 {
     if (Manager_Scene.sceneLoaded)
@@ -74,7 +85,6 @@ void render()
                 }
                 
             }
-            
             s.setMat4("projection", projection);
 
             view = camera.GetViewMatrix();
@@ -121,7 +131,7 @@ int main()
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);
-
+    glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
     // glad: load all OpenGL function pointers
     // ---------------------------------------
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -193,6 +203,13 @@ int main()
     // -----------
     while (!glfwWindowShouldClose(window))
     {
+
+       
+        //changeWindowSize(window);
+        // Print the width and height
+        //std::cout << "Framebuffer Size: " << framebufferWidth << " x " << framebufferHeight << std::endl;
+
+
         // input
         // -----
         float currentFrame = static_cast<float>(glfwGetTime());
