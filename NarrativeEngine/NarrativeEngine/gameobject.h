@@ -274,7 +274,7 @@ public:
     std::shared_ptr<ObjectRenderData> renderData;//stores
     std::string name;//name of the game object
     ObjectTransform transform;//transform data of the gameobject
-    SphereCollider collider;
+    BoxCollider collider;
     GameObject() {
         // Set default values or perform initialization if needed
         name = "nothing selected";
@@ -574,15 +574,20 @@ bool ray_collision(glm::vec3 origin, glm::vec3 dir, std::vector<std::shared_ptr<
         //search shortest dist
         for (std::shared_ptr<GameObject>& gameObject : gameObjects)
         {
-            if (gameObject->collider.CollisionTest(gameObject->transform.translation, current_pos))
+           
+
+        	if (gameObject->collider.CollisionTest(current_pos,gameObject->transform.translation, gameObject->transform.rotation
+                , gameObject->transform.scale))
             {
                 std::cout <<std::endl <<"COLLISION";
                 std::cout <<std::endl<< gameObject->name;
                 obj= gameObject;
                 return true;
             }
-            calc_distance = glm::distance(gameObject->transform.translation, current_pos);
-            std::cout << std::endl << gameObject->name << " " << calc_distance << " ";
+           // calc_distance = glm::distance(gameObject->transform.translation, current_pos);
+            calc_distance = gameObject->collider.sdBox(current_pos, gameObject->transform.translation, gameObject->transform.rotation
+                , gameObject->transform.scale);
+            std::cout << std::endl << gameObject->name << " - distance: " << calc_distance << " ";
 
             if (calc_distance < min_dist)
             {
@@ -593,7 +598,7 @@ bool ray_collision(glm::vec3 origin, glm::vec3 dir, std::vector<std::shared_ptr<
         }
         //travel that dist
         totaldist += min_dist;
-        if (min_dist < 0.0001)std::cout << "\nSMALL\n ";
+        if (min_dist - 0.1 < 0.0001)std::cout << "\nSMALL\n ";
         std::cout << "total dist: " << totaldist;
         current_pos = origin+dir * totaldist;
         std::cout<<"\nCurrent pos: "<<current_pos.x<<" "<<current_pos.y<<" "<<current_pos.z;

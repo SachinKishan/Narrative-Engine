@@ -14,7 +14,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-
+#include<glm/gtx/norm.hpp>
 
 #include "camera.h"
 
@@ -54,8 +54,7 @@ void framebufferSizeCallback(GLFWwindow* window, int width, int height)
     SCR_HEIGHT = height;
     projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
     //    std::cout << SCR_WIDTH << " x " << SCR_HEIGHT;
-
-	glfwPostEmptyEvent();
+	//glfwPostEmptyEvent();
 }
 void render()
 {
@@ -355,8 +354,8 @@ glm::vec3 convertMouseSpace(int x,int y)
     glm::vec4 ray_clip(n_ray.x, n_ray.y, -1.0, 1.0);
     glm::vec4 eye_ray = glm::inverse(projection) * ray_clip;
     eye_ray = glm::vec4(eye_ray.x, eye_ray.y, -1.0, 0.0);
-   // glm::vec3 world_ray(glm::inverse(camera.GetViewMatrix()) * eye_ray);
-    glm::vec3 world_ray = glm::vec3(eye_ray.x, eye_ray.y, -1.0);
+ 
+    glm::vec3 world_ray(glm::inverse(camera.GetViewMatrix()) * eye_ray);
     world_ray = normalize(world_ray);
     return world_ray;//this is the direction of the ray
 }
@@ -379,6 +378,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
         glm::vec3 converted = convertMouseSpace(x, y);
         std::cout <<std::endl<< "Converted" << converted.x << " " << converted.y << " " << converted.z;
         std::shared_ptr<GameObject> obj = nullptr;
+
     	ray_collision(camera.Position, converted, Manager_Scene.currentScene.gameObjectList,obj);
         manager_Selection.changeSelection(obj);
     }
