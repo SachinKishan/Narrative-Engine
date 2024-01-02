@@ -498,6 +498,85 @@ public:
 	float getIntensity() const { return intensity; }
 };
 
+class Player: public GameObject
+{
+private:
+
+public:
+    Player() {
+        // Set default values or perform initialization if needed
+        name = "nothing selected";
+    }
+
+    Player(const std::string name)
+    {
+        GameObject::name = name;
+        objectType = ObjectType::type_Player;
+
+        std::wstring exePath = GetExePath();
+        std::filesystem::path shadersPath = std::filesystem::path(exePath) / "Shaders"; // Assuming Shaders folder is in the same directory as the executable
+        // Set the path to the shaders
+        std::filesystem::current_path(shadersPath);
+        auto path = std::filesystem::current_path();
+        std::cout << path;
+        renderData = std::make_shared<Cube>();// new Plane();
+        const Material mat(glm::vec4(1, 1, 1, 1));
+        renderData->SetMaterial(mat);
+        Shader s("defaultShader.vert", "defaultShaderwithlighting.frag");
+        renderData->material.setShader(s);
+        std::cout << "\n GAME OBJECT CREATED \n";
+    }
+
+    Player(const std::string name, ObjectTransform transformData)
+    {
+        GameObject::name = name;
+        objectType = ObjectType::type_Player;
+
+        GameObject::transform = transformData;
+        std::wstring exePath = GetExePath();
+        std::filesystem::path shadersPath = std::filesystem::path(exePath) / "Shaders"; // Assuming Shaders folder is in the same directory as the executable
+
+        // Set the path to the shaders
+        std::filesystem::current_path(shadersPath);
+        auto path = std::filesystem::current_path();
+
+        std::cout << path;
+        renderData = std::make_shared<Cube>();// new Plane();
+        const Material mat(glm::vec4(1, 1, 1, 1));
+        renderData->SetMaterial(mat);
+        Shader s("defaultShader.vert", "defaultShaderwithlighting.frag");
+        renderData->material.setShader(s);
+
+        std::cout << "\n GAME OBJECT CREATED \n";
+    }
+    Player(const std::string name, ObjectTransform transformData, glm::vec3 color)
+    {
+        GameObject::name = name;
+        GameObject::transform = transformData;
+        objectType = ObjectType::type_Player;
+
+        std::wstring exePath = GetExePath();
+        std::filesystem::path shadersPath = std::filesystem::path(exePath) / "Shaders"; // Assuming Shaders folder is in the same directory as the executable
+
+        // Set the path to the shaders
+        std::filesystem::current_path(shadersPath);
+        auto path = std::filesystem::current_path();
+
+        std::cout << path;
+        renderData = std::make_shared<Cube>();// new Plane();
+        const Material mat(glm::vec4(1, 1, 1, 1));
+        renderData->SetMaterial(mat);
+        Shader s("defaultShader.vert", "defaultShaderwithlighting.frag");
+        renderData->material.setShader(s);
+        renderData->material.color = glm::vec4(color, 1);
+        std::cout << "\n GAME OBJECT CREATED \n";
+    }
+    
+
+};
+
+
+
 
 
 
@@ -570,7 +649,6 @@ bool ray_collision(glm::vec3 origin, glm::vec3 dir, std::vector<std::shared_ptr<
         float min_dist = std::numeric_limits<float>::infinity();
         double calc_distance = 0;
         //find if collision
-        std::cout << std::endl;
         //search shortest dist
         for (std::shared_ptr<GameObject>& gameObject : gameObjects)
         {
@@ -579,15 +657,15 @@ bool ray_collision(glm::vec3 origin, glm::vec3 dir, std::vector<std::shared_ptr<
         	if (gameObject->collider.CollisionTest(current_pos,gameObject->transform.translation, gameObject->transform.rotation
                 , gameObject->transform.scale))
             {
-                std::cout <<std::endl <<"COLLISION";
-                std::cout <<std::endl<< gameObject->name;
+                //std::cout <<std::endl <<"COLLISION";
+                //std::cout <<std::endl<< gameObject->name;
                 obj= gameObject;
                 return true;
             }
            // calc_distance = glm::distance(gameObject->transform.translation, current_pos);
             calc_distance = gameObject->collider.sdBox(current_pos, gameObject->transform.translation, gameObject->transform.rotation
                 , gameObject->transform.scale);
-            std::cout << std::endl << gameObject->name << " - distance: " << calc_distance << " ";
+            //std::cout << std::endl << gameObject->name << " - distance: " << calc_distance << " ";
 
             if (calc_distance < min_dist)
             {
@@ -598,12 +676,16 @@ bool ray_collision(glm::vec3 origin, glm::vec3 dir, std::vector<std::shared_ptr<
         }
         //travel that dist
         totaldist += min_dist;
-        if (min_dist - 0.1 < 0.0001)std::cout << "\nSMALL\n ";
-        std::cout << "total dist: " << totaldist;
+        //if (min_dist - 0.1 < 0.0001)std::cout << "\nSMALL\n ";
+        //std::cout << "total dist: " << totaldist;
         current_pos = origin+dir * totaldist;
-        std::cout<<"\nCurrent pos: "<<current_pos.x<<" "<<current_pos.y<<" "<<current_pos.z;
+        //std::cout<<"\nCurrent pos: "<<current_pos.x<<" "<<current_pos.y<<" "<<current_pos.z;
         //if we go beyond, stop
-        if (totaldist > 100000) { std::cout << "reached infinity"; return false; }
+        if (totaldist > 100000)
+        {
+	        //std::cout << "reached infinity";
+        	return false;
+        }
     }
     return false;
 }

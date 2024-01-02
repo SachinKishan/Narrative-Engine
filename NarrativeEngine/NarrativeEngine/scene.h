@@ -15,6 +15,7 @@ public:
 	std::string sceneName;
 	std::vector<std::shared_ptr<GameObject>> gameObjectList;
     std::vector<std::shared_ptr<Light>> lightList;
+    std::shared_ptr<Player> player=nullptr;
 
 	void AddToScene(const std::shared_ptr<GameObject> &object)
 	{
@@ -43,7 +44,6 @@ inline class SceneEditorManager
 {
 private:
 	
-
 public:
 	
 	bool sceneLoaded;
@@ -108,7 +108,12 @@ public:
                 {
                     std::shared_ptr<Platform> newGameObject= std::make_shared<Platform>(name, transform, color);
                     currentScene.AddToScene(newGameObject);
-
+                }
+                else if (type == ObjectType::type_Player)
+                {
+                    std::shared_ptr<Player> newGameObject = std::make_shared<Player>(name, transform, color);
+                    currentScene.AddToScene(newGameObject);
+                    currentScene.player = newGameObject;
                 }
 
                 // Create a GameObject using the read data

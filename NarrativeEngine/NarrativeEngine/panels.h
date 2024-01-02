@@ -24,8 +24,8 @@ public:
     {
         if (obj != nullptr)
             currentObject = (obj);
-        else
-            std::cerr <<std::endl <<"ERROR: OBJECT SELECTION IS NULL!"<<std::endl;
+        //else
+            //std::cerr <<std::endl <<"ERROR: OBJECT SELECTION IS NULL!"<<std::endl;
     }
 }manager_Selection;
 
@@ -89,9 +89,10 @@ inline void Window_Basic()
 
 inline void Window_SceneTree()
 {
+
     
     ImGui::Begin("Scene Tree");
-
+    
 
     if (!Manager_Scene.sceneLoaded)
     {
@@ -128,9 +129,11 @@ inline void Window_SceneTree()
                 const std::shared_ptr<Platform> newGameObject = std::make_shared<Platform>("platform" + std::to_string(Manager_Scene.currentScene.gameObjectList.size()));
                 Manager_Scene.currentScene.AddToScene(newGameObject);
             }
-            if (ImGui::Button("Add Player"))
+            if (ImGui::Button("Add Player") && Manager_Scene.currentScene.player==nullptr)
             {
-
+                const std::shared_ptr<Player> newGameObject = std::make_shared<Player>("Player");
+                Manager_Scene.currentScene.AddToScene(newGameObject);
+                Manager_Scene.currentScene.player = newGameObject;
             }
             if (ImGui::Button("Add Movement Position"))
             {
