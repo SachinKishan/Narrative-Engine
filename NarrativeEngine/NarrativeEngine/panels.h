@@ -29,6 +29,27 @@ public:
     }
 }manager_Selection;
 
+enum editor_state
+{
+	state_GameView,
+    state_EditorView
+};
+class EditorState
+{
+private:
+    editor_state state = editor_state::state_EditorView;
+
+public:
+    void setState(editor_state new_state)
+    {
+        state = new_state;
+    }
+	editor_state getState()
+    {
+        return state;
+    }
+}manager_EditorState;
+
 inline void Window_Basic()
 {
     ImGui::Begin("Hello 222");
@@ -137,7 +158,9 @@ inline void Window_SceneTree()
             }
             if (ImGui::Button("Add Movement Position"))
             {
-
+                const std::shared_ptr<MovementPoint> newGameObject = std::make_shared<MovementPoint>("move");
+                Manager_Scene.currentScene.AddToScene(newGameObject);
+                Manager_Scene.currentScene.AddMovementPoint(newGameObject);
             }
             if (ImGui::Button("Add Interactable"))
             {
@@ -161,9 +184,11 @@ inline void Window_SceneTree()
                         Manager_Scene.currentScene.lightList.begin(), Manager_Scene.currentScene.lightList.end(),
                         manager_Selection.currentObject));
                 }
-                for (auto element : Manager_Scene.currentScene.lightList)
+                else if (manager_Selection.currentObject->objectType == ObjectType::type_MovementPoint)
                 {
-                    std::cout <<std::endl <<element->name;
+                    Manager_Scene.currentScene.movementPointList.erase(std::find(
+                        Manager_Scene.currentScene.movementPointList.begin(), Manager_Scene.currentScene.movementPointList.end(),
+                        manager_Selection.currentObject));
                 }
 	        }
         }
@@ -314,6 +339,26 @@ inline void Window_ObjectSelection()
     ImGui::End();
 }
 
+inline void Window_General()
+{
+    ImGui::Begin("General");
+
+    if (ImGui::Button("Game Mode"))
+    {
+        manager_EditorState.setState(state_GameView);
+    }
+    if (ImGui::Button("Edit Mode"))
+    {
+        manager_EditorState.setState(state_EditorView);
+    }
+
+    // Assuming manager_EditorState.getState() returns a string
+    if (manager_EditorState.getState() == state_EditorView)ImGui::Text("State: Editor");
+    else if (manager_EditorState.getState() == state_GameView)ImGui::Text("State: Game");
+
+    ImGui::End();
+}
+
 inline void Window_GameView()
 {
 
@@ -375,6 +420,7 @@ inline void Window_GameView()
 
 
 }
+
 
 
 

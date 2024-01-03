@@ -33,9 +33,7 @@ float lastFrame = 0.0f;
 glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 glm::mat4 view;
 
-
 #include "panels.h"
-#include "collision.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
@@ -204,22 +202,10 @@ int main()
     {
 
        
-        //changeWindowSize(window);
-        // Print the width and height
-        //std::cout << "Framebuffer Size: " << framebufferWidth << " x " << framebufferHeight << std::endl;
+     
+        
 
-
-        // input
-        // -----
-        float currentFrame = static_cast<float>(glfwGetTime());
-        deltaTime = currentFrame - lastFrame;
-        lastFrame = currentFrame;
-
-        // input
-        // -----
-        processInput(window);
-
-
+        
         // render
         // ------
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -262,9 +248,27 @@ int main()
 
         ImGui::End();
 
-    	Window_ObjectSelection();
-        Window_SceneTree();
+
+        if (manager_EditorState.getState() == state_EditorView)
+        {
+            //editor windows
+            Window_ObjectSelection();
+            Window_SceneTree();
+            // input
+        // -----
+            float currentFrame = static_cast<float>(glfwGetTime());
+            deltaTime = currentFrame - lastFrame;
+            lastFrame = currentFrame;
+
+            // input
+            // -----
+            processInput(window);
+
+        }
+    	Window_General();
         //Window_Basic();
+
+
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
@@ -371,20 +375,23 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
     bool collided;
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
     {
-        if (ImGui::GetIO().WantCaptureMouse | ImGui::GetIO().WantCaptureKeyboard) //inside an imgui window
+        if (manager_EditorState.getState() == state_EditorView)
         {
-        	return;
+            if (ImGui::GetIO().WantCaptureMouse | ImGui::GetIO().WantCaptureKeyboard) //inside an imgui window
+            {
+                return;
+            }
+            //std::cout << std::endl << "Mouse";
+
+            double x = 0, y = 0;
+            glfwGetCursorPos(window, &x, &y);
+            //std::cout<<std::endl<<"Viewport: " << x << " " << y;
+            glm::vec3 converted = convertMouseSpace(x, y);
+            //std::cout <<std::endl<< "Converted" << converted.x << " " << converted.y << " " << converted.z;
+            std::shared_ptr<GameObject> obj = nullptr;
+
+            ray_collision(camera.Position, converted, Manager_Scene.currentScene.gameObjectList, obj);
+            manager_Selection.changeSelection(obj);
         }
-        //std::cout << std::endl << "Mouse";
-
-        double x = 0, y = 0;
-        glfwGetCursorPos(window, &x, &y);
-        //std::cout<<std::endl<<"Viewport: " << x << " " << y;
-        glm::vec3 converted = convertMouseSpace(x, y);
-        //std::cout <<std::endl<< "Converted" << converted.x << " " << converted.y << " " << converted.z;
-        std::shared_ptr<GameObject> obj = nullptr;
-
-    	ray_collision(camera.Position, converted, Manager_Scene.currentScene.gameObjectList,obj);
-        manager_Selection.changeSelection(obj);
     }
 }

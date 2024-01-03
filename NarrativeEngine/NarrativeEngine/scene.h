@@ -15,6 +15,7 @@ public:
 	std::string sceneName;
 	std::vector<std::shared_ptr<GameObject>> gameObjectList;
     std::vector<std::shared_ptr<Light>> lightList;
+    std::vector<std::shared_ptr<MovementPoint>> movementPointList;
     std::shared_ptr<Player> player=nullptr;
 
 	void AddToScene(const std::shared_ptr<GameObject> &object)
@@ -25,7 +26,11 @@ public:
 	{
         lightList.push_back(light);
 	}
-	void RemoveFromScene(const std::shared_ptr<GameObject> object)
+    void AddMovementPoint (const std::shared_ptr<MovementPoint>& point)
+    {
+		movementPointList.push_back(point);
+    }
+	void RemoveFromScene(const std::shared_ptr<GameObject>& object)
 	{
 		gameObjectList.erase(
 			std::remove(
@@ -95,6 +100,7 @@ public:
                     >> rotation.x >> rotation.y >> rotation.z
                     >> scale.x >> scale.y >> scale.z
                     >> color.r >> color.g >> color.b;
+
                 // Create ObjectTransform based on parsed data
                 ObjectTransform transform(translation, rotation, scale);
                 if (type == ObjectType::type_Light)
@@ -114,6 +120,12 @@ public:
                     std::shared_ptr<Player> newGameObject = std::make_shared<Player>(name, transform, color);
                     currentScene.AddToScene(newGameObject);
                     currentScene.player = newGameObject;
+                }
+                else if (type == ObjectType::type_MovementPoint)
+                {
+                    std::shared_ptr<MovementPoint> newGameObject = std::make_shared<MovementPoint>(name, transform, color);
+                    currentScene.AddToScene(newGameObject);
+                    currentScene.AddMovementPoint(newGameObject);
                 }
 
                 // Create a GameObject using the read data
