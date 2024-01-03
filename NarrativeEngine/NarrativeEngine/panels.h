@@ -354,10 +354,15 @@ inline void Window_General()
         setCamera(editViewCamera);
 
     }
-
     // Assuming manager_EditorState.getState() returns a string
     if (manager_EditorState.getState() == state_EditorView)ImGui::Text("State: Editor");
     else if (manager_EditorState.getState() == state_GameView)ImGui::Text("State: Game");
+
+    if(ImGui::Button("Edit from game view"))
+    {
+        editViewCamera->copy(gameViewCamera);
+    }
+
 
     ImGui::End();
 }
