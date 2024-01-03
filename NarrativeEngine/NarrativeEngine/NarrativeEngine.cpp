@@ -33,6 +33,20 @@ float lastFrame = 0.0f;
 glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 glm::mat4 view;
 
+
+//game view camera
+std::shared_ptr<Camera> editViewCamera = std::make_shared<Camera>(camera);
+
+
+std::shared_ptr<Camera> gameViewCamera = std::make_shared<Camera>(camera);
+
+std::shared_ptr<Camera> currentCamera;
+
+void setCamera(std::shared_ptr<Camera> cam)
+{
+    currentCamera = cam;
+}
+
 #include "panels.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -44,16 +58,14 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 
-
 void framebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, (GLsizei)width, (GLsizei)height);
     SCR_WIDTH = width;
     SCR_HEIGHT = height;
     projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-    //    std::cout << SCR_WIDTH << " x " << SCR_HEIGHT;
-	//glfwPostEmptyEvent();
 }
+
 void render()
 {
     if (Manager_Scene.sceneLoaded)
@@ -84,7 +96,7 @@ void render()
             }
             s.setMat4("projection", projection);
 
-            view = camera.GetViewMatrix();
+            view = currentCamera->GetViewMatrix();
             s.setMat4("view", view);
             s.setMat4("model", g->transform.model);
 
@@ -196,6 +208,8 @@ int main()
     quad->material.shader.setInt("texture1", 0);
 
 
+
+    setCamera(editViewCamera);
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -203,7 +217,15 @@ int main()
 
        
      
-        
+        // input
+        // -----
+        float currentFrame = static_cast<float>(glfwGetTime());
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
+        // input
+        // -----
+        processInput(window);
 
         
         // render
@@ -234,7 +256,7 @@ int main()
         const float window_height = ImGui::GetContentRegionAvail().y;
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, window_width, window_height);
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
-
+        /*
         ImGui::Begin("BUFFER WINDOW FRAMEBUFFER ");
 
         ImVec2 imageSize(SCR_WIDTH / 1.5, SCR_HEIGHT / 1.5);  
@@ -247,22 +269,14 @@ int main()
             ImVec2(0, 1), ImVec2(1, 0));
 
         ImGui::End();
+        */
 
-
-        if (manager_EditorState.getState() == state_EditorView)
+    	if (manager_EditorState.getState() == state_EditorView)
         {
             //editor windows
             Window_ObjectSelection();
             Window_SceneTree();
-            // input
-        // -----
-            float currentFrame = static_cast<float>(glfwGetTime());
-            deltaTime = currentFrame - lastFrame;
-            lastFrame = currentFrame;
-
-            // input
-            // -----
-            processInput(window);
+            
 
         }
     	Window_General();
@@ -301,13 +315,17 @@ void processInput(GLFWwindow* window)
         glfwSetWindowShouldClose(window, true);
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.ProcessKeyboard(FORWARD, deltaTime);
+        currentCamera->ProcessKeyboard(FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.ProcessKeyboard(BACKWARD, deltaTime);
+        currentCamera->ProcessKeyboard(BACKWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(LEFT, deltaTime);
+        currentCamera->ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.ProcessKeyboard(RIGHT, deltaTime);
+        currentCamera->ProcessKeyboard(RIGHT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+        currentCamera->ProcessKeyboard(UP, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+        currentCamera->ProcessKeyboard(DOWN, deltaTime);
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -343,7 +361,7 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
 
 	if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS)
     {
-        camera.ProcessMouseMovement(xoffset, yoffset);
+        currentCamera->ProcessMouseMovement(xoffset, yoffset);
     }
 }
 
@@ -359,14 +377,14 @@ glm::vec3 convertMouseSpace(int x,int y)
     glm::vec4 eye_ray = glm::inverse(projection) * ray_clip;
     eye_ray = glm::vec4(eye_ray.x, eye_ray.y, -1.0, 0.0);
  
-    glm::vec3 world_ray(glm::inverse(camera.GetViewMatrix()) * eye_ray);
+    glm::vec3 world_ray(glm::inverse(currentCamera->GetViewMatrix()) * eye_ray);
     world_ray = normalize(world_ray);
     return world_ray;//this is the direction of the ray
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    camera.ProcessMouseScroll(static_cast<float>(yoffset));
+    currentCamera->ProcessMouseScroll(static_cast<float>(yoffset));
 }
 
 
@@ -381,8 +399,6 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
             {
                 return;
             }
-            //std::cout << std::endl << "Mouse";
-
             double x = 0, y = 0;
             glfwGetCursorPos(window, &x, &y);
             //std::cout<<std::endl<<"Viewport: " << x << " " << y;
@@ -390,7 +406,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
             //std::cout <<std::endl<< "Converted" << converted.x << " " << converted.y << " " << converted.z;
             std::shared_ptr<GameObject> obj = nullptr;
 
-            ray_collision(camera.Position, converted, Manager_Scene.currentScene.gameObjectList, obj);
+            ray_collision(currentCamera->Position, converted, Manager_Scene.currentScene.gameObjectList, obj);
             manager_Selection.changeSelection(obj);
         }
     }

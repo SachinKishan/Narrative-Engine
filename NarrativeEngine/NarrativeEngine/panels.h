@@ -346,10 +346,13 @@ inline void Window_General()
     if (ImGui::Button("Game Mode"))
     {
         manager_EditorState.setState(state_GameView);
+        setCamera(gameViewCamera);
     }
     if (ImGui::Button("Edit Mode"))
     {
         manager_EditorState.setState(state_EditorView);
+        setCamera(editViewCamera);
+
     }
 
     // Assuming manager_EditorState.getState() returns a string
