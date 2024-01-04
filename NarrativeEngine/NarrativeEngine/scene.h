@@ -16,6 +16,8 @@ public:
 	std::vector<std::shared_ptr<GameObject>> gameObjectList;
     std::vector<std::shared_ptr<Light>> lightList;
     std::vector<std::shared_ptr<MovementPoint>> movementPointList;
+
+    bool hasPlayer = false;
     std::shared_ptr<Player> player=nullptr;
 
 	void AddToScene(const std::shared_ptr<GameObject> &object)
@@ -32,10 +34,24 @@ public:
     }
 	void RemoveFromScene(const std::shared_ptr<GameObject>& object)
 	{
+        if (object->objectType == ObjectType::type_Player)hasPlayer = false;
+
 		gameObjectList.erase(
 			std::remove(
 				gameObjectList.begin(), gameObjectList.end(), object),
 			gameObjectList.end());
+	}
+    void SetPlayer(const std::shared_ptr<Player>& newPlayer)
+    {
+        player = newPlayer;
+        hasPlayer = true;
+    }
+    void MovePlayer(glm::vec3 newPos)
+	{
+		if(hasPlayer)
+		{
+            player->changePosition(newPos);
+		}
 	}
 };
 std::string convertWStringToString(const std::wstring& wstr)
@@ -119,7 +135,7 @@ public:
                 {
                     std::shared_ptr<Player> newGameObject = std::make_shared<Player>(name, transform, color);
                     currentScene.AddToScene(newGameObject);
-                    currentScene.player = newGameObject;
+                    currentScene.SetPlayer(newGameObject);
                 }
                 else if (type == ObjectType::type_MovementPoint)
                 {

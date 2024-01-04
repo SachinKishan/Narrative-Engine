@@ -1,9 +1,9 @@
 #pragma once
 #include <string>
-
+#include<cmath>
 #include "collision.h"
 #include "shader.h"
-
+#define M_PI 3.14159265358979323846264338327950288
 
 
 struct Material
@@ -249,6 +249,149 @@ public:
 
     }
 };
+
+
+class Sphere:public ObjectRenderData
+{
+private:
+    int numSlices = 100;
+    int numStacks = 5;
+    float radius = 1.0;
+public:
+    
+    Sphere()
+    {
+        VerticesInit();
+        VBOInit();
+        VAOInit();
+
+    }
+
+    void VerticesInit() override
+    {
+        for (int i = 0; i < numSlices; ++i) {
+            double lat0 = M_PI * (-0.5 + (double)(i) / numSlices);
+            double z0 = sin(lat0);
+            double zr0 = cos(lat0);
+
+            double lat1 = M_PI * (-0.5 + (double)(i + 1) / numSlices);
+            double z1 = sin(lat1);
+            double zr1 = cos(lat1);
+
+            for (int j = 0; j <= numStacks; ++j) {
+                double lng = 2 * M_PI * (double)(j - 1) / numStacks;
+                double x = cos(lng);
+                double y = sin(lng);
+
+                vertices.push_back(x * zr0 * radius);
+                vertices.push_back(y * zr0 * radius);
+                vertices.push_back(z0 * radius);
+
+                vertices.push_back(x * zr1 * radius);
+                vertices.push_back(y * zr1 * radius);
+                vertices.push_back(z1 * radius);
+            }
+        }
+    }
+
+    void VBOInit() override
+    {
+        glGenBuffers(1, &VBO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+    }
+
+    void VAOInit() override
+    {
+        glGenVertexArrays(1, &VAO);
+        glBindVertexArray(VAO);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        glBindVertexArray(0);
+    }
+
+    void deInitialize() override
+    {
+        glDeleteVertexArrays(1, &VAO);
+    }
+
+    void draw() override
+    {
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_LINES, 0, numSlices * (numStacks + 1) * 2);
+        glBindVertexArray(0);
+
+    }
+};
+
+
+
+class ScreenQuad : public ObjectRenderData
+{
+public:
+
+    ScreenQuad()
+    {
+        VerticesInit();
+        VBOInit();
+        VAOInit();
+
+    }
+
+    void VerticesInit() override
+    {
+        vertices =
+        {
+           -1.0f,  1.0f,  0.0f, 1.0f,
+        -1.0f, -1.0f,  0.0f, 0.0f,
+         1.0f, -1.0f,  1.0f, 0.0f,
+
+        -1.0f,  1.0f,  0.0f, 1.0f,
+         1.0f, -1.0f,  1.0f, 0.0f,
+         1.0f,  1.0f,  1.0f, 1.0f
+        };
+    }
+
+    void VBOInit() override
+    {
+        glGenBuffers(1, &VBO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
+
+    }
+
+    void VAOInit() override
+    {
+        glGenVertexArrays(1, &VAO);
+        glBindVertexArray(VAO);
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+        glEnableVertexAttribArray(1);
+        glBindVertexArray(0);
+    }
+
+    void deInitialize() override
+    {
+        glDeleteVertexArrays(1, &VAO);
+    }
+
+    void draw() override
+    {
+        glBindVertexArray(VAO);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glBindVertexArray(0);
+
+    }
+};
+
+
+
+
+
+
+
+
 
 #include<filesystem>
 // Function to get the path to the current executable
@@ -573,7 +716,11 @@ public:
         std::cout << "\n GAME OBJECT CREATED \n";
     }
     
-
+    void changePosition(glm::vec3 newPos)
+    {
+        transform.translation = newPos;
+        transform.CalculateModel();
+    }
 };
 
 class MovementPoint:public GameObject
@@ -599,11 +746,16 @@ public:
         auto path = std::filesystem::current_path();
         std::cout << path;
         renderData = std::make_shared<Cube>();// new Plane();
+
+
         const Material mat(glm::vec4(1, 1, 1, 1));
         renderData->SetMaterial(mat);
         Shader s("defaultShader.vert", "colorShader.frag");
         renderData->material.setShader(s);
-        std::cout << "\n GAME OBJECT CREATED \n";
+        transform.scale = glm::vec3(0.2);
+
+    	std::cout << "\n GAME OBJECT CREATED \n";
+
     }
 
     MovementPoint(const std::string name, ObjectTransform transformData)
@@ -625,6 +777,7 @@ public:
         renderData->SetMaterial(mat);
         Shader s("defaultShader.vert", "colorShader.frag");
         renderData->material.setShader(s);
+        transform.scale = glm::vec3(0.2);
 
         std::cout << "\n GAME OBJECT CREATED \n";
     }
@@ -648,7 +801,9 @@ public:
         Shader s("defaultShader.vert", "colorShader.frag");
         renderData->material.setShader(s);
         renderData->material.color = glm::vec4(color, 1);
-        std::cout << "\n GAME OBJECT CREATED \n";
+        transform.scale = glm::vec3(0.2);
+
+    	std::cout << "\n GAME OBJECT CREATED \n";
     }
 
 };
@@ -657,66 +812,6 @@ public:
 
 
 
-
-
-class ScreenQuad : public ObjectRenderData
-{
-public:
-
-    ScreenQuad()
-    {
-        VerticesInit();
-        VBOInit();
-        VAOInit();
-    
-    }
-
-    void VerticesInit() override
-    {
-        vertices =
-        {
-           -1.0f,  1.0f,  0.0f, 1.0f,
-        -1.0f, -1.0f,  0.0f, 0.0f,
-         1.0f, -1.0f,  1.0f, 0.0f,
-
-        -1.0f,  1.0f,  0.0f, 1.0f,
-         1.0f, -1.0f,  1.0f, 0.0f,
-         1.0f,  1.0f,  1.0f, 1.0f
-        };
-    }
-
-    void VBOInit() override
-    {
-        glGenBuffers(1, &VBO);
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), &vertices[0], GL_STATIC_DRAW);
-
-    }
-
-    void VAOInit() override
-    {
-        glGenVertexArrays(1, &VAO);
-        glBindVertexArray(VAO);
-        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
-        glEnableVertexAttribArray(1);
-        glBindVertexArray(0);
-    }
-
-    void deInitialize() override
-    {
-        glDeleteVertexArrays(1, &VAO);
-    }
-
-    void draw() override
-    {
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        glBindVertexArray(0);
-
-    }
-};
 
 bool ray_collision(glm::vec3 origin, glm::vec3 dir, std::vector<std::shared_ptr<GameObject>> gameObjects, std::shared_ptr<GameObject>& obj)
 {
@@ -730,8 +825,6 @@ bool ray_collision(glm::vec3 origin, glm::vec3 dir, std::vector<std::shared_ptr<
         //search shortest dist
         for (std::shared_ptr<GameObject>& gameObject : gameObjects)
         {
-           
-
         	if (gameObject->collider.CollisionTest(current_pos,gameObject->transform.translation, gameObject->transform.rotation
                 , gameObject->transform.scale))
             {
@@ -744,13 +837,11 @@ bool ray_collision(glm::vec3 origin, glm::vec3 dir, std::vector<std::shared_ptr<
             calc_distance = gameObject->collider.sdBox(current_pos, gameObject->transform.translation, gameObject->transform.rotation
                 , gameObject->transform.scale);
             //std::cout << std::endl << gameObject->name << " - distance: " << calc_distance << " ";
-
             if (calc_distance < min_dist)
             {
 
                 min_dist = calc_distance;
             }
-
         }
         //travel that dist
         totaldist += min_dist;
@@ -763,6 +854,52 @@ bool ray_collision(glm::vec3 origin, glm::vec3 dir, std::vector<std::shared_ptr<
         {
 	        //std::cout << "reached infinity";
         	return false;
+        }
+    }
+    return false;
+}
+
+bool ray_collision(glm::vec3 origin, glm::vec3 dir, std::vector<std::shared_ptr<MovementPoint>> movementPoints, std::shared_ptr<GameObject>& obj)
+{
+    float totaldist = 0;
+    glm::vec3 current_pos = origin;
+    for (int i = 0; i < MAX_RAY_ITERATIONS; i++)
+    {
+        float min_dist = std::numeric_limits<float>::infinity();
+        double calc_distance = 0;
+        //find if collision
+        //search shortest dist
+        for (std::shared_ptr<MovementPoint>& point : movementPoints)
+        {
+            if (point->collider.CollisionTest(current_pos, point->transform.translation, point->transform.rotation
+                , point->transform.scale))
+            {
+                //std::cout <<std::endl <<"COLLISION";
+                //std::cout <<std::endl<< gameObject->name;
+                obj = point;
+                return true;
+            }
+            // calc_distance = glm::distance(gameObject->transform.translation, current_pos);
+            calc_distance = point->collider.sdBox(current_pos, point->transform.translation, point->transform.rotation
+                , point->transform.scale);
+            //std::cout << std::endl << gameObject->name << " - distance: " << calc_distance << " ";
+            if (calc_distance < min_dist)
+            {
+
+                min_dist = calc_distance;
+            }
+        }
+        //travel that dist
+        totaldist += min_dist;
+        //if (min_dist - 0.1 < 0.0001)std::cout << "\nSMALL\n ";
+        //std::cout << "total dist: " << totaldist;
+        current_pos = origin + dir * totaldist;
+        //std::cout<<"\nCurrent pos: "<<current_pos.x<<" "<<current_pos.y<<" "<<current_pos.z;
+        //if we go beyond, stop
+        if (totaldist > 100000)
+        {
+            //std::cout << "reached infinity";
+            return false;
         }
     }
     return false;

@@ -113,6 +113,9 @@ void render()
     }
 }
 
+
+
+
 int main()
 {
     // glfw: initialize and configure
@@ -390,24 +393,43 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
-    bool collided;
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
     {
+        if (ImGui::GetIO().WantCaptureMouse | ImGui::GetIO().WantCaptureKeyboard) //inside an imgui window
+        {
+            return;
+        }
         if (manager_EditorState.getState() == state_EditorView)
         {
-            if (ImGui::GetIO().WantCaptureMouse | ImGui::GetIO().WantCaptureKeyboard) //inside an imgui window
-            {
-                return;
-            }
+            
             double x = 0, y = 0;
             glfwGetCursorPos(window, &x, &y);
             //std::cout<<std::endl<<"Viewport: " << x << " " << y;
             glm::vec3 converted = convertMouseSpace(x, y);
             //std::cout <<std::endl<< "Converted" << converted.x << " " << converted.y << " " << converted.z;
             std::shared_ptr<GameObject> obj = nullptr;
-
             ray_collision(currentCamera->Position, converted, Manager_Scene.currentScene.gameObjectList, obj);
             manager_Selection.changeSelection(obj);
         }
+        else if(manager_EditorState.getState()==state_GameView)
+        {
+	        //go through movement points
+            //other clickables
+            double x = 0, y = 0;
+            glfwGetCursorPos(window, &x, &y);
+            //std::cout<<std::endl<<"Viewport: " << x << " " << y;
+            glm::vec3 converted = convertMouseSpace(x, y);
+            //std::cout <<std::endl<< "Converted" << converted.x << " " << converted.y << " " << converted.z;
+            std::shared_ptr<GameObject> obj = nullptr;
+            ray_collision(currentCamera->Position, converted, Manager_Scene.currentScene.movementPointList, obj);
+            
+            if (obj != nullptr)
+            {
+                Manager_Scene.currentScene.MovePlayer(obj->transform.translation);
+            }
+        }
+
     }
+
+
 }

@@ -154,11 +154,11 @@ inline void Window_SceneTree()
             {
                 const std::shared_ptr<Player> newGameObject = std::make_shared<Player>("Player");
                 Manager_Scene.currentScene.AddToScene(newGameObject);
-                Manager_Scene.currentScene.player = newGameObject;
+                Manager_Scene.currentScene.SetPlayer(newGameObject);
             }
             if (ImGui::Button("Add Movement Position"))
             {
-                const std::shared_ptr<MovementPoint> newGameObject = std::make_shared<MovementPoint>("move");
+                const std::shared_ptr<MovementPoint> newGameObject = std::make_shared<MovementPoint>("move" + std::to_string(Manager_Scene.currentScene.movementPointList.size()));
                 Manager_Scene.currentScene.AddToScene(newGameObject);
                 Manager_Scene.currentScene.AddMovementPoint(newGameObject);
             }
