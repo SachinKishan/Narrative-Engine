@@ -58,12 +58,20 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 
+
+unsigned int rbo;
+unsigned int textureColorbuffer;
+
 void framebufferSizeCallback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, (GLsizei)width, (GLsizei)height);
     SCR_WIDTH = width;
     SCR_HEIGHT = height;
     projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+    glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, SCR_WIDTH, SCR_HEIGHT);
 }
 
 void render()
@@ -177,10 +185,9 @@ int main()
     unsigned int framebuffer;
     glGenFramebuffers(1, &framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-    unsigned int textureColorbuffer;
     glGenTextures(1, &textureColorbuffer);
     glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SCR_WIDTH/1.5, SCR_HEIGHT/1.5, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -188,7 +195,7 @@ int main()
     // attach it to currently bound framebuffer object
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
 
-    unsigned int rbo;
+    
     glGenRenderbuffers(1, &rbo);
     glBindRenderbuffer(GL_RENDERBUFFER, rbo);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, SCR_WIDTH, SCR_HEIGHT);
@@ -203,13 +210,16 @@ int main()
 
     // Set the path to the shaders
     std::filesystem::current_path(shadersPath);
-    Shader screenShader("screenShaderVert.vert", "textureFragShader.frag");
+    Shader screenShader("screenShaderVert.vert", "raymarcher.frag");
+
     std::shared_ptr<ScreenQuad> quad = std::make_shared<ScreenQuad>();
     Material m(glm::vec4(1, 1, 1, 1));
     quad->SetMaterial(m);
     quad->material.setShader(screenShader);
     quad->material.shader.setInt("texture1", 0);
 
+
+    quad->material.shader.setVec2("screensize", SCR_WIDTH, SCR_HEIGHT);
 
 
     setCamera(editViewCamera);
@@ -235,9 +245,11 @@ int main()
         // ------
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
         glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
         //glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        //glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
         glEnable(GL_DEPTH_TEST);
 
@@ -250,16 +262,24 @@ int main()
         glBindFramebuffer(GL_FRAMEBUFFER, 0); // back to default
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-        //screenShader.use();
-        //glDisable(GL_DEPTH_TEST);
-        render();
+        screenShader.use();
+        screenShader.setVec2("screensize", SCR_WIDTH, SCR_HEIGHT);
+
+        quad->draw();
+        glDisable(GL_DEPTH_TEST);
+        //render();
+
+       
         glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
-        
+
+
+        /*
         const float window_width = ImGui::GetContentRegionAvail().x;
         const float window_height = ImGui::GetContentRegionAvail().y;
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, window_width, window_height);
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
-        /*
+        */
+    	/*
         ImGui::Begin("BUFFER WINDOW FRAMEBUFFER ");
 
         ImVec2 imageSize(SCR_WIDTH / 1.5, SCR_HEIGHT / 1.5);  
@@ -277,12 +297,12 @@ int main()
     	if (manager_EditorState.getState() == state_EditorView)
         {
             //editor windows
-            Window_ObjectSelection();
-            Window_SceneTree();
+            //Window_ObjectSelection();
+            //Window_SceneTree();
             
 
         }
-    	Window_General();
+    	//Window_General();
         //Window_Basic();
 
 
