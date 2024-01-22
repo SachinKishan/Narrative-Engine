@@ -723,12 +723,35 @@ public:
     }
 };
 
+
+class Event
+{
+public:
+    Event() {}
+    virtual void doThing()
+    {
+
+    }
+
+};
+
+
 class MovementPoint:public GameObject
 {
 private:
 
 public:
-    
+    //array of events
+    std::vector<std::shared_ptr<Event>> events;
+
+    void RunEvents()
+    {
+	    for (auto event : events)
+	    {
+            event->doThing();
+	    }
+    }
+
     MovementPoint() {
         // Set default values or perform initialization if needed
         name = "nothing selected";
@@ -859,7 +882,7 @@ bool ray_collision(glm::vec3 origin, glm::vec3 dir, std::vector<std::shared_ptr<
     return false;
 }
 
-bool ray_collision(glm::vec3 origin, glm::vec3 dir, std::vector<std::shared_ptr<MovementPoint>> movementPoints, std::shared_ptr<GameObject>& obj)
+bool ray_collision(glm::vec3 origin, glm::vec3 dir, std::vector<std::shared_ptr<MovementPoint>> movementPoints, std::shared_ptr<MovementPoint>& obj)
 {
     float totaldist = 0;
     glm::vec3 current_pos = origin;

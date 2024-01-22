@@ -5,7 +5,7 @@
 #include <Windows.h>
 #include <commdlg.h>
 #include <fstream>
-
+#include "gamehandler.h"
 #include "gameobject.h"
 
 
@@ -16,7 +16,7 @@ public:
 	std::vector<std::shared_ptr<GameObject>> gameObjectList;
     std::vector<std::shared_ptr<Light>> lightList;
     std::vector<std::shared_ptr<MovementPoint>> movementPointList;
-
+    std::shared_ptr<MovementPoint> currentMovementPoint;
     bool hasPlayer = false;
     std::shared_ptr<Player> player=nullptr;
 
@@ -46,11 +46,13 @@ public:
         player = newPlayer;
         hasPlayer = true;
     }
-    void MovePlayer(glm::vec3 newPos)
+    void MovePlayer(std::shared_ptr<MovementPoint> newPos)
 	{
 		if(hasPlayer)
 		{
-            player->changePosition(newPos);
+            currentMovementPoint = newPos;
+            //Manager_game.CheckForEvent(currentMovementPoint);
+            player->changePosition(newPos->transform.translation);
 		}
 	}
 };

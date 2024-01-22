@@ -311,13 +311,33 @@ inline void Window_ObjectSelection()
         if(selectedObject->objectType==ObjectType::type_Light)
         {
             std::shared_ptr<Light> lightObject = std::dynamic_pointer_cast<Light>(selectedObject);
-            if (lightObject) 
+            if (lightObject)
             {
                 float intensity = lightObject->getIntensity();
                 ImGui::SliderFloat("Light Intensity", &intensity, 0.0f, 10.0f);
                 if (intensity != lightObject->getIntensity())lightObject->setIntensity(intensity);
             }
 
+        }
+
+        if(selectedObject->objectType==ObjectType::type_MovementPoint)
+        {
+            std::shared_ptr<MovementPoint> point
+        	= std::dynamic_pointer_cast<MovementPoint>(selectedObject);
+
+	        if(ImGui::Button("Add print event"))
+	        {
+                std::shared_ptr<Event_Print> e = std::make_shared<Event_Print>("hello world");
+                point->events.push_back(e);
+                std::cout << "Event added";
+            }
+            if (ImGui::Button("Add print number event"))
+            {
+                std::shared_ptr<PrintNum_Event> e = std::make_shared<PrintNum_Event>();
+                point->events.push_back(e);
+                std::cout << "Event added";
+
+            }
         }
 
         // Apply changes if modified
