@@ -8,74 +8,6 @@
 
 //we can just keep track of movement point using the current scene list- use manager
 
-/*
-class Event
-{
-	
-};
-
-class PrintEvent: public Event
-{
-	
-};
-
-class OtherEvent:public Event
-{
-	
-};
-
-typedef void (*MovementEvent)(Event);
-
-class GameManager
-{
-public:
-	std::vector<std::pair<std::string, std::vector<MovementEvent>>> events;
-
-	void CheckForEvent(const std::shared_ptr<MovementPoint> point)
-	{
-		std::cout << "Check called";
-		for(auto event:events)
-		{
-			if (point->name == event.first)
-			{
-				for(auto func:event.second)
-				{
-					func();
-				}
-			}
-		}
-		
-	}
-	void addEvent()
-	{
-		
-	}
-}Manager_game;
-
-///Different types of events
-///
-///Text box
-///Change scene
-///Move player elsewhere
-///
-///Exit game
-///
-///
-///
-///
-/*
-void CreateEventPrint(std::string message)
-{
-	Event a;
-
-	// Create a lambda function that matches the signature of MovementEvent
-	MovementEvent multiply = [a](Event capturedA) -> void {
-		// Use 'a' within the lambda
-		std::cout << "Captured Event instance in the lambda" << std::endl;
-	};
-
-}
-*/
 
 ///
 ///create an array of event objects
@@ -91,26 +23,35 @@ class Event_Print:public Event
 private:
 	std::string stringtoprint;
 public:
-	Event_Print(std::string s)
+	Event_Print() { setEventType(EventType::Print); }
+	Event_Print(std::string ename, EventType etype, EventTime etime, std::string s)
 	{
+		setEventType(EventType::Print);
+		setEventName(ename);
+		setEventTime(etime);
 		stringtoprint = s;
 	}
+	
+	std::string getString() { return stringtoprint; }
+	void setString(std::string s) { stringtoprint = s; }
 	void doThing() override
 	{
 		std::cout << stringtoprint;
 	}
 };
 
-
-
 class PrintNum_Event :public Event
 {
 private:
 	
 public:
-	PrintNum_Event()
+	PrintNum_Event() = default;
+	PrintNum_Event(std::string ename, EventType etype, EventTime etime)
 	{
-		
+		setEventType(etype);
+		setEventName(ename);
+		setEventTime(etime);
+		setEventType(EventType::TextBox);
 	}
 	void doThing() override
 	{
@@ -118,14 +59,31 @@ public:
 	}
 };
 
-class GameManager
+inline class GameManager
 {
-public:
-	std::vector<std::pair<std::shared_ptr<MovementPoint>, Event>> events;
+private:
+	std::shared_ptr<MovementPoint> currentMovementPoint;
+	std::shared_ptr<Player> player = nullptr;
 
-	void AddEvent(std::shared_ptr<MovementPoint> point, Event event)
+
+public:
+	void SetPlayer(const std::shared_ptr<Player>& newPlayer)
 	{
+		player = newPlayer;
+	}
+
+	void MovePlayer(std::shared_ptr<MovementPoint> newPos)
+	{
+			currentMovementPoint = newPos;
+			player->changePosition(newPos->transform.translation);
 		
 	}
 
-};
+	void RunEvents(const std::shared_ptr<MovementPoint>& point)
+	{
+		for (const auto& event : point->events)
+		{
+			event->doThing();
+		}
+	}
+}manager_GameManager;

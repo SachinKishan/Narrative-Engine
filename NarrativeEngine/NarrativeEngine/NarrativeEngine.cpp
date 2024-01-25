@@ -423,10 +423,11 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
             std::shared_ptr<MovementPoint> obj = nullptr;
             ray_collision(currentCamera->Position, converted, Manager_Scene.currentScene.movementPointList, obj);
             
-            if (obj != nullptr)//player has clicked a movement point
+            if (obj != nullptr && Manager_Scene.currentScene.hasPlayer)//player has clicked a movement point
             {
-                Manager_Scene.currentScene.MovePlayer(obj);
-                obj->RunEvents();
+                
+                manager_GameManager.MovePlayer(obj);
+                manager_GameManager.RunEvents(obj);
 
             }
         }

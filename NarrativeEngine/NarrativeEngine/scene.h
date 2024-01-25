@@ -18,7 +18,6 @@ public:
     std::vector<std::shared_ptr<MovementPoint>> movementPointList;
     std::shared_ptr<MovementPoint> currentMovementPoint;
     bool hasPlayer = false;
-    std::shared_ptr<Player> player=nullptr;
 
 	void AddToScene(const std::shared_ptr<GameObject> &object)
 	{
@@ -41,20 +40,15 @@ public:
 				gameObjectList.begin(), gameObjectList.end(), object),
 			gameObjectList.end());
 	}
-    void SetPlayer(const std::shared_ptr<Player>& newPlayer)
+    void SceneSetPlayer(const std::shared_ptr<Player>& newPlayer)
     {
-        player = newPlayer;
-        hasPlayer = true;
+        if (!hasPlayer)
+        {
+            manager_GameManager.SetPlayer(newPlayer);
+            hasPlayer = true;
+        }
     }
-    void MovePlayer(std::shared_ptr<MovementPoint> newPos)
-	{
-		if(hasPlayer)
-		{
-            currentMovementPoint = newPos;
-            //Manager_game.CheckForEvent(currentMovementPoint);
-            player->changePosition(newPos->transform.translation);
-		}
-	}
+    
 };
 std::string convertWStringToString(const std::wstring& wstr)
 {
@@ -78,6 +72,8 @@ public:
         currentScene.gameObjectList.clear();
         currentScene.lightList.clear();
         currentScene.sceneName.clear();
+        currentScene.movementPointList.clear();
+        currentScene.hasPlayer = false;
     }
 
     void setSceneName(std::wstring fileName)
@@ -99,57 +95,93 @@ public:
         filepath = path;
         std::ifstream inFile(path);
         std::wstring fileName = path.substr(path.find_last_of(L"\\") + 1);
-        wprintf(L"Selected File Name: %s\n", fileName.c_str());
+        int mode=0;//0 for reading objects, 1 for reading event data
+        //wprintf(L"Selected File Name: %s\n", fileName.c_str());
 
         setSceneName(fileName);
         if (inFile.is_open()) {
             std::string line;
             while (std::getline(inFile, line)) {
-                
-
-                std::istringstream iss(line);
-                std::string name;
-                glm::vec3 translation, rotation, scale;
-                glm::vec4 color;
-                int type;
-                iss >> type;
-                iss >> name
-                    >> translation.x >> translation.y >> translation.z
-                    >> rotation.x >> rotation.y >> rotation.z
-                    >> scale.x >> scale.y >> scale.z
-                    >> color.r >> color.g >> color.b;
-
-                // Create ObjectTransform based on parsed data
-                ObjectTransform transform(translation, rotation, scale);
-                if (type == ObjectType::type_Light)
+                if (line._Equal("OBJECTS"))mode = 0;
+                else if (line._Equal("EVENTS"))mode = 1;
+                else if (mode==0)
                 {
-                    std::shared_ptr<Light> newGameObject= std::make_shared<Light>(name, transform, color);
-                    currentScene.AddToScene(newGameObject);
-                    currentScene.AddLight(newGameObject);
+
+                    std::istringstream iss(line);
+                    std::string name;
+                    glm::vec3 translation, rotation, scale;
+                    glm::vec4 color;
+                    int type;
+                    iss >> type;
+                    iss >> name
+                        >> translation.x >> translation.y >> translation.z
+                        >> rotation.x >> rotation.y >> rotation.z
+                        >> scale.x >> scale.y >> scale.z
+                        >> color.r >> color.g >> color.b;
+
+                    // Create ObjectTransform based on parsed data
+                    ObjectTransform transform(translation, rotation, scale);
+                    if (type == ObjectType::type_Light)
+                    {
+                        std::shared_ptr<Light> newGameObject = std::make_shared<Light>(name, transform, color);
+                        currentScene.AddToScene(newGameObject);
+                        currentScene.AddLight(newGameObject);
+
+                    }
+                    else if (type == ObjectType::type_Platform)
+                    {
+                        std::shared_ptr<Platform> newGameObject = std::make_shared<Platform>(name, transform, color);
+                        currentScene.AddToScene(newGameObject);
+                    }
+                    else if (type == ObjectType::type_Player)
+                    {
+                        std::shared_ptr<Player> newGameObject = std::make_shared<Player>(name, transform, color);
+                        currentScene.AddToScene(newGameObject);
+                        currentScene.SceneSetPlayer(newGameObject);
+                    }
+                    else if (type == ObjectType::type_MovementPoint)
+                    {
+                        std::shared_ptr<MovementPoint> newGameObject = std::make_shared<MovementPoint>(name, transform, color);
+                        currentScene.AddToScene(newGameObject);
+                        currentScene.AddMovementPoint(newGameObject);
+                    }
+                }
+                else if(mode==1)
+                {
+                    std::istringstream iss(line);
+                	int type;
+                    int time;
+                    std::string eventName;
+                    std::string objName;
+                    iss >> type;
+                    iss >> objName;
+                    iss >> eventName;
+                	iss >> time;
+                    
+                	std::shared_ptr<MovementPoint> point;
+                    for (const auto& p : currentScene.movementPointList)
+                    {
+                        if (objName == p->name){point = p; break;}
+                    }
+
+                    if (type == EventType::Print)
+                    {
+                        std::string s;
+                        iss >> s;
+                    std:: cout << s;
+                        std::replace(s.begin(), s.end(), '_', ' ');
+                        std::shared_ptr<Event_Print> printEvent = std::make_shared<Event_Print>(eventName, (EventType)type, (EventTime)time,s);
+                        point->events.push_back(printEvent);
+                    }
+                    else if (type == EventType::TextBox)
+                    {
+                        
+                        std::shared_ptr<PrintNum_Event> printEvent = std::make_shared<PrintNum_Event>(eventName, (EventType)type, (EventTime)time);
+                        point->events.push_back(printEvent);
+                    }
+                    
 
                 }
-                else if(type==ObjectType::type_Platform)
-                {
-                    std::shared_ptr<Platform> newGameObject= std::make_shared<Platform>(name, transform, color);
-                    currentScene.AddToScene(newGameObject);
-                }
-                else if (type == ObjectType::type_Player)
-                {
-                    std::shared_ptr<Player> newGameObject = std::make_shared<Player>(name, transform, color);
-                    currentScene.AddToScene(newGameObject);
-                    currentScene.SetPlayer(newGameObject);
-                }
-                else if (type == ObjectType::type_MovementPoint)
-                {
-                    std::shared_ptr<MovementPoint> newGameObject = std::make_shared<MovementPoint>(name, transform, color);
-                    currentScene.AddToScene(newGameObject);
-                    currentScene.AddMovementPoint(newGameObject);
-                }
-
-                // Create a GameObject using the read data
-                //newGameObject->transform = transform; // Assign the ObjectTransform
-
-                std::cout << "Scene data has been read and stored\n";
             }
             inFile.close();
         }
@@ -217,6 +249,7 @@ inline void SaveScene(std::vector<std::shared_ptr<GameObject>> gameObjects)
     std::ofstream outFile(Manager_Scene.filepath , std::ios::out | std::ios::trunc);
 
     if (outFile.is_open()) {
+        outFile << "OBJECTS\n";
         for (const std::shared_ptr<GameObject> &gameObject : gameObjects) {
             outFile << gameObject->objectType << " ";
             outFile << gameObject->name<<" "; // Write each string on a new line
@@ -232,8 +265,42 @@ inline void SaveScene(std::vector<std::shared_ptr<GameObject>> gameObjects)
             outFile << gameObject->renderData->material.color.r<< " ";
             outFile << gameObject->renderData->material.color.g<< " ";
             outFile << gameObject->renderData->material.color.b<< " ";
-
+            if(gameObject->objectType==type_Light)
+            {
+                //TODO
+                //CONVERT OBJECT TO LIGHT OBJECT, GET THE LIGHT INTENSITY, SEND IT TO THE FILE
+            }
             outFile << "\n";
+        }
+
+        //write events to the file
+        outFile << "EVENTS\n";
+        for (const auto& point : Manager_Scene.currentScene.movementPointList)
+        {
+	        for (const auto& event : point->events)
+	        {
+                outFile <<event->getType() <<" ";
+                outFile << point->name<<" ";
+	        	outFile <<event->getName() <<" ";
+                outFile <<event->getTime() <<" ";
+
+                if (event->getType() == EventType::TextBox)
+                {
+	                //outFile<<event
+                    auto numEvent = dynamic_cast<PrintNum_Event*>(event.get());
+                }
+                else if (event->getType() == EventType::Print)
+                {
+                    auto printEvent = dynamic_cast<Event_Print*>(event.get());
+                    //use a static cast instead of a dynamic cast
+                    //we could just get rid of the enum, use dynamic cast to check the type instead, no need to use an enum anymore
+                    std::string s = printEvent->getString();
+                	std::replace(s.begin(), s.end(), ' ', '_');
+                    outFile << s<<" ";
+                }
+                outFile << "\n";
+
+	        }
         }
         outFile.close();
         std::wcout << "File '" << Manager_Scene.filepath << "' created and data written successfully." << std::endl;
@@ -280,7 +347,6 @@ void CreateNewScene()
     // Check if the file is opened successfully
     if (outFile.is_open()) {
         // Write data to the file if needed
-        //outFile << "This is your file content." << std::endl;
         outFile.close();
 
         wprintf(L"File '%s' with extension '%s' created successfully.\n", szFile, ".plip");

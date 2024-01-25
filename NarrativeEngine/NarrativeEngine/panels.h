@@ -150,11 +150,11 @@ inline void Window_SceneTree()
                 const std::shared_ptr<Platform> newGameObject = std::make_shared<Platform>("platform" + std::to_string(Manager_Scene.currentScene.gameObjectList.size()));
                 Manager_Scene.currentScene.AddToScene(newGameObject);
             }
-            if (ImGui::Button("Add Player") && Manager_Scene.currentScene.player==nullptr)
+            if (ImGui::Button("Add Player") && Manager_Scene.currentScene.hasPlayer==false)
             {
                 const std::shared_ptr<Player> newGameObject = std::make_shared<Player>("Player");
                 Manager_Scene.currentScene.AddToScene(newGameObject);
-                Manager_Scene.currentScene.SetPlayer(newGameObject);
+                Manager_Scene.currentScene.SceneSetPlayer(newGameObject);
             }
             if (ImGui::Button("Add Movement Position"))
             {
@@ -291,7 +291,18 @@ inline void Window_ObjectSelection()
         ImGui::SliderFloat("Z Scale", &scale.z, 0.0f, 10.0f);
         ImGui::SameLine();
         ImGui::InputFloat("##ZSc", &scale.z);
-        
+
+        // Apply changes if modified
+        if (position != selectedObject->transform.translation ||
+            rotation != selectedObject->transform.rotation ||
+            scale != selectedObject->transform.scale) {
+            selectedObject->transform.translation = position;
+            selectedObject->transform.rotation = rotation;
+            selectedObject->transform.scale = scale;
+            selectedObject->transform.CalculateModel();
+        }
+
+
         //color edit
         if (selectedObject && selectedObject->renderData) {
             float newColor[4] = {
@@ -325,9 +336,56 @@ inline void Window_ObjectSelection()
             std::shared_ptr<MovementPoint> point
         	= std::dynamic_pointer_cast<MovementPoint>(selectedObject);
 
+            
+            for (size_t i = 0; i < point->events.size(); ++i) {
+                ImGui::Spacing();
+                auto event = point->events[i];
+
+                char eventName[256]; // Assuming a maximum name length of 255 characters
+                memset(eventName, 0, sizeof(eventName)); // Clear the memory
+                strcpy_s(eventName, event->getName().c_str());
+
+                // Concatenate the index to the label to make it unique
+                std::string label = "Event Name##" + std::to_string(i);
+
+                ImGui::InputText(label.c_str(), eventName, IM_ARRAYSIZE(eventName));
+
+                // Set the object's name if it's changed
+                if (strcmp(eventName, event->getName().c_str()) != 0) {
+                    event->setEventName(eventName);
+                }
+
+                // Display a combo box for selecting the event type
+                const char* eventTypes[] = { "Enter", "Exit" };
+                int currentEventType = static_cast<int>(event->getTime());
+                if (ImGui::Combo("Event Type", &currentEventType, eventTypes, IM_ARRAYSIZE(eventTypes)))
+                {
+                    // Update the event type if changed
+                    event->setEventTime(static_cast<EventTime>(currentEventType));
+                }
+                if(event->getType()==EventType::Print)
+                {
+                    std::shared_ptr<Event_Print> ep = std::dynamic_pointer_cast<Event_Print>(event);
+                    char eventText[256]; // Assuming a maximum name length of 255 characters
+                    memset(eventText, 0, sizeof(eventText)); // Clear the memory
+                    strcpy_s(eventText, ep->getString().c_str());
+
+                    // Concatenate the index to the label to make it unique
+                    std::string label = "Event text##" + std::to_string(i);
+
+                    ImGui::InputText(label.c_str(), eventText, IM_ARRAYSIZE(eventText));
+
+                    // Set the object's name if it's changed
+                    if (strcmp(eventText, ep->getString().c_str()) != 0) {
+                        ep->setString(eventText);
+                    }
+                }
+            }
+            
+
 	        if(ImGui::Button("Add print event"))
 	        {
-                std::shared_ptr<Event_Print> e = std::make_shared<Event_Print>("hello world");
+                std::shared_ptr<Event_Print> e = std::make_shared<Event_Print>();
                 point->events.push_back(e);
                 std::cout << "Event added";
             }
@@ -338,24 +396,13 @@ inline void Window_ObjectSelection()
                 std::cout << "Event added";
 
             }
+
+
+
         }
 
-        // Apply changes if modified
-        if (position != selectedObject->transform.translation ||
-            rotation != selectedObject->transform.rotation ||
-            scale != selectedObject->transform.scale) {
-            selectedObject->transform.translation = position;
-            selectedObject->transform.rotation = rotation;
-            selectedObject->transform.scale = scale;
-            selectedObject->transform.CalculateModel();
-        }
-    	
-
-
-
+        
     }
-
-
     ImGui::End();
 }
 

@@ -724,15 +724,49 @@ public:
 };
 
 
+enum EventTime
+{
+	Enter,
+    Exit
+};
+enum EventType
+{
+	TextBox,
+    Print
+};
 class Event
 {
+private:
+    EventTime eventTime=Enter;
+    std::string eventName;
+    EventType eventType;
 public:
     Event() {}
+    Event(std::string ename, EventType etype, EventTime etime)
+    {
+        setEventType(etype);
+        setEventName(ename);
+        setEventTime(etime);
+    }
+    void setEventTime(EventTime type)
+    {
+        eventTime = type;
+    }
+    void setEventName(std::string name)
+    {
+        eventName = name;
+    }
+    void setEventType(EventType type)
+    {
+        eventType = type;
+    }
     virtual void doThing()
     {
 
     }
-
+    std::string getName() { return eventName; }
+    EventTime getTime() { return eventTime; }
+    EventType getType() { return eventType; }
 };
 
 
@@ -744,13 +778,7 @@ public:
     //array of events
     std::vector<std::shared_ptr<Event>> events;
 
-    void RunEvents()
-    {
-	    for (auto event : events)
-	    {
-            event->doThing();
-	    }
-    }
+   
 
     MovementPoint() {
         // Set default values or perform initialization if needed
@@ -831,7 +859,10 @@ public:
 
 };
 
-
+class CameraObject:public GameObject
+{
+	
+};
 
 
 
@@ -881,6 +912,8 @@ bool ray_collision(glm::vec3 origin, glm::vec3 dir, std::vector<std::shared_ptr<
     }
     return false;
 }
+
+
 
 bool ray_collision(glm::vec3 origin, glm::vec3 dir, std::vector<std::shared_ptr<MovementPoint>> movementPoints, std::shared_ptr<MovementPoint>& obj)
 {
