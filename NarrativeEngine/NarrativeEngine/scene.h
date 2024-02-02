@@ -124,7 +124,10 @@ public:
                     ObjectTransform transform(translation, rotation, scale);
                     if (type == ObjectType::type_Light)
                     {
+                        float intensity;
+                        iss >> intensity;
                         std::shared_ptr<Light> newGameObject = std::make_shared<Light>(name, transform, color);
+                        newGameObject->setIntensity(intensity);
                         currentScene.AddToScene(newGameObject);
                         currentScene.AddLight(newGameObject);
 
@@ -290,6 +293,8 @@ inline void SaveScene(std::vector<std::shared_ptr<GameObject>> gameObjects)
             {
                 //TODO
                 //CONVERT OBJECT TO LIGHT OBJECT, GET THE LIGHT INTENSITY, SEND IT TO THE FILE
+                const auto light = static_cast<Light*>(gameObject.get());
+                outFile << light->getIntensity();
             }
             outFile << "\n";
         }
@@ -308,13 +313,12 @@ inline void SaveScene(std::vector<std::shared_ptr<GameObject>> gameObjects)
                 if (event->getType() == EventType::TextBox)
                 {
 	                //outFile<<event
-                    auto numEvent = dynamic_cast<PrintNum_Event*>(event.get());
+                    const auto numEvent = static_cast<PrintNum_Event*>(event.get());
                 }
                 else if (event->getType() == EventType::Print)
                 {
-                    auto printEvent = dynamic_cast<Event_Print*>(event.get());
-                    //use a static cast instead of a dynamic cast
-                    //we could just get rid of the enum, use dynamic cast to check the type instead, no need to use an enum anymore
+
+                    const auto printEvent = static_cast<Event_Print*>(event.get());
                     std::string s = printEvent->getString();
                 	std::replace(s.begin(), s.end(), ' ', '_');
                     outFile << s<<" ";
