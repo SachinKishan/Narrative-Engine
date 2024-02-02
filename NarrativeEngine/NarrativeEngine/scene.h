@@ -104,6 +104,7 @@ public:
             while (std::getline(inFile, line)) {
                 if (line._Equal("OBJECTS"))mode = 0;
                 else if (line._Equal("EVENTS"))mode = 1;
+                else if (line._Equal("CAMERA"))mode = 2;
                 else if (mode==0)
                 {
 
@@ -181,6 +182,26 @@ public:
                     }
                     
 
+                }
+                else if(mode==2)
+                {
+                    std::istringstream iss(line);
+                    glm::vec3 pos;
+                    glm::vec3 up;
+                    float pitch;
+                    float yaw;
+
+                    iss >> pos.x;
+                    iss >> pos.y;
+                    iss >> pos.z;
+                    iss >> up.x;
+                    iss >> up.y;
+                    iss >> up.z;
+                    iss >> pitch;
+                    iss >> yaw;
+
+                    gameViewCamera->setCamera(pos,up,yaw,pitch);
+                    editViewCamera->copy(gameViewCamera);
                 }
             }
             inFile.close();
@@ -302,6 +323,21 @@ inline void SaveScene(std::vector<std::shared_ptr<GameObject>> gameObjects)
 
 	        }
         }
+
+        //write camera data to the file
+    	outFile << "CAMERA\n";
+        outFile << gameViewCamera->Position.x<<" ";
+        outFile << gameViewCamera->Position.y<<" ";
+        outFile << gameViewCamera->Position.z<<" ";
+        outFile << gameViewCamera->Up.x<<" ";
+        outFile << gameViewCamera->Up.y<<" ";
+        outFile << gameViewCamera->Up.z<<" ";
+        outFile << gameViewCamera->Pitch<<" ";
+        outFile << gameViewCamera->Yaw<<" ";
+
+
+
+
         outFile.close();
         std::wcout << "File '" << Manager_Scene.filepath << "' created and data written successfully." << std::endl;
     }
