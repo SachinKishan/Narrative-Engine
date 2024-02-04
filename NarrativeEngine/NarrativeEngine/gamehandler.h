@@ -84,13 +84,15 @@ public:
 		setEventType(EventType::Print);
 		setEventName(ename);
 		setEventTime(etime);
-		stringtoprint = s;
+		 setString(s);
 	}
 
 	std::string getString() { return stringtoprint; }
 	void setString(std::string s) { stringtoprint = s; }
 	void doThing() override
 	{
+		manager_UI.DisplayDialogue(stringtoprint);
+
 		std::cout << stringtoprint;
 	}
 };
@@ -110,7 +112,6 @@ public:
 	}
 	void doThing() override
 	{
-		manager_UI.DisplayDialogue("The number 10 is interesting");
 		std::cout << 10;
 	}
 };

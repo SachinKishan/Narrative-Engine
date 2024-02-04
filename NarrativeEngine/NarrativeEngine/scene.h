@@ -307,7 +307,13 @@ inline void SaveScene(std::vector<std::shared_ptr<GameObject>> gameObjects)
 	        {
                 outFile <<event->getType() <<" ";
                 outFile << point->name<<" ";
-	        	outFile <<event->getName() <<" ";
+                std::string eventname = event->getName();
+                if (eventname.empty())
+                {
+                    eventname = "_";
+                }
+                else std::replace(eventname.begin(), eventname.end(), ' ', '_');
+	        	outFile << eventname <<" ";
                 outFile <<event->getTime() <<" ";
 
                 if (event->getType() == EventType::TextBox)
@@ -320,7 +326,11 @@ inline void SaveScene(std::vector<std::shared_ptr<GameObject>> gameObjects)
 
                     const auto printEvent = static_cast<Event_Print*>(event.get());
                     std::string s = printEvent->getString();
-                	std::replace(s.begin(), s.end(), ' ', '_');
+                    if (s.empty())
+                    {
+                        s = "_";
+                    }
+                    else std::replace(s.begin(), s.end(), ' ', '_');
                     outFile << s<<" ";
                 }
                 outFile << "\n";

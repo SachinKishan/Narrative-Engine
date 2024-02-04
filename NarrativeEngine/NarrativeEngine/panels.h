@@ -332,15 +332,29 @@ inline void Window_ObjectSelection()
 
         }
 
-        if(selectedObject->objectType==ObjectType::type_MovementPoint)
+        if (selectedObject->objectType == ObjectType::type_MovementPoint)
         {
             std::shared_ptr<MovementPoint> point
-        	= std::dynamic_pointer_cast<MovementPoint>(selectedObject);
+                = std::dynamic_pointer_cast<MovementPoint>(selectedObject);
 
-            
+
             for (size_t i = 0; i < point->events.size(); ++i) {
                 ImGui::Spacing();
+                ImGui::Spacing();
+                ImGui::Spacing();
+                ImGui::Spacing();
+                ImGui::Spacing();
+
                 auto event = point->events[i];
+
+                switch(event->getType())
+                {
+                case EventType::Print: ImGui::Text("Display Text Event"); break;
+                case EventType::TextBox: ImGui::Text("Print a number"); break;
+                default: break;
+                }
+
+                
 
                 char eventName[256]; // Assuming a maximum name length of 255 characters
                 memset(eventName, 0, sizeof(eventName)); // Clear the memory
@@ -364,7 +378,7 @@ inline void Window_ObjectSelection()
                     // Update the event type if changed
                     event->setEventTime(static_cast<EventTime>(currentEventType));
                 }
-                if(event->getType()==EventType::Print)
+                if (event->getType() == EventType::Print)
                 {
                     std::shared_ptr<Event_Print> ep = std::dynamic_pointer_cast<Event_Print>(event);
                     char eventText[256]; // Assuming a maximum name length of 255 characters
@@ -380,26 +394,32 @@ inline void Window_ObjectSelection()
                     if (strcmp(eventText, ep->getString().c_str()) != 0) {
                         ep->setString(eventText);
                     }
+                    
+
                 }
             }
-            
 
-	        if(ImGui::Button("Add print event"))
-	        {
-                std::shared_ptr<Event_Print> e = std::make_shared<Event_Print>();
-                point->events.push_back(e);
-                std::cout << "Event added";
-            }
-            if (ImGui::Button("Add print number event"))
+            if(ImGui::BeginMenu("Add New Event"))
             {
-                std::shared_ptr<PrintNum_Event> e = std::make_shared<PrintNum_Event>();
-                point->events.push_back(e);
-                std::cout << "Event added";
+                if (ImGui::Button("Add print event"))
+                {
+                    std::shared_ptr<Event_Print> e = std::make_shared<Event_Print>();
+                    point->events.push_back(e);
+                    std::cout << "Event added";
+                }
+                if (ImGui::Button("Add print number event"))
+                {
+                    std::shared_ptr<PrintNum_Event> e = std::make_shared<PrintNum_Event>();
+                    point->events.push_back(e);
+                    std::cout << "Event added";
 
+                }
+                if (ImGui::Button("Delete last event"))
+                {
+                    point->events.pop_back();
+                }
+                ImGui::EndMenu();
             }
-
-
-
         }
 
         
