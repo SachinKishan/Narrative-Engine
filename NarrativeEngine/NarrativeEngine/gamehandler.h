@@ -35,24 +35,45 @@ public:
 
 	void MovePlayer(std::shared_ptr<MovementPoint> newPos)
 	{
-			currentMovementPoint = newPos;
-			player->changePosition(newPos->transform.translation);
+		RunEntryEvents(newPos);
+
+		if(currentMovementPoint!=nullptr)
+			RunExitEvents(currentMovementPoint);
+
+		currentMovementPoint = newPos;
+		player->changePosition(newPos->transform.translation);
+
 		
 	}
-
-	void RunEvents(const std::shared_ptr<MovementPoint>& point)
+	void RunEntryEvents(const std::shared_ptr<MovementPoint>& point)
 	{
 		for (const auto& event : point->events)
 		{
-			event->doThing();
+			if(event->getTime()==EventTime::Enter)
+				event->doThing();
 		}
 	}
+	void RunExitEvents(const std::shared_ptr<MovementPoint>& point)
+	{
+		for (const auto& event : point->events)
+		{
+			if (event->getTime() == EventTime::Exit)
+				event->doThing();
+		}
+	}
+	
 }manager_GameManager;
 
 class UI_Manager
 {
 
 private:
+	//dialogue boxes
+	int numberOfDialogueBoxes;
+	std::vector<std::string> dialogueText;
+	std::vector<bool> displayTextVector;
+
+
 	std::string currentText;
 	bool displayText=false;
 public:
@@ -60,26 +81,50 @@ public:
 	{
 		
 	}
-	void setText(const std::string newText) { currentText = newText; }
+	void addTextBox(const std::string newText)
+	{
+		dialogueText.push_back(newText);
+		std::cout << dialogueText.size();
+		displayTextVector.push_back(true);
+	}
+	void setText(const std::string newText)
+	{
+		currentText = newText;
+
+	}
 	std::string getText() { return currentText; }
 	bool shouldDisplayText() { return displayText; }
-	void setDisplayCondition(bool condition) { displayText = condition; }
+	void setDisplayCondition(bool condition)
+	{
+		displayText = condition;
+	}
+	void DisplayNextBox()
+	{
+		if (dialogueText.empty()) { setDisplayCondition(false); std::cout << "empty"; }
+		else
+		{
+			DisplayDialogue(dialogueText.back());
+			std::cout << "\n\n" << dialogueText.size() << "\n\n";
+			//displayTextVector.pop_back();
+			
+		}
+	}
 	void DisplayDialogue(const std::string newText)
 	{
 		setText(newText);
-		displayText = true;
+		setDisplayCondition(true);
 	}
-
+	void movetonextdialogue(){ dialogueText.pop_back(); }
 
 }manager_UI;
 
-class Event_Print :public Event
+class Event_TextBox :public Event
 {
 private:
 	std::string stringtoprint;
 public:
-	Event_Print() { setEventType(EventType::Print); }
-	Event_Print(std::string ename, EventType etype, EventTime etime, std::string s)
+	Event_TextBox() { setEventType(EventType::Print); }
+	Event_TextBox(std::string ename, EventType etype, EventTime etime, std::string s)
 	{
 		setEventType(EventType::Print);
 		setEventName(ename);
@@ -91,7 +136,11 @@ public:
 	void setString(std::string s) { stringtoprint = s; }
 	void doThing() override
 	{
-		manager_UI.DisplayDialogue(stringtoprint);
+
+		manager_UI.addTextBox(stringtoprint);
+		manager_UI.DisplayNextBox();
+
+		//manager_UI.DisplayDialogue(stringtoprint);
 
 		std::cout << stringtoprint;
 	}

@@ -287,6 +287,7 @@ int main()
 
     	Window_General();
         //Window_Basic();
+        //Window_Debug();
 
 
         ImGui::Render();
@@ -430,7 +431,6 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
             {
                 
                 manager_GameManager.MovePlayer(obj);
-                manager_GameManager.RunEvents(obj);
 
             }
         }

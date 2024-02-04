@@ -174,7 +174,7 @@ public:
                         iss >> s;
                     std:: cout << s;
                         std::replace(s.begin(), s.end(), '_', ' ');
-                        std::shared_ptr<Event_Print> printEvent = std::make_shared<Event_Print>(eventName, (EventType)type, (EventTime)time,s);
+                        std::shared_ptr<Event_TextBox> printEvent = std::make_shared<Event_TextBox>(eventName, (EventType)type, (EventTime)time,s);
                         point->events.push_back(printEvent);
                     }
                     else if (type == EventType::TextBox)
@@ -324,7 +324,7 @@ inline void SaveScene(std::vector<std::shared_ptr<GameObject>> gameObjects)
                 else if (event->getType() == EventType::Print)
                 {
 
-                    const auto printEvent = static_cast<Event_Print*>(event.get());
+                    const auto printEvent = static_cast<Event_TextBox*>(event.get());
                     std::string s = printEvent->getString();
                     if (s.empty())
                     {
@@ -348,9 +348,6 @@ inline void SaveScene(std::vector<std::shared_ptr<GameObject>> gameObjects)
         outFile << gameViewCamera->Up.z<<" ";
         outFile << gameViewCamera->Pitch<<" ";
         outFile << gameViewCamera->Yaw<<" ";
-
-
-
 
         outFile.close();
         std::wcout << "File '" << Manager_Scene.filepath << "' created and data written successfully." << std::endl;

@@ -380,7 +380,7 @@ inline void Window_ObjectSelection()
                 }
                 if (event->getType() == EventType::Print)
                 {
-                    std::shared_ptr<Event_Print> ep = std::dynamic_pointer_cast<Event_Print>(event);
+                    std::shared_ptr<Event_TextBox> ep = std::dynamic_pointer_cast<Event_TextBox>(event);
                     char eventText[256]; // Assuming a maximum name length of 255 characters
                     memset(eventText, 0, sizeof(eventText)); // Clear the memory
                     strcpy_s(eventText, ep->getString().c_str());
@@ -401,9 +401,9 @@ inline void Window_ObjectSelection()
 
             if(ImGui::BeginMenu("Add New Event"))
             {
-                if (ImGui::Button("Add print event"))
+                if (ImGui::Button("Add text box event"))
                 {
-                    std::shared_ptr<Event_Print> e = std::make_shared<Event_Print>();
+                    std::shared_ptr<Event_TextBox> e = std::make_shared<Event_TextBox>();
                     point->events.push_back(e);
                     std::cout << "Event added";
                 }
@@ -520,17 +520,16 @@ inline void Window_GameView()
 
 void Window_Dialogue()
 {
-        //ImGui::Begin("");
-		ImGui::SetNextWindowPos(ImVec2(0,SCR_HEIGHT-150));
-		ImGui::SetNextWindowSize(ImVec2(SCR_WIDTH,150));
-        ImGui::Begin("MyFixedWindow",nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
+        ImGui::SetNextWindowPos(ImVec2(0, SCR_HEIGHT - 150));
+        ImGui::SetNextWindowSize(ImVec2(SCR_WIDTH, 150));
+        ImGui::Begin("Dialogue", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove);
 
         ImGui::Text(manager_UI.getText().c_str());
-        if(ImGui::Button("Ok"))
+        if (ImGui::Button("Ok"))
         {
-            manager_UI.setDisplayCondition(false);
+            manager_UI.movetonextdialogue();
+            manager_UI.DisplayNextBox();
         }
-		
         ImGui::End();
 }
 
@@ -540,5 +539,15 @@ inline void Window_Debug()//window for debugging
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
         1000.0f / ImGui::GetIO().Framerate,
         ImGui::GetIO().Framerate);
+
+
+
+    if(ImGui::Button("Add diaologue"))
+    {
+        manager_UI.addTextBox("dummy tex");
+        manager_UI.DisplayNextBox();
+        
+    }
+
     ImGui::End();
 }
