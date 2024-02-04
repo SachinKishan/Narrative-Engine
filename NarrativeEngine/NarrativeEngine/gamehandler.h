@@ -18,19 +18,82 @@
 ///parse through each of the event objects and make their function calls
 ///
 
+class UI_Manager
+{
 
+private:
+	//dialogue boxes
+	int numberOfDialogueBoxes;
+	std::vector<std::string> dialogueText;
+	std::vector<bool> displayTextVector;
+
+
+	std::string currentText;
+	bool displayText = false;
+public:
+	UI_Manager()
+	{
+
+	}
+	void addTextBox(const std::string newText)
+	{
+		dialogueText.push_back(newText);
+		displayTextVector.push_back(true);
+	}
+	void setText(const std::string newText)
+	{
+		currentText = newText;
+
+	}
+	std::string getText() { return currentText; }
+	bool shouldDisplayText() { return displayText; }
+	void setDisplayCondition(bool condition)
+	{
+		displayText = condition;
+	}
+	void DisplayNextBox()
+	{
+		if (dialogueText.empty()) { setDisplayCondition(false); std::cout << "empty"; }
+		else
+		{
+			DisplayDialogue(dialogueText.back());
+		}
+	}
+	void DisplayDialogue(const std::string newText)
+	{
+		setText(newText);
+		setDisplayCondition(true);
+	}
+	void movetonextdialogue() { dialogueText.pop_back(); }
+	void ClearDialogue()
+	{
+		dialogueText.clear();
+		setDisplayCondition(false);
+	}
+
+}manager_UI;
 
 inline class GameManager
 {
 private:
+	glm::vec3 playerStartPoint;
 	std::shared_ptr<MovementPoint> currentMovementPoint;
 	std::shared_ptr<Player> player = nullptr;
 	std::string currentText;
 
 public:
+
+	void ResetGame()
+	{
+		player->changePosition(playerStartPoint);
+		currentMovementPoint = nullptr;
+		manager_UI.ClearDialogue();
+	}
+
 	void SetPlayer(const std::shared_ptr<Player>& newPlayer)
 	{
 		player = newPlayer;
+		playerStartPoint = player->transform.translation;
 	}
 
 	void MovePlayer(std::shared_ptr<MovementPoint> newPos)
@@ -64,59 +127,7 @@ public:
 	
 }manager_GameManager;
 
-class UI_Manager
-{
 
-private:
-	//dialogue boxes
-	int numberOfDialogueBoxes;
-	std::vector<std::string> dialogueText;
-	std::vector<bool> displayTextVector;
-
-
-	std::string currentText;
-	bool displayText=false;
-public:
-	UI_Manager()
-	{
-		
-	}
-	void addTextBox(const std::string newText)
-	{
-		dialogueText.push_back(newText);
-		std::cout << dialogueText.size();
-		displayTextVector.push_back(true);
-	}
-	void setText(const std::string newText)
-	{
-		currentText = newText;
-
-	}
-	std::string getText() { return currentText; }
-	bool shouldDisplayText() { return displayText; }
-	void setDisplayCondition(bool condition)
-	{
-		displayText = condition;
-	}
-	void DisplayNextBox()
-	{
-		if (dialogueText.empty()) { setDisplayCondition(false); std::cout << "empty"; }
-		else
-		{
-			DisplayDialogue(dialogueText.back());
-			std::cout << "\n\n" << dialogueText.size() << "\n\n";
-			//displayTextVector.pop_back();
-			
-		}
-	}
-	void DisplayDialogue(const std::string newText)
-	{
-		setText(newText);
-		setDisplayCondition(true);
-	}
-	void movetonextdialogue(){ dialogueText.pop_back(); }
-
-}manager_UI;
 
 class Event_TextBox :public Event
 {
@@ -136,13 +147,8 @@ public:
 	void setString(std::string s) { stringtoprint = s; }
 	void doThing() override
 	{
-
 		manager_UI.addTextBox(stringtoprint);
 		manager_UI.DisplayNextBox();
-
-		//manager_UI.DisplayDialogue(stringtoprint);
-
-		std::cout << stringtoprint;
 	}
 };
 
