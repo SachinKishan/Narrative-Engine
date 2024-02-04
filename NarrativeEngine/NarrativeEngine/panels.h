@@ -2,6 +2,7 @@
 
 #include <functional>
 #include "scene.h"
+
 /**
  * Every window has the following
  * Name- placed in ImGui:Begin(name)
@@ -497,11 +498,27 @@ inline void Window_GameView()
 }
 
 
+void Window_Dialogue()
+{
+        //ImGui::Begin("");
+		ImGui::SetNextWindowPos(ImVec2(0,SCR_HEIGHT-150));
+		ImGui::SetNextWindowSize(ImVec2(SCR_WIDTH,150));
+        ImGui::Begin("MyFixedWindow",nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse);
 
-
-
+        ImGui::Text(manager_UI.getText().c_str());
+        if(ImGui::Button("Ok"))
+        {
+            manager_UI.setDisplayCondition(false);
+        }
+		
+        ImGui::End();
+}
 
 inline void Window_Debug()//window for debugging
 {
-	
+    ImGui::Begin("Debug");
+	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
+        1000.0f / ImGui::GetIO().Framerate,
+        ImGui::GetIO().Framerate);
+    ImGui::End();
 }

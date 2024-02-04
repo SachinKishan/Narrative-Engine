@@ -211,7 +211,7 @@ int main()
     quad->material.shader.setInt("texture1", 0);
 
 
-
+    bool o = true;
     setCamera(editViewCamera);
     // render loop
     // -----------
@@ -279,9 +279,12 @@ int main()
             //editor windows
             Window_ObjectSelection();
             Window_SceneTree();
-            
-
         }
+        if(manager_UI.shouldDisplayText())
+        {
+            Window_Dialogue();
+        }
+
     	Window_General();
         //Window_Basic();
 

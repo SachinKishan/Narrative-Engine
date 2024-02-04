@@ -18,53 +18,14 @@
 ///parse through each of the event objects and make their function calls
 ///
 
-class Event_Print:public Event
-{
-private:
-	std::string stringtoprint;
-public:
-	Event_Print() { setEventType(EventType::Print); }
-	Event_Print(std::string ename, EventType etype, EventTime etime, std::string s)
-	{
-		setEventType(EventType::Print);
-		setEventName(ename);
-		setEventTime(etime);
-		stringtoprint = s;
-	}
-	
-	std::string getString() { return stringtoprint; }
-	void setString(std::string s) { stringtoprint = s; }
-	void doThing() override
-	{
-		std::cout << stringtoprint;
-	}
-};
 
-class PrintNum_Event :public Event
-{
-private:
-	
-public:
-	PrintNum_Event() = default;
-	PrintNum_Event(std::string ename, EventType etype, EventTime etime)
-	{
-		setEventType(etype);
-		setEventName(ename);
-		setEventTime(etime);
-		setEventType(EventType::TextBox);
-	}
-	void doThing() override
-	{
-		std::cout << 10;
-	}
-};
 
 inline class GameManager
 {
 private:
 	std::shared_ptr<MovementPoint> currentMovementPoint;
 	std::shared_ptr<Player> player = nullptr;
-
+	std::string currentText;
 
 public:
 	void SetPlayer(const std::shared_ptr<Player>& newPlayer)
@@ -87,3 +48,69 @@ public:
 		}
 	}
 }manager_GameManager;
+
+class UI_Manager
+{
+
+private:
+	std::string currentText;
+	bool displayText=false;
+public:
+	UI_Manager()
+	{
+		
+	}
+	void setText(const std::string newText) { currentText = newText; }
+	std::string getText() { return currentText; }
+	bool shouldDisplayText() { return displayText; }
+	void setDisplayCondition(bool condition) { displayText = condition; }
+	void DisplayDialogue(const std::string newText)
+	{
+		setText(newText);
+		displayText = true;
+	}
+
+
+}manager_UI;
+
+class Event_Print :public Event
+{
+private:
+	std::string stringtoprint;
+public:
+	Event_Print() { setEventType(EventType::Print); }
+	Event_Print(std::string ename, EventType etype, EventTime etime, std::string s)
+	{
+		setEventType(EventType::Print);
+		setEventName(ename);
+		setEventTime(etime);
+		stringtoprint = s;
+	}
+
+	std::string getString() { return stringtoprint; }
+	void setString(std::string s) { stringtoprint = s; }
+	void doThing() override
+	{
+		std::cout << stringtoprint;
+	}
+};
+
+class PrintNum_Event :public Event
+{
+private:
+
+public:
+	PrintNum_Event() = default;
+	PrintNum_Event(std::string ename, EventType etype, EventTime etime)
+	{
+		setEventType(etype);
+		setEventName(ename);
+		setEventTime(etime);
+		setEventType(EventType::TextBox);
+	}
+	void doThing() override
+	{
+		manager_UI.DisplayDialogue("The number 10 is interesting");
+		std::cout << 10;
+	}
+};
