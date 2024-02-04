@@ -18,6 +18,63 @@
 ///parse through each of the event objects and make their function calls
 ///
 
+struct Item
+{
+public:
+	std::string name;
+	int count=1;
+};
+
+class Inventory
+{
+private:
+	std::vector<std::string> itemNames;
+	std::vector<Item> itemsHeldCurrently;
+public:
+	void addItemToList(const std::string i)
+	{
+		itemNames.push_back(i);
+	}
+	void removeItemFromList()
+	{
+		if (!itemNames.empty())
+		{
+			itemNames.pop_back();
+		}
+	}
+	void addItemToInventory(Item i)
+	{
+		for (auto it = itemsHeldCurrently.begin(); it != itemsHeldCurrently.end(); ++it)
+		{
+			if (it->name == i.name)
+			{
+				it->count += i.count;
+				if (it->count == 0)
+				{
+					itemsHeldCurrently.erase(it);
+				}
+				break; 
+			}
+		}
+	}
+	void removeItemFromInventory(Item i)
+	{
+		for (auto it = itemsHeldCurrently.begin(); it != itemsHeldCurrently.end(); ++it)
+		{
+			if (it->name == i.name)
+			{
+				it->count -= i.count;
+				if (it->count == 0)
+				{
+					itemsHeldCurrently.erase(it);
+				}
+				break;
+			}
+		}
+	}
+};
+
+
 class UI_Manager
 {
 
@@ -156,7 +213,7 @@ class PrintNum_Event :public Event
 {
 private:
 
-public:
+public: 
 	PrintNum_Event() = default;
 	PrintNum_Event(std::string ename, EventType etype, EventTime etime)
 	{
