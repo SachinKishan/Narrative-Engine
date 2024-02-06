@@ -732,7 +732,8 @@ enum EventTime
 enum EventType
 {
 	TextBox,
-    Print
+    Print,
+    Inventory
 };
 class Event
 {

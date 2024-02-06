@@ -286,6 +286,7 @@ int main()
         }
 
     	Window_General();
+        Window_Inventory();
         //Window_Basic();
         //Window_Debug();
 

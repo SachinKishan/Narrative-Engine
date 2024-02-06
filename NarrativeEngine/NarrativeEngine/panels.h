@@ -349,8 +349,9 @@ inline void Window_ObjectSelection()
 
                 switch(event->getType())
                 {
-                case EventType::Print: ImGui::Text("Display Text Event"); break;
-                case EventType::TextBox: ImGui::Text("Print a number"); break;
+                //case EventType::Print: ImGui::Text("Print a number"); break;
+                case EventType::TextBox: ImGui::Text("Display Text Event"); break;
+                case EventType::Inventory: ImGui::Text("Inventory event"); break;
                 default: break;
                 }
 
@@ -378,7 +379,8 @@ inline void Window_ObjectSelection()
                     // Update the event type if changed
                     event->setEventTime(static_cast<EventTime>(currentEventType));
                 }
-                if (event->getType() == EventType::Print)
+
+            	if (event->getType() == EventType::TextBox)
                 {
                     std::shared_ptr<Event_TextBox> ep = std::dynamic_pointer_cast<Event_TextBox>(event);
                     char eventText[256]; // Assuming a maximum name length of 255 characters
@@ -397,6 +399,36 @@ inline void Window_ObjectSelection()
                     
 
                 }
+
+                else if(event->getType()==EventType::Inventory)
+                {
+                    std::shared_ptr<Event_Inventory> ep = std::static_pointer_cast<Event_Inventory>(event);
+
+
+                    ImGui::Text("Item name: ");
+                    ImGui::SameLine();
+                    ImGui::Text(ep->getItem().name.c_str());
+                    int n = ep->getItem().count;
+                    ImGui::InputInt("Integer Value", &n);
+                    ep->setCount(n);
+
+                    if (ImGui::Selectable("Add Inventory Item", false, 0, ImVec2(ImGui::GetWindowContentRegionWidth(), 0))) {
+                        ImGui::OpenPopup("InventoryItemsPopup");
+                    }
+                    if (ImGui::BeginPopup("InventoryItemsPopup")) {
+                        for (const auto& itemName : manager_Inventory.getItemNames()) {
+                            if (ImGui::Selectable(itemName.c_str()))
+                            {
+                                printf("Selected item: %s\n", itemName.c_str());
+                                
+                                ep->setItem(itemName,0);
+                            }
+                        }
+                        ImGui::EndPopup();
+                    }
+                }
+
+
             }
 
             if(ImGui::BeginMenu("Add New Event"))
@@ -407,12 +439,17 @@ inline void Window_ObjectSelection()
                     point->events.push_back(e);
                     std::cout << "Event added";
                 }
-                if (ImGui::Button("Add print number event"))
+                /*if (ImGui::Button("Add print number event"))
                 {
                     std::shared_ptr<PrintNum_Event> e = std::make_shared<PrintNum_Event>();
                     point->events.push_back(e);
                     std::cout << "Event added";
-
+                }*/
+                if(ImGui::Button("Add inventory event"))
+                {
+                    std::shared_ptr<Event_Inventory> e = std::make_shared<Event_Inventory>();
+                    point->events.push_back(e);
+                    std::cout << "Event added";
                 }
                 if (ImGui::Button("Delete last event"))
                 {
@@ -420,6 +457,8 @@ inline void Window_ObjectSelection()
                 }
                 ImGui::EndMenu();
             }
+            
+
         }
 
         
@@ -519,8 +558,60 @@ inline void Window_GameView()
 
 }
 
+inline void Window_Inventory()
+{
+    static char inputBuffer[256] = "";
 
-void Window_Dialogue()
+    ImGui::Begin("Inventory");
+
+    if (ImGui::InputText("Enter new item name: ", inputBuffer, sizeof(inputBuffer), ImGuiInputTextFlags_EnterReturnsTrue))
+    {
+        std::string itemName = inputBuffer;
+        manager_Inventory.addItemToList(itemName);
+        memset(inputBuffer, 0, sizeof(inputBuffer));
+    }
+    if(ImGui::Button("Add New Item"))
+    {
+        std::string itemName = inputBuffer;
+        manager_Inventory.addItemToList(itemName);
+        memset(inputBuffer, 0, sizeof(inputBuffer));
+    }
+    std::vector<std::string> itemNames = manager_Inventory.getItemNames();
+    for (auto name : itemNames)
+    {
+        ImGui::Text(name.c_str());
+    }
+    if(ImGui::Button("Delete last item"))
+    {
+        manager_Inventory.removeLastItemFromList();
+    }
+
+
+
+    //demo button for adding to inventory
+    if (ImGui::Selectable("Add Inventory Item", false, 0, ImVec2(ImGui::GetWindowContentRegionWidth(), 0))) {
+        // Open the dropdown when the item is clicked
+        ImGui::OpenPopup("InventoryItemsPopup");
+    }
+
+    // Dropdown for inventory items
+    if (ImGui::BeginPopup("InventoryItemsPopup")) {
+        for (const auto& item : manager_Inventory.getItemNames()) {
+            // Selectable items in the dropdown
+            if (ImGui::Selectable(item.c_str())) 
+            {
+                printf("Selected item: %s\n", item.c_str());
+                //when a user selects, that event is generated and the item is selected along with a number box next to it
+            }
+        }
+        ImGui::EndPopup();
+    }
+
+
+    ImGui::End();
+}
+
+inline void Window_Dialogue()
 {
         ImGui::SetNextWindowPos(ImVec2(0, SCR_HEIGHT - 150));
         ImGui::SetNextWindowSize(ImVec2(SCR_WIDTH, 150));

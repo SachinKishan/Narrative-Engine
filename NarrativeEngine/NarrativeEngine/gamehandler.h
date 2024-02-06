@@ -31,11 +31,13 @@ private:
 	std::vector<std::string> itemNames;
 	std::vector<Item> itemsHeldCurrently;
 public:
+	std::vector<std::string>& getItemNames() { return itemNames; }
+	std::vector<Item>& getCurrentInventory() { return itemsHeldCurrently; }
 	void addItemToList(const std::string i)
 	{
 		itemNames.push_back(i);
 	}
-	void removeItemFromList()
+	void removeLastItemFromList()
 	{
 		if (!itemNames.empty())
 		{
@@ -64,7 +66,7 @@ public:
 			if (it->name == i.name)
 			{
 				it->count -= i.count;
-				if (it->count == 0)
+				if (it->count <= 0)
 				{
 					itemsHeldCurrently.erase(it);
 				}
@@ -72,7 +74,7 @@ public:
 			}
 		}
 	}
-};
+}manager_Inventory;
 
 
 class UI_Manager
@@ -191,10 +193,10 @@ class Event_TextBox :public Event
 private:
 	std::string stringtoprint;
 public:
-	Event_TextBox() { setEventType(EventType::Print); }
+	Event_TextBox() { setEventType(EventType::TextBox); }
 	Event_TextBox(std::string ename, EventType etype, EventTime etime, std::string s)
 	{
-		setEventType(EventType::Print);
+		setEventType(EventType::TextBox);
 		setEventName(ename);
 		setEventTime(etime);
 		 setString(s);
@@ -220,10 +222,43 @@ public:
 		setEventType(etype);
 		setEventName(ename);
 		setEventTime(etime);
-		setEventType(EventType::TextBox);
+		setEventType(EventType::Print);
 	}
 	void doThing() override
 	{
 		std::cout << 10;
+	}
+};
+
+class Event_Inventory :public Event
+{
+private:
+	Item item;
+
+public:
+	Event_Inventory()
+	{
+		item.name = "";
+		item.count = 0;
+		setEventType(EventType::Inventory);
+	}
+	Event_Inventory(std::string ename, EventTime etime, std::string name, int count)
+	{
+		setEventName(ename);
+		setEventTime(etime);
+		item.name = name;
+		item.count = count;
+		setEventType(EventType::Inventory);
+	}
+	void setItem(std::string itemName, int n)
+	{
+		item.name = itemName;
+		item.count = n;
+	}
+	void setCount(int n) { item.count = n; }
+	Item getItem() { return item; }
+	void doThing() override
+	{
+		manager_Inventory.addItemToInventory(item);
 	}
 };

@@ -170,19 +170,30 @@ public:
 
                     if (type == EventType::Print)
                     {
-                        std::string s;
-                        iss >> s;
-                    std:: cout << s;
-                        std::replace(s.begin(), s.end(), '_', ' ');
-                        std::shared_ptr<Event_TextBox> printEvent = std::make_shared<Event_TextBox>(eventName, (EventType)type, (EventTime)time,s);
+                        std::shared_ptr<PrintNum_Event> printEvent = std::make_shared<PrintNum_Event>(eventName, (EventType)type, (EventTime)time);
                         point->events.push_back(printEvent);
                     }
                     else if (type == EventType::TextBox)
                     {
-                        
-                        std::shared_ptr<PrintNum_Event> printEvent = std::make_shared<PrintNum_Event>(eventName, (EventType)type, (EventTime)time);
+                        std::string s;
+                        iss >> s;
+                        std::cout << s;
+                        std::replace(s.begin(), s.end(), '_', ' ');
+                        std::shared_ptr<Event_TextBox> printEvent = std::make_shared<Event_TextBox>(eventName, (EventType)type, (EventTime)time, s);
                         point->events.push_back(printEvent);
                     }
+                    else if(type==EventType::Inventory)
+                    {
+                        std::string itemName;
+                        int count;
+                        iss >> itemName;
+                        std::replace(itemName.begin(), itemName.end(), '_', ' ');
+                        iss >> count;
+                        std::shared_ptr<Event_Inventory> inventoryEvent = std::make_shared<Event_Inventory>(eventName, (EventTime)time, itemName, count);
+                        point->events.push_back(inventoryEvent);
+
+                    }
+
                     
 
                 }
@@ -316,12 +327,12 @@ inline void SaveScene(std::vector<std::shared_ptr<GameObject>> gameObjects)
 	        	outFile << eventname <<" ";
                 outFile <<event->getTime() <<" ";
 
-                if (event->getType() == EventType::TextBox)
+                if (event->getType() == EventType::Print)
                 {
 	                //outFile<<event
                     const auto numEvent = static_cast<PrintNum_Event*>(event.get());
                 }
-                else if (event->getType() == EventType::Print)
+                else if (event->getType() == EventType::TextBox)
                 {
 
                     const auto printEvent = static_cast<Event_TextBox*>(event.get());
@@ -333,6 +344,22 @@ inline void SaveScene(std::vector<std::shared_ptr<GameObject>> gameObjects)
                     else std::replace(s.begin(), s.end(), ' ', '_');
                     outFile << s<<" ";
                 }
+                else if(event->getType()==EventType::Inventory)
+                {
+                    const auto inventoryEvent = static_cast<Event_Inventory*>(event.get());
+                    std::string s = inventoryEvent->getItem().name;
+                    if (s.empty())
+                    {
+                        s = "_";
+                    }
+                    else std::replace(s.begin(), s.end(), ' ', '_');
+                    outFile << s << " ";
+
+                    int count= inventoryEvent->getItem().count;
+                    outFile << count;
+                }
+
+
                 outFile << "\n";
 
 	        }
