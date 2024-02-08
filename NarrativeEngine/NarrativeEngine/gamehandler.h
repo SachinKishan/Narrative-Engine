@@ -33,6 +33,11 @@ private:
 public:
 	std::vector<std::string>& getItemNames() { return itemNames; }
 	std::vector<Item>& getCurrentInventory() { return itemsHeldCurrently; }
+	void clearData()
+	{
+		itemsHeldCurrently.clear();
+		itemNames.clear();
+	}
 	void addItemToList(const std::string i)
 	{
 		itemNames.push_back(i);

@@ -74,6 +74,7 @@ public:
         currentScene.sceneName.clear();
         currentScene.movementPointList.clear();
         currentScene.hasPlayer = false;
+        manager_Inventory.clearData();
     }
 
     void setSceneName(std::wstring fileName)
@@ -105,6 +106,7 @@ public:
                 if (line._Equal("OBJECTS"))mode = 0;
                 else if (line._Equal("EVENTS"))mode = 1;
                 else if (line._Equal("CAMERA"))mode = 2;
+                else if (line._Equal("INVENTORY"))mode = 3;
                 else if (mode==0)
                 {
 
@@ -216,6 +218,13 @@ public:
 
                     gameViewCamera->setCamera(pos,up,yaw,pitch);
                     editViewCamera->copy(gameViewCamera);
+                }
+                else if(mode==3)
+                {
+	                std::istringstream iss(line);
+                    std::string name;
+                    iss >> name;
+                    manager_Inventory.addItemToList(name);
                 }
             }
             inFile.close();
@@ -375,6 +384,15 @@ inline void SaveScene(std::vector<std::shared_ptr<GameObject>> gameObjects)
         outFile << gameViewCamera->Up.z<<" ";
         outFile << gameViewCamera->Pitch<<" ";
         outFile << gameViewCamera->Yaw<<" ";
+
+        outFile << "\n";
+
+        //inventory
+        outFile << "INVENTORY\n";
+
+        for (auto name : manager_Inventory.getItemNames())
+            outFile << name <<" ";
+
 
         outFile.close();
         std::wcout << "File '" << Manager_Scene.filepath << "' created and data written successfully." << std::endl;
