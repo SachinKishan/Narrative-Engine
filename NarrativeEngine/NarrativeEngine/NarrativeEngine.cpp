@@ -277,8 +277,13 @@ int main()
     	if (manager_EditorState.getState() == state_EditorView)
         {
             //editor windows
+            Window_Inventory();
             Window_ObjectSelection();
             Window_SceneTree();
+        }
+        if(manager_EditorState.getState()==state_GameView)
+        {
+            Window_PlayerInventory();
         }
         if(manager_UI.shouldDisplayText())
         {
@@ -286,7 +291,6 @@ int main()
         }
 
     	Window_General();
-        Window_Inventory();
         //Window_Basic();
         //Window_Debug();
 

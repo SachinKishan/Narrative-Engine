@@ -38,6 +38,10 @@ public:
 		itemsHeldCurrently.clear();
 		itemNames.clear();
 	}
+	void clearPlayerInventory()
+	{
+		itemsHeldCurrently.clear();
+	}
 	void addItemToList(const std::string i)
 	{
 		itemNames.push_back(i);
@@ -51,18 +55,21 @@ public:
 	}
 	void addItemToInventory(Item i)
 	{
-		for (auto it = itemsHeldCurrently.begin(); it != itemsHeldCurrently.end(); ++it)
+		
+		for (auto &item:itemsHeldCurrently)
 		{
-			if (it->name == i.name)
+			if (item.name == i.name)
 			{
-				it->count += i.count;
-				if (it->count == 0)
+				item.count += i.count;
+				
+				if (item.count < 0)
 				{
-					itemsHeldCurrently.erase(it);
+					item.count = 0;
 				}
-				break; 
+				return;
 			}
 		}
+		itemsHeldCurrently.push_back(i);
 	}
 	void removeItemFromInventory(Item i)
 	{
@@ -79,6 +86,18 @@ public:
 			}
 		}
 	}
+	bool checkForItem(std::string itemname, int count)
+	{
+		for (auto& item : itemsHeldCurrently)
+		{
+			if (item.name == itemname && item.count>=count)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
 }manager_Inventory;
 
 
@@ -265,5 +284,39 @@ public:
 	void doThing() override
 	{
 		manager_Inventory.addItemToInventory(item);
+	}
+};
+
+class Event_InventoryConditional:public Event
+{
+private:
+	Item item;
+	std::shared_ptr<Event> e;
+public:
+	Event_InventoryConditional()
+	{
+		item.name = "";
+		item.count = 0;
+		setEventType(EventType::InventoryConditional);
+	}
+	Event_InventoryConditional(std::string ename, EventTime etime, std::string name, int count)
+	{
+		setEventName(ename);
+		setEventTime(etime);
+		item.name = name;
+		item.count = count;
+		setEventType(EventType::InventoryConditional);
+	}
+	void setItem(std::string itemName, int n)
+	{
+		item.name = itemName;
+		item.count = n;
+	}
+	void setCount(int n) { item.count = n; }
+	Item getItem() { return item; }
+	void doThing() override
+	{
+		if (manager_Inventory.checkForItem(item.name, item.count))
+			e->doThing();
 	}
 };

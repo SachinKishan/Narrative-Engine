@@ -97,8 +97,6 @@ public:
         std::ifstream inFile(path);
         std::wstring fileName = path.substr(path.find_last_of(L"\\") + 1);
         int mode=0;//0 for reading objects, 1 for reading event data
-        //wprintf(L"Selected File Name: %s\n", fileName.c_str());
-
         setSceneName(fileName);
         if (inFile.is_open()) {
             std::string line;
@@ -391,7 +389,7 @@ inline void SaveScene(std::vector<std::shared_ptr<GameObject>> gameObjects)
         outFile << "INVENTORY\n";
 
         for (auto name : manager_Inventory.getItemNames())
-            outFile << name <<" ";
+            outFile << name <<"\n";
 
 
         outFile.close();

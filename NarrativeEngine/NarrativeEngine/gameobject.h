@@ -733,7 +733,8 @@ enum EventType
 {
 	TextBox,
     Print,
-    Inventory
+    Inventory,
+    InventoryConditional
 };
 class Event
 {

@@ -230,6 +230,166 @@ inline void Window_SceneTree()
     ImGui::End();
 }
 
+void InventorySelectionDisplay(std::shared_ptr<Event> event,int i)
+{
+    bool a = event->getType() == EventType::InventoryConditional;
+    bool b = event->getType() == EventType::Inventory;
+    if (a || b)
+    {
+        if (a)
+        {
+            std::shared_ptr<Event_InventoryConditional> ep = std::static_pointer_cast<Event_InventoryConditional>(event);
+            std::string popupID = "Select Inventory Item##" + std::to_string(i);
+            if (ImGui::BeginMenu(popupID.c_str()))
+            {
+                for (const auto& itemName : manager_Inventory.getItemNames()) {
+                    if (ImGui::MenuItem(itemName.c_str()))
+                    {
+                        printf("Selected item: %s\n", itemName.c_str());
+
+                        ep->setItem(itemName, 0);
+                    }
+                }
+                ImGui::EndMenu();
+
+            }
+
+        }
+        else if (b)
+        {
+            std::shared_ptr<Event_Inventory> ep = std::static_pointer_cast<Event_Inventory>(event);
+            std::string popupID = "Select Inventory Item##" + std::to_string(i);
+            if (ImGui::BeginMenu(popupID.c_str()))
+            {
+                for (const auto& itemName : manager_Inventory.getItemNames()) {
+                    if (ImGui::MenuItem(itemName.c_str()))
+                    {
+                        printf("Selected item: %s\n", itemName.c_str());
+
+                        ep->setItem(itemName, 0);
+                    }
+                }
+                ImGui::EndMenu();
+
+            }
+
+        }
+
+        
+
+        
+    }
+}
+
+void EventEditor(std::shared_ptr<MovementPoint> &point)
+{
+    for (size_t i = 0; i < point->events.size(); ++i) {
+        ImGui::Spacing();
+        ImGui::Spacing();
+        ImGui::Spacing();
+        ImGui::Spacing();
+        ImGui::Spacing();
+
+        auto event = point->events[i];
+
+        switch (event->getType())
+        {
+            //case EventType::Print: ImGui::Text("Print a number"); break;
+        case EventType::TextBox: ImGui::Text("Display Text Event"); break;
+        case EventType::Inventory: ImGui::Text("Inventory event"); break;
+        default: break;
+        }
+
+
+
+        char eventName[256]; // Assuming a maximum name length of 255 characters
+        memset(eventName, 0, sizeof(eventName)); // Clear the memory
+        strcpy_s(eventName, event->getName().c_str());
+
+        // Concatenate the index to the label to make it unique
+        std::string label = "Event Name##" + std::to_string(i);
+
+        ImGui::InputText(label.c_str(), eventName, IM_ARRAYSIZE(eventName));
+
+        // Set the object's name if it's changed
+        if (strcmp(eventName, event->getName().c_str()) != 0) {
+            event->setEventName(eventName);
+        }
+
+        // Display a combo box for selecting the event type
+        const char* eventTypes[] = { "Enter", "Exit" };
+        int currentEventType = static_cast<int>(event->getTime());
+    	label = "Event Type##" + std::to_string(i);
+
+        if (ImGui::Combo(label.c_str(), &currentEventType, eventTypes, IM_ARRAYSIZE(eventTypes)))
+        {
+            // Update the event type if changed
+            event->setEventTime(static_cast<EventTime>(currentEventType));
+        }
+
+        if (event->getType() == EventType::TextBox)
+        {
+            std::shared_ptr<Event_TextBox> ep = std::dynamic_pointer_cast<Event_TextBox>(event);
+            char eventText[256]; // Assuming a maximum name length of 255 characters
+            memset(eventText, 0, sizeof(eventText)); // Clear the memory
+            strcpy_s(eventText, ep->getString().c_str());
+
+            // Concatenate the index to the label to make it unique
+            std::string label = "Event text##" + std::to_string(i);
+
+            ImGui::InputText(label.c_str(), eventText, IM_ARRAYSIZE(eventText));
+
+            // Set the object's name if it's changed
+            if (strcmp(eventText, ep->getString().c_str()) != 0) {
+                ep->setString(eventText);
+            }
+
+
+        }
+
+        else if (event->getType() == EventType::Inventory)
+        {
+            std::shared_ptr<Event_Inventory> ep = std::static_pointer_cast<Event_Inventory>(event);
+
+
+            ImGui::Text("Item name: ");
+            ImGui::SameLine();
+            ImGui::Text(ep->getItem().name.c_str());
+            int n = ep->getItem().count;
+            std::string label = "Value change#" + std::to_string(i);
+            ImGui::InputInt(label.c_str(), &n);
+            ep->setCount(n);
+            InventorySelectionDisplay(event, i);
+        }
+
+        else if (event->getType() == EventType::InventoryConditional)
+        {
+            std::shared_ptr<Event_InventoryConditional> ep = std::static_pointer_cast<Event_InventoryConditional>(event);
+            ImGui::Text("Item name: ");
+            ImGui::SameLine();
+            ImGui::Text(ep->getItem().name.c_str());
+            InventorySelectionDisplay(event, i);
+            int n = ep->getItem().count;
+            ImGui::InputInt("Required number of selected item for condition to execute", &n);
+            ep->setCount(n);
+
+            ImGui::Indent(30);
+            ImGui::Spacing();
+            ImGui::Spacing();
+            ImGui::Spacing();
+            ImGui::Text("Select Event");
+
+
+            ImGui::Unindent(30);
+
+        }
+
+        //else if(eve)
+
+    }
+
+}
+
 inline void Window_ObjectSelection()
 {
     ImGui::Begin("Object Selection");
@@ -337,100 +497,18 @@ inline void Window_ObjectSelection()
             std::shared_ptr<MovementPoint> point
                 = std::dynamic_pointer_cast<MovementPoint>(selectedObject);
 
+            //make all of these into functions, section them off to make easier to modularise in other functions
+            EventEditor(point);
 
-            for (size_t i = 0; i < point->events.size(); ++i) {
-                ImGui::Spacing();
-                ImGui::Spacing();
-                ImGui::Spacing();
-                ImGui::Spacing();
-                ImGui::Spacing();
-
-                auto event = point->events[i];
-
-                switch(event->getType())
-                {
-                //case EventType::Print: ImGui::Text("Print a number"); break;
-                case EventType::TextBox: ImGui::Text("Display Text Event"); break;
-                case EventType::Inventory: ImGui::Text("Inventory event"); break;
-                default: break;
-                }
-
-                
-
-                char eventName[256]; // Assuming a maximum name length of 255 characters
-                memset(eventName, 0, sizeof(eventName)); // Clear the memory
-                strcpy_s(eventName, event->getName().c_str());
-
-                // Concatenate the index to the label to make it unique
-                std::string label = "Event Name##" + std::to_string(i);
-
-                ImGui::InputText(label.c_str(), eventName, IM_ARRAYSIZE(eventName));
-
-                // Set the object's name if it's changed
-                if (strcmp(eventName, event->getName().c_str()) != 0) {
-                    event->setEventName(eventName);
-                }
-
-                // Display a combo box for selecting the event type
-                const char* eventTypes[] = { "Enter", "Exit" };
-                int currentEventType = static_cast<int>(event->getTime());
-                if (ImGui::Combo("Event Type", &currentEventType, eventTypes, IM_ARRAYSIZE(eventTypes)))
-                {
-                    // Update the event type if changed
-                    event->setEventTime(static_cast<EventTime>(currentEventType));
-                }
-
-            	if (event->getType() == EventType::TextBox)
-                {
-                    std::shared_ptr<Event_TextBox> ep = std::dynamic_pointer_cast<Event_TextBox>(event);
-                    char eventText[256]; // Assuming a maximum name length of 255 characters
-                    memset(eventText, 0, sizeof(eventText)); // Clear the memory
-                    strcpy_s(eventText, ep->getString().c_str());
-
-                    // Concatenate the index to the label to make it unique
-                    std::string label = "Event text##" + std::to_string(i);
-
-                    ImGui::InputText(label.c_str(), eventText, IM_ARRAYSIZE(eventText));
-
-                    // Set the object's name if it's changed
-                    if (strcmp(eventText, ep->getString().c_str()) != 0) {
-                        ep->setString(eventText);
-                    }
-                    
-
-                }
-
-                else if(event->getType()==EventType::Inventory)
-                {
-                    std::shared_ptr<Event_Inventory> ep = std::static_pointer_cast<Event_Inventory>(event);
-
-
-                    ImGui::Text("Item name: ");
-                    ImGui::SameLine();
-                    ImGui::Text(ep->getItem().name.c_str());
-                    int n = ep->getItem().count;
-                    ImGui::InputInt("Integer Value", &n);
-                    ep->setCount(n);
-
-                    if (ImGui::Selectable("Add Inventory Item", false, 0, ImVec2(ImGui::GetWindowContentRegionWidth(), 0))) {
-                        ImGui::OpenPopup("InventoryItemsPopup");
-                    }
-                    if (ImGui::BeginPopup("InventoryItemsPopup")) {
-                        for (const auto& itemName : manager_Inventory.getItemNames()) {
-                            if (ImGui::Selectable(itemName.c_str()))
-                            {
-                                printf("Selected item: %s\n", itemName.c_str());
-                                
-                                ep->setItem(itemName,0);
-                            }
-                        }
-                        ImGui::EndPopup();
-                    }
-                }
-
-
-            }
-
+            ImGui::Spacing();
+            ImGui::Spacing();
+            ImGui::Spacing();
+        	ImGui::Spacing();
+            ImGui::Spacing();
+            ImGui::Spacing();
+        	ImGui::Spacing();
+            ImGui::Spacing();
+            ImGui::Spacing();
             if(ImGui::BeginMenu("Add New Event"))
             {
                 if (ImGui::Button("Add text box event"))
@@ -448,6 +526,12 @@ inline void Window_ObjectSelection()
                 if(ImGui::Button("Add inventory event"))
                 {
                     std::shared_ptr<Event_Inventory> e = std::make_shared<Event_Inventory>();
+                    point->events.push_back(e);
+                    std::cout << "Event added";
+                }
+                if (ImGui::Button("Add inventory conditional event"))
+                {
+                    std::shared_ptr<Event_InventoryConditional> e = std::make_shared<Event_InventoryConditional>();
                     point->events.push_back(e);
                     std::cout << "Event added";
                 }
@@ -481,7 +565,7 @@ inline void Window_General()
         manager_EditorState.setState(state_EditorView);
         setCamera(editViewCamera);
         manager_GameManager.ResetGame();
-
+        manager_Inventory.clearPlayerInventory();
     }
     // Assuming manager_EditorState.getState() returns a string
     if (manager_EditorState.getState() == state_EditorView)ImGui::Text("State: Editor");
@@ -640,6 +724,20 @@ inline void Window_Debug()//window for debugging
         manager_UI.addTextBox("dummy tex");
         manager_UI.DisplayNextBox();
         
+    }
+
+    ImGui::End();
+}
+
+inline void Window_PlayerInventory()
+{
+    ImGui::Begin("Inventory");
+
+    for(auto a:manager_Inventory.getCurrentInventory())
+    {
+        ImGui::Text(a.name.c_str());
+        ImGui::SameLine();
+        ImGui::Text("%d",a.count);
     }
 
     ImGui::End();
