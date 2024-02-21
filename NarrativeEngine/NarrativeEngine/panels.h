@@ -238,6 +238,7 @@ void InventorySelectionDisplay(std::shared_ptr<Event> event,int i)
     {
         if (a)
         {
+            /*
             std::shared_ptr<Event_InventoryConditional> ep = std::static_pointer_cast<Event_InventoryConditional>(event);
             std::string popupID = "Select Inventory Item##" + std::to_string(i);
             if (ImGui::BeginMenu(popupID.c_str()))
@@ -253,7 +254,7 @@ void InventorySelectionDisplay(std::shared_ptr<Event> event,int i)
                 ImGui::EndMenu();
 
             }
-
+            */
         }
         else if (b)
         {
@@ -280,7 +281,41 @@ void InventorySelectionDisplay(std::shared_ptr<Event> event,int i)
         
     }
 }
-
+inline void EventSelection(std::shared_ptr<MovementPoint>& point)
+{
+    if (ImGui::BeginMenu("Add New Event"))
+    {
+        if (ImGui::Button("Add text box event"))
+        {
+            std::shared_ptr<Event_TextBox> e = std::make_shared<Event_TextBox>();
+            point->events.push_back(e);
+            std::cout << "Event added";
+        }
+        /*if (ImGui::Button("Add print number event"))
+                {
+                    std::shared_ptr<PrintNum_Event> e = std::make_shared<PrintNum_Event>();
+                    point->events.push_back(e);
+                    std::cout << "Event added";
+                }*/
+        if (ImGui::Button("Add inventory event"))
+        {
+            std::shared_ptr<Event_Inventory> e = std::make_shared<Event_Inventory>();
+            point->events.push_back(e);
+            std::cout << "Event added";
+        }
+        /*if (ImGui::Button("Add inventory conditional event"))
+        {
+            std::shared_ptr<Event_InventoryConditional> e = std::make_shared<Event_InventoryConditional>();
+            point->events.push_back(e);
+            std::cout << "Event added";
+        }*/
+        if (ImGui::Button("Delete last event"))
+        {
+            point->events.pop_back();
+        }
+        ImGui::EndMenu();
+    }
+}
 void EventEditor(std::shared_ptr<MovementPoint> &point)
 {
     for (size_t i = 0; i < point->events.size(); ++i) {
@@ -378,7 +413,7 @@ void EventEditor(std::shared_ptr<MovementPoint> &point)
             ImGui::Spacing();
             ImGui::Spacing();
             ImGui::Text("Select Event");
-
+            //EventSelection(point);
 
             ImGui::Unindent(30);
 
@@ -389,6 +424,8 @@ void EventEditor(std::shared_ptr<MovementPoint> &point)
     }
 
 }
+
+
 
 inline void Window_ObjectSelection()
 {
@@ -509,38 +546,7 @@ inline void Window_ObjectSelection()
         	ImGui::Spacing();
             ImGui::Spacing();
             ImGui::Spacing();
-            if(ImGui::BeginMenu("Add New Event"))
-            {
-                if (ImGui::Button("Add text box event"))
-                {
-                    std::shared_ptr<Event_TextBox> e = std::make_shared<Event_TextBox>();
-                    point->events.push_back(e);
-                    std::cout << "Event added";
-                }
-                /*if (ImGui::Button("Add print number event"))
-                {
-                    std::shared_ptr<PrintNum_Event> e = std::make_shared<PrintNum_Event>();
-                    point->events.push_back(e);
-                    std::cout << "Event added";
-                }*/
-                if(ImGui::Button("Add inventory event"))
-                {
-                    std::shared_ptr<Event_Inventory> e = std::make_shared<Event_Inventory>();
-                    point->events.push_back(e);
-                    std::cout << "Event added";
-                }
-                if (ImGui::Button("Add inventory conditional event"))
-                {
-                    std::shared_ptr<Event_InventoryConditional> e = std::make_shared<Event_InventoryConditional>();
-                    point->events.push_back(e);
-                    std::cout << "Event added";
-                }
-                if (ImGui::Button("Delete last event"))
-                {
-                    point->events.pop_back();
-                }
-                ImGui::EndMenu();
-            }
+            EventSelection(point);
             
 
         }

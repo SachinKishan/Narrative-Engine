@@ -742,6 +742,11 @@ private:
     EventTime eventTime=Enter;
     std::string eventName;
     EventType eventType;
+
+    //allow user to create conditions if they want
+
+
+
 public:
     Event() {}
     Event(std::string ename, EventType etype, EventTime etime)
