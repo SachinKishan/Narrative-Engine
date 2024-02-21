@@ -259,7 +259,7 @@ void InventorySelectionDisplay(std::shared_ptr<Event> event,int i)
         else if (b)
         {
             std::shared_ptr<Event_Inventory> ep = std::static_pointer_cast<Event_Inventory>(event);
-            std::string popupID = "Select Inventory Item##" + std::to_string(i);
+            std::string popupID = "Select Inventory Item#" + std::to_string(i);
             if (ImGui::BeginMenu(popupID.c_str()))
             {
                 for (const auto& itemName : manager_Inventory.getItemNames()) {
@@ -281,6 +281,7 @@ void InventorySelectionDisplay(std::shared_ptr<Event> event,int i)
         
     }
 }
+
 inline void EventSelection(std::shared_ptr<MovementPoint>& point)
 {
     if (ImGui::BeginMenu("Add New Event"))
@@ -396,7 +397,7 @@ void EventEditor(std::shared_ptr<MovementPoint> &point)
             ep->setCount(n);
             InventorySelectionDisplay(event, i);
         }
-
+        /*
         else if (event->getType() == EventType::InventoryConditional)
         {
             std::shared_ptr<Event_InventoryConditional> ep = std::static_pointer_cast<Event_InventoryConditional>(event);
@@ -417,10 +418,36 @@ void EventEditor(std::shared_ptr<MovementPoint> &point)
 
             ImGui::Unindent(30);
 
+        }*/
+
+		//handle conditionals on the event
+        label = "Is event conditional?#" + std::to_string(i);
+        bool b=event->getIsConditional();
+        ImGui::Checkbox(label.c_str(), &b);
+        event->setConditional(b);
+        if(event->getIsConditional())//let user set condition for event
+        {
+            ImGui::Text("Item name: ");
+            ImGui::SameLine();
+            ImGui::Text(event->conditionalEventData.getItem().name.c_str());
+            int n = event->conditionalEventData.getItem().count;
+            std::string label = "Value must be more than or equal to#" + std::to_string(i);
+            ImGui::InputInt(label.c_str(), &n);
+            event->conditionalEventData.setCount(n);
+            std::string popupID = "Conditional Inventory Item#" + std::to_string(i);
+            if (ImGui::BeginMenu(popupID.c_str()))
+            {
+                for (const auto& itemName : manager_Inventory.getItemNames()) {
+                    if (ImGui::MenuItem(itemName.c_str()))
+                    {
+                        printf("Selected item: %s\n", itemName.c_str());
+
+                        event->conditionalEventData.setItem(itemName, 0);
+                    }
+                }
+                ImGui::EndMenu();
+            }
         }
-
-        //else if(eve)
-
     }
 
 }

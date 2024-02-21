@@ -900,6 +900,7 @@ public:
     EventTime getTime() { return eventTime; }
     EventType getType() { return eventType; }
     void setConditional(bool con) { isConditional = con; }
+    bool getIsConditional() { return isConditional; }
 };
 
 
