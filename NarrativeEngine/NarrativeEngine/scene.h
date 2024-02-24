@@ -157,11 +157,16 @@ public:
                     int time;
                     std::string eventName;
                     std::string objName;
+                    bool conditional;
+                    int c;
                     iss >> type;
                     iss >> objName;
                     iss >> eventName;
                 	iss >> time;
-                    
+                    iss >> c;
+                    std::cout << std::endl << c;
+                    conditional = c == 1;
+
                 	std::shared_ptr<MovementPoint> point;
                     for (const auto& p : currentScene.movementPointList)
                     {
@@ -171,27 +176,70 @@ public:
                     if (type == EventType::Print)
                     {
                         std::shared_ptr<PrintNum_Event> printEvent = std::make_shared<PrintNum_Event>(eventName, (EventType)type, (EventTime)time);
-                        point->events.push_back(printEvent);
+                        printEvent->setConditional(conditional);
+                        if (conditional)
+                        {
+                            std::string itemName;
+                            int count;
+                            iss >> itemName;
+                            iss >> count;
+                            printEvent->conditionalEventData.setItem(itemName,count);
+                            printEvent->conditionalEventData.setCount(count);
+                        }
+                    	point->events.push_back(printEvent);
                     }
                     else if (type == EventType::TextBox)
                     {
+                        std::string itemName;
+                        int count;
+                       
+                        if (conditional)
+                        {
+
+                            iss >> itemName;
+                            iss >> count;
+                           
+                        }
                         std::string s;
                         iss >> s;
-                        std::cout << s;
+                        //std::cout << s;
                         std::replace(s.begin(), s.end(), '_', ' ');
                         std::shared_ptr<Event_TextBox> printEvent = std::make_shared<Event_TextBox>(eventName, (EventType)type, (EventTime)time, s);
-                        point->events.push_back(printEvent);
+                        printEvent->setConditional(conditional);
+                    	if (conditional)
+                        {
+                            printEvent->conditionalEventData.setItem(itemName,count);
+                            printEvent->conditionalEventData.setCount(count);
+                        }
+                    	point->events.push_back(printEvent);
                     }
                     else if(type==EventType::Inventory)
                     {
+
+                        std::string citemName;
                         std::string itemName;
+                        int ccount;
                         int count;
+
+                        if (conditional)
+                        {
+
+                            iss >> citemName;
+                            iss >> ccount;
+
+                        }
                         iss >> itemName;
                         std::replace(itemName.begin(), itemName.end(), '_', ' ');
                         iss >> count;
                         std::shared_ptr<Event_Inventory> inventoryEvent = std::make_shared<Event_Inventory>(eventName, (EventTime)time, itemName, count);
-                        point->events.push_back(inventoryEvent);
+                        inventoryEvent->setConditional(conditional);
+                    	if (conditional)
+                        {
+                            inventoryEvent->conditionalEventData.setItem(citemName,count);
+                            inventoryEvent->conditionalEventData.setCount(ccount);
+                        }
 
+                    	point->events.push_back(inventoryEvent);
                     }
 
                     
@@ -333,7 +381,12 @@ inline void SaveScene(std::vector<std::shared_ptr<GameObject>> gameObjects)
                 else std::replace(eventname.begin(), eventname.end(), ' ', '_');
 	        	outFile << eventname <<" ";
                 outFile <<event->getTime() <<" ";
-
+                outFile << (event->getIsConditional() ? 1:0) << " ";
+                if (event->getIsConditional())
+                {
+                    outFile << event->conditionalEventData.getItem().name << " ";
+                    outFile << event->conditionalEventData.getItem().count << " ";
+                }
                 if (event->getType() == EventType::Print)
                 {
 	                //outFile<<event
@@ -365,7 +418,7 @@ inline void SaveScene(std::vector<std::shared_ptr<GameObject>> gameObjects)
                     int count= inventoryEvent->getItem().count;
                     outFile << count;
                 }
-
+                
 
                 outFile << "\n";
 
