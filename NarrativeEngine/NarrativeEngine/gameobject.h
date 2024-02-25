@@ -734,7 +734,7 @@ enum EventType
 	TextBox,
     Print,
     Inventory,
-    InventoryConditional
+    SceneChange
 };
 
 struct Item
@@ -911,7 +911,10 @@ private:
 public:
     //array of events
     std::vector<std::shared_ptr<Event>> events;
-
+    void deleteSpecificEvent()
+    {
+	    
+    }
    
 
     MovementPoint() {

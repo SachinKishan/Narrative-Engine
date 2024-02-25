@@ -232,32 +232,6 @@ inline void Window_SceneTree()
 
 void InventorySelectionDisplay(std::shared_ptr<Event> event,int i)
 {
-    bool a = event->getType() == EventType::InventoryConditional;
-    bool b = event->getType() == EventType::Inventory;
-    if (a || b)
-    {
-        if (a)
-        {
-            /*
-            std::shared_ptr<Event_InventoryConditional> ep = std::static_pointer_cast<Event_InventoryConditional>(event);
-            std::string popupID = "Select Inventory Item##" + std::to_string(i);
-            if (ImGui::BeginMenu(popupID.c_str()))
-            {
-                for (const auto& itemName : manager_Inventory.getItemNames()) {
-                    if (ImGui::MenuItem(itemName.c_str()))
-                    {
-                        printf("Selected item: %s\n", itemName.c_str());
-
-                        ep->setItem(itemName, 0);
-                    }
-                }
-                ImGui::EndMenu();
-
-            }
-            */
-        }
-        else if (b)
-        {
             std::shared_ptr<Event_Inventory> ep = std::static_pointer_cast<Event_Inventory>(event);
             std::string popupID = "Select Inventory Item#" + std::to_string(i);
             if (ImGui::BeginMenu(popupID.c_str()))
@@ -273,13 +247,6 @@ void InventorySelectionDisplay(std::shared_ptr<Event> event,int i)
                 ImGui::EndMenu();
 
             }
-
-        }
-
-        
-
-        
-    }
 }
 
 inline void EventSelection(std::shared_ptr<MovementPoint>& point)
@@ -304,22 +271,24 @@ inline void EventSelection(std::shared_ptr<MovementPoint>& point)
             point->events.push_back(e);
             std::cout << "Event added";
         }
-        /*if (ImGui::Button("Add inventory conditional event"))
+        if(ImGui::Button("Add scene change event"))
         {
-            std::shared_ptr<Event_InventoryConditional> e = std::make_shared<Event_InventoryConditional>();
+            std::shared_ptr<Event_SceneChange> e = std::make_shared<Event_SceneChange>();
             point->events.push_back(e);
             std::cout << "Event added";
-        }*/
+        }
         if (ImGui::Button("Delete last event"))
         {
             point->events.pop_back();
         }
+
         ImGui::EndMenu();
     }
 }
 void EventEditor(std::shared_ptr<MovementPoint> &point)
 {
-    for (size_t i = 0; i < point->events.size(); ++i) {
+    for (size_t i = 0; i < point->events.size(); ++i) 
+    {
         ImGui::Spacing();
         ImGui::Spacing();
         ImGui::Spacing();
@@ -397,28 +366,22 @@ void EventEditor(std::shared_ptr<MovementPoint> &point)
             ep->setCount(n);
             InventorySelectionDisplay(event, i);
         }
-        /*
-        else if (event->getType() == EventType::InventoryConditional)
+        else if(event->getType()==EventType::SceneChange)
         {
-            std::shared_ptr<Event_InventoryConditional> ep = std::static_pointer_cast<Event_InventoryConditional>(event);
-            ImGui::Text("Item name: ");
-            ImGui::SameLine();
-            ImGui::Text(ep->getItem().name.c_str());
-            InventorySelectionDisplay(event, i);
-            int n = ep->getItem().count;
-            ImGui::InputInt("Required number of selected item for condition to execute", &n);
-            ep->setCount(n);
+            std::shared_ptr<Event_SceneChange> ep = std::dynamic_pointer_cast<Event_SceneChange>(event);
 
-            ImGui::Indent(30);
-            ImGui::Spacing();
-            ImGui::Spacing();
-            ImGui::Spacing();
-            ImGui::Text("Select Event");
-            //EventSelection(point);
+            // Concatenate the index to the label to make it unique
+            std::string sceneName=ep->getSceneName();
+            if(ImGui::Button("Select scene file"))
+            {
+                sceneName = select_scene();
+                sceneName = sceneName + ".plip";
+                ep->setSceneName(sceneName);
+            }
+            ImGui::Text("Scene: ");
+            ImGui::Text(sceneName.c_str());
 
-            ImGui::Unindent(30);
-
-        }*/
+        }
 
 		//handle conditionals on the event
         label = "Is event conditional?#" + std::to_string(i);
@@ -447,6 +410,12 @@ void EventEditor(std::shared_ptr<MovementPoint> &point)
                 }
                 ImGui::EndMenu();
             }
+        }
+
+        if(ImGui::Button("Delete event"))
+        {
+            point->events[i].swap(point->events.back());
+            point->events.pop_back();
         }
     }
 

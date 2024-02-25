@@ -86,7 +86,8 @@ public:
 
 	void ResetGame()
 	{
-		player->changePosition(playerStartPoint);
+		if(player)
+			player->changePosition(playerStartPoint);
 		currentMovementPoint = nullptr;
 		manager_UI.ClearDialogue();
 	}
@@ -99,13 +100,14 @@ public:
 
 	void MovePlayer(std::shared_ptr<MovementPoint> newPos)
 	{
+		currentMovementPoint = newPos;
+		player->changePosition(newPos->transform.translation);
 		RunEntryEvents(newPos);
+
 
 		if(currentMovementPoint!=nullptr)
 			RunExitEvents(currentMovementPoint);
 
-		currentMovementPoint = newPos;
-		player->changePosition(newPos->transform.translation);
 
 		
 	}

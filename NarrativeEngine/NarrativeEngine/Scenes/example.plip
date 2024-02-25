@@ -1,0 +1,17 @@
+OBJECTS
+0 platform1 0 -7.179 -7 0 0 0 10 0.718 10 1 1 1 
+2 Player -0.667 -5.641 -2.897 0 0 0 0.949 1 1 0.754902 0.214629 0.214629 
+1 light1 0 1.538 -7 0 0 0 1 1 1 1 1 1 0.769
+4 move0 2.564 -5.641 -7 0 0 0 0.2 0.2 0.2 0 0 0 
+4 move1 3.333 -5.641 -2.897 0 0 0 0.2 0.2 0.2 1 1 1 
+EVENTS
+0 move0 exiting 1 1 wimpy 1 _you_left_with_wimpy 
+2 move0 add_wimpy 0 0 wimpy 1
+0 move0 tell_user_they_got_wimpy 0 0 you_got_some_wimpy 
+3 move0 scene_change 0 1 wompy 5 example2.plip 
+0 move1 welcome 0 0 welcome 
+CAMERA
+0 -2.32011 9.25431 0 1 0 0 -90 
+INVENTORY
+wompy
+wimpy
