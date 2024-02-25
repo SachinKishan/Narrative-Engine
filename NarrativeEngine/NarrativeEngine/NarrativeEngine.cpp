@@ -321,7 +321,11 @@ int main()
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow* window)
 {
-    
+
+    bool isIMGUIInputActive = ImGui::GetIO().WantCaptureKeyboard;
+
+    // If no IMGUI text input is active, process your GLFW keyboard bindings
+    if (!isIMGUIInputActive) {
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
             glfwSetWindowShouldClose(window, true);
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -339,7 +343,7 @@ void processInput(GLFWwindow* window)
             currentCamera->ProcessKeyboard(UP, deltaTime);
         if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
             currentCamera->ProcessKeyboard(DOWN, deltaTime);
-    
+    }
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
