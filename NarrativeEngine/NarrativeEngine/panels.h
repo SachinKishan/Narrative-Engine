@@ -752,11 +752,11 @@ inline void Window_Debug()//window for debugging
 
 
 
-    if(ImGui::Button("Add diaologue"))
+    if(ImGui::Button("find files"))
     {
-        manager_UI.addTextBox("dummy tex");
-        manager_UI.DisplayNextBox();
-        
+        //manager_UI.addTextBox("dummy tex");
+        //manager_UI.DisplayNextBox();
+        Manager_Scene.findPlipFile("example.plip");
     }
 
     ImGui::End();

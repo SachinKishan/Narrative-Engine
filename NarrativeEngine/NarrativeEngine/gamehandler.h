@@ -205,37 +205,5 @@ public:
 	}
 };
 
-class Event_InventoryConditional:public Event
-{
-private:
-	Item item;
-	std::shared_ptr<Event> e;
-public:
-	Event_InventoryConditional()
-	{
-		item.name = "";
-		item.count = 0;
-		setEventType(EventType::InventoryConditional);
-	}
-	Event_InventoryConditional(std::string ename, EventTime etime, std::string name, int count)
-	{
-		setEventName(ename);
-		setEventTime(etime);
-		item.name = name;
-		item.count = count;
-		setEventType(EventType::InventoryConditional);
-	}
-	void setItem(std::string itemName, int n)
-	{
-		item.name = itemName;
-		item.count = n;
-	}
-	void setCount(int n) { item.count = n; }
-	Item getItem() { return item; }
-	void doThing() override
-	{
-		if (manager_Inventory.checkForItem(item.name, item.count))
-			e->doThing();
-	}
-};
+
 

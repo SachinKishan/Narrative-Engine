@@ -57,6 +57,9 @@ std::string convertWStringToString(const std::wstring& wstr)
     WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, &strTo[0], size_needed, NULL, NULL);
     return strTo;
 }
+
+
+
 inline class SceneEditorManager
 {
 private:
@@ -93,6 +96,7 @@ public:
     void ReadSceneFromFile(std::wstring path)
     {
         resetCurrentSceneData();
+        sceneLoaded = true;
         filepath = path;
         std::ifstream inFile(path);
         std::wstring fileName = path.substr(path.find_last_of(L"\\") + 1);
@@ -241,9 +245,6 @@ public:
 
                     	point->events.push_back(inventoryEvent);
                     }
-
-                    
-
                 }
                 else if(mode==2)
                 {
@@ -281,7 +282,33 @@ public:
 
     }
 
+    //find a scene based on its name, load it
+    void findPlipFile(std::string s) {
+        // Get the current path of the executable
+        std::filesystem::path currentPath = std::filesystem::current_path();
 
+        // Navigate to the parent directory
+        currentPath = currentPath.parent_path();
+
+        // Append "Scenes" directory
+        currentPath /= "Scenes";
+
+        // Iterate over the files in the "Scenes" directory
+        for (const auto& entry : std::filesystem::directory_iterator(currentPath)) {
+            // Check if the file is a regular file and has the ".plip" extension
+            if (entry.is_regular_file() && entry.path().extension() == ".plip") {
+                if (s._Equal( entry.path().filename().string()))
+                {
+                    std::cout << entry.path();
+                    ReadSceneFromFile(entry.path());
+                }
+            }
+        }
+    }
+    void changeScene(std::string sceneToChange)
+    {
+        findPlipFile(sceneToChange);
+    }
 }Manager_Scene;
 
 
@@ -306,20 +333,12 @@ void LoadScene()//loads file into the scene manager
     ofn.nFilterIndex = 1;
     ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
-    // Open the file dialog
     if (GetOpenFileName(&ofn)) {
-        // The selected file's path is now in szFile.
-        // You can use this path for further processing.
-
-        // For example, print the selected file's path
         wprintf(L"Selected File: %s\n", szFile);
         Manager_Scene.filepath = szFile;
         Manager_Scene.sceneLoaded = true;
-
-    	//std::wcout<<Manager_Scene.filepath;
     }
     else {
-        // The user canceled the file dialog.
         wprintf(L"File selection canceled.\n");
     }
 
@@ -330,7 +349,21 @@ void LoadScene()//loads file into the scene manager
 
 
 }
+class Event_SceneChange :public Event
+{
+    //scene to change
+    std::string sceneFileName;
 
+public:
+    void setSceneName(std::string newSceneName)
+    {
+        sceneFileName = newSceneName;
+    }
+    void doThing() override
+    {
+        Manager_Scene.changeScene(sceneFileName);
+    }
+};
 
 
 inline void SaveScene(std::vector<std::shared_ptr<GameObject>> gameObjects)
@@ -510,3 +543,5 @@ void CreateNewScene()
 
     Manager_Scene.setSceneName(fileName);
 }
+
+
