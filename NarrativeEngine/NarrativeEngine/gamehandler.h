@@ -1,22 +1,6 @@
 #pragma once
 #include <iostream>
 #include "gameobject.h"
-//keep track of player movement
-//allow user to add events here
-//events are added when a certain thing happens from a movement point
-//events for now will just be printing
-
-//we can just keep track of movement point using the current scene list- use manager
-
-
-///
-///create an array of event objects
-///these are all pointers, these are all inheritables
-///they all have basic parent, but deviate in their virtual function that does a thing
-///when a player chooses to add an event to a movement point, they add an event object
-///when the call happens, the idea is that we find what movement point the player is at, find the vector of events its associated to
-///parse through each of the event objects and make their function calls
-///
 
 
 class UI_Manager
@@ -208,4 +192,83 @@ public:
 };
 
 
+class Event_SceneChange : public Event {
+	// Scene to change
+	std::string sceneFileName = "_____";
 
+public:
+	Event_SceneChange() { setEventType(EventType::SceneChange); }
+
+	Event_SceneChange(std::string ename, EventTime etime, std::string s)
+	{
+		setEventType(EventType::SceneChange);
+		setEventName(ename);
+		setEventTime(etime);
+		setSceneName(s);
+	}
+	void setSceneName(std::string newSceneName) {
+		sceneFileName = newSceneName;
+	}
+
+	std::string getSceneName() {
+		return sceneFileName;
+	}
+
+	void doThing() override; // Declaration of the overridden virtual function
+};
+
+
+
+class GameBuilder
+{
+	std::vector<std::string> sceneList;
+	int startingscene=0;
+public:
+	GameBuilder()
+	{
+		
+	}
+	void addSceneToGame(std::string sceneName)
+	{
+		sceneList.push_back(sceneName);
+	}
+	void removeSceneFromGame(std::string sceneName)
+	{
+		for(int i=0;i<sceneList.size();i++)
+		{
+			if (sceneList[i]._Equal(sceneName))
+			{
+				sceneList[i].swap(sceneList.back());
+				sceneName.pop_back();
+			}
+		}
+	}
+	int getStartScene()
+	{
+		return startingscene;
+	}
+	void setStartScene(int newstartScene)
+	{
+		startingscene = newstartScene;
+	}
+	void createSceneConfigurator()
+	{
+		std::ofstream configFile("scene_config.txt"); 
+
+		if (configFile.is_open())
+		{
+			// Write each scene name to the file
+			for (const std::string& scene : sceneList)
+			{
+				configFile << scene << "\n";
+			}
+			configFile << "Starting Scene: " << startingscene << "\n";
+			configFile.close(); // Close the file
+			std::cout << "Scene configurator file created successfully.\n";
+		}
+		else
+		{
+			std::cerr << "Unable to create scene configurator file.\n";
+		}
+	}
+}manager_GameBuilder;

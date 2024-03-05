@@ -9,9 +9,11 @@ EVENTS
 2 move0 add_wimpy 0 0 wimpy 1
 0 move0 tell_user_they_got_wimpy 0 0 you_got_some_wimpy 
 3 move0 scene_change 0 1 wompy 5 example2.plip 
-0 move1 welcome 0 0 welcome 
+0 move1 welcome 0 0 welcome,_take_some_womp 
+2 move1 womp_add 0 0 womp 2
 CAMERA
 0 -2.32011 9.25431 0 1 0 0 -90 
 INVENTORY
 wompy
 wimpy
+womp

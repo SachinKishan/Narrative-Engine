@@ -211,8 +211,8 @@ int main()
     quad->material.shader.setInt("texture1", 0);
 
 
-    bool o = true;
-    setCamera(editViewCamera);
+    ImGui::GetIO().FontGlobalScale = 1.3;
+	setCamera(editViewCamera);
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))

@@ -35,6 +35,7 @@ enum editor_state
 	state_GameView,
     state_EditorView
 };
+
 class EditorState
 {
 private:
@@ -111,11 +112,7 @@ inline void Window_Basic()
 
 inline void Window_SceneTree()
 {
-
-    
     ImGui::Begin("Scene Tree");
-    
-
     if (!Manager_Scene.sceneLoaded)
     {
         if (ImGui::Button("Create Scene"))
@@ -133,7 +130,7 @@ inline void Window_SceneTree()
     {
 
         //scene name
-        ImGui::Text(Manager_Scene.currentScene.sceneName.c_str());
+        ImGui::Text(clean_string_for_display(Manager_Scene.currentScene.sceneName).c_str());
 
         
         if(ImGui::BeginMenu("Add"))
@@ -163,10 +160,6 @@ inline void Window_SceneTree()
                 Manager_Scene.currentScene.AddToScene(newGameObject);
                 Manager_Scene.currentScene.AddMovementPoint(newGameObject);
             }
-            if (ImGui::Button("Add Interactable"))
-            {
-
-            }
             ImGui::EndMenu();
         }
         if(ImGui::Button("Remove object"))
@@ -194,21 +187,16 @@ inline void Window_SceneTree()
 	        }
         }
 
-        //display scene contents
        
-        for ( std::shared_ptr<GameObject>& obj : Manager_Scene.currentScene.gameObjectList) 
+        for (std::shared_ptr<GameObject>& obj : Manager_Scene.currentScene.gameObjectList) 
         {
-            
             std::string selectedName = "";
             if(manager_Selection.currentObject != nullptr)
 	        	selectedName = manager_Selection.currentObject->name;
-            //ImGui::Text(obj.name.c_str());
-            if (ImGui::Selectable(obj->name.c_str(), selectedName == obj->name)) {
+            if (ImGui::Selectable(clean_string_for_display(obj->name).c_str(), selectedName == obj->name)) {
                 selectedName = obj->name;
-                //std::shared_ptr<GameObject> currentObject = std::make_shared<GameObject>(obj->name);
                 manager_Selection.changeSelection(obj);
-                std::cout<< selectedName; // Set the selected item index
-
+                //std::cout<< selectedName; 
             }
         }
         //save scene
@@ -239,7 +227,7 @@ void InventorySelectionDisplay(std::shared_ptr<Event> event,int i)
                 for (const auto& itemName : manager_Inventory.getItemNames()) {
                     if (ImGui::MenuItem(itemName.c_str()))
                     {
-                        printf("Selected item: %s\n", itemName.c_str());
+                        printf("Selected item: %s\n",clean_string_for_display(itemName).c_str());
 
                         ep->setItem(itemName, 0);
                     }
@@ -285,6 +273,7 @@ inline void EventSelection(std::shared_ptr<MovementPoint>& point)
         ImGui::EndMenu();
     }
 }
+
 void EventEditor(std::shared_ptr<MovementPoint> &point)
 {
     for (size_t i = 0; i < point->events.size(); ++i) 
@@ -335,12 +324,12 @@ void EventEditor(std::shared_ptr<MovementPoint> &point)
         if (event->getType() == EventType::TextBox)
         {
             std::shared_ptr<Event_TextBox> ep = std::dynamic_pointer_cast<Event_TextBox>(event);
-            char eventText[256]; // Assuming a maximum name length of 255 characters
-            memset(eventText, 0, sizeof(eventText)); // Clear the memory
-            strcpy_s(eventText, ep->getString().c_str());
 
-            // Concatenate the index to the label to make it unique
-            std::string label = "Event text##" + std::to_string(i);
+        	char eventText[256]; 
+            memset(eventText, 0, sizeof(eventText));
+
+            strcpy_s(eventText, ep->getString().c_str());
+        	std::string label = "Event text##" + std::to_string(i);
 
             ImGui::InputText(label.c_str(), eventText, IM_ARRAYSIZE(eventText));
 
@@ -359,7 +348,7 @@ void EventEditor(std::shared_ptr<MovementPoint> &point)
 
             ImGui::Text("Item name: ");
             ImGui::SameLine();
-            ImGui::Text(ep->getItem().name.c_str());
+            ImGui::Text(clean_string_for_display(ep->getItem().name).c_str());
             int n = ep->getItem().count;
             std::string label = "Value change#" + std::to_string(i);
             ImGui::InputInt(label.c_str(), &n);
@@ -379,7 +368,7 @@ void EventEditor(std::shared_ptr<MovementPoint> &point)
                 ep->setSceneName(sceneName);
             }
             ImGui::Text("Scene: ");
-            ImGui::Text(sceneName.c_str());
+            ImGui::Text(clean_string_for_display(sceneName).c_str());
 
         }
 
@@ -392,7 +381,8 @@ void EventEditor(std::shared_ptr<MovementPoint> &point)
         {
             ImGui::Text("Item name: ");
             ImGui::SameLine();
-            ImGui::Text(event->conditionalEventData.getItem().name.c_str());
+            ImGui::Text( clean_string_for_display(event->conditionalEventData.getItem().name).c_str());
+
             int n = event->conditionalEventData.getItem().count;
             std::string label = "Value must be more than or equal to#" + std::to_string(i);
             ImGui::InputInt(label.c_str(), &n);
@@ -403,7 +393,7 @@ void EventEditor(std::shared_ptr<MovementPoint> &point)
                 for (const auto& itemName : manager_Inventory.getItemNames()) {
                     if (ImGui::MenuItem(itemName.c_str()))
                     {
-                        printf("Selected item: %s\n", itemName.c_str());
+                        //printf("Selected item: %s\n", itemName.c_str());
 
                         event->conditionalEventData.setItem(itemName, 0);
                     }
@@ -421,28 +411,24 @@ void EventEditor(std::shared_ptr<MovementPoint> &point)
 
 }
 
-
-
 inline void Window_ObjectSelection()
 {
     ImGui::Begin("Object Selection");
 
     if (manager_Selection.currentObject!=nullptr) {
         std::shared_ptr<GameObject>& selectedObject = manager_Selection.currentObject;
-
-        
-//        ImGui::Text(selectedObject->name.c_str());
-        ImGui::Text("Object name: ");
+    	ImGui::Text("Object name: ");
         ImGui::SameLine();
         // Input field to change the object's name
         char objectName[256]; // Assuming a maximum name length of 255 characters
         memset(objectName, 0, sizeof(objectName)); // Clear the memory
-        strcpy_s(objectName, selectedObject->name.c_str());
+        strcpy_s(objectName, clean_string_for_display(selectedObject->name).c_str());
     	ImGui::InputText("##ObjectName", objectName, IM_ARRAYSIZE(objectName));
 
         // Set the object's name if it's changed
-        if (strcmp(objectName, selectedObject->name.c_str()) != 0) {
-            selectedObject->name = objectName;
+        if (strcmp(objectName, selectedObject->name.c_str()) != 0) 
+        {
+            selectedObject->name = clean_string_for_file(std::string(objectName));
         }
 
         //transform edit
@@ -653,18 +639,21 @@ inline void Window_Inventory()
     if (ImGui::InputText("Enter new item name: ", inputBuffer, sizeof(inputBuffer), ImGuiInputTextFlags_EnterReturnsTrue))
     {
         std::string itemName = inputBuffer;
+        itemName = clean_string_for_file(itemName);
         manager_Inventory.addItemToList(itemName);
         memset(inputBuffer, 0, sizeof(inputBuffer));
     }
     if(ImGui::Button("Add New Item"))
     {
         std::string itemName = inputBuffer;
+        itemName = clean_string_for_file(itemName);
         manager_Inventory.addItemToList(itemName);
         memset(inputBuffer, 0, sizeof(inputBuffer));
     }
     std::vector<std::string> itemNames = manager_Inventory.getItemNames();
     for (auto name : itemNames)
     {
+        name = clean_string_for_display(name);
         ImGui::Text(name.c_str());
     }
     if(ImGui::Button("Delete last item"))
@@ -743,4 +732,23 @@ inline void Window_PlayerInventory()
     }
 
     ImGui::End();
+}
+
+
+inline void Window_GameBuilder()
+{
+    //game scenes
+    //  add a scene button
+    //if(ImGui("Add scene to game"))//rewrite this
+    //{
+	    
+    //}
+
+    //  remove a scene
+
+    //starting scene mark
+
+    //create game button
+    //bundle it all up in a single folder
+
 }

@@ -9,6 +9,36 @@
 #include "gameobject.h"
 
 
+std::string clean_string_for_file(std::string uncleanString)//used to ensure strings are safe to store in file
+{
+
+    if (uncleanString.empty())
+    {
+        uncleanString = "_";
+    }
+    else std::replace(uncleanString.begin(), uncleanString.end(), ' ', '_');
+
+    return uncleanString;
+}
+
+std::string clean_string_for_display(std::string uncleanString)
+{
+    if (uncleanString.empty())
+    {
+        uncleanString = " ";
+    }
+    else std::replace(uncleanString.begin(), uncleanString.end(), '_', ' ');
+    return uncleanString;
+}
+
+std::string convertWStringToString(const std::wstring& wstr)
+{
+    int size_needed = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, NULL, 0, NULL, NULL);
+    std::string strTo(size_needed, 0);
+    WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, &strTo[0], size_needed, NULL, NULL);
+    return strTo;
+}
+
 class Scene
 {
 public:
@@ -50,38 +80,8 @@ public:
     }
     
 };
-std::string convertWStringToString(const std::wstring& wstr)
-{
-    int size_needed = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, NULL, 0, NULL, NULL);
-    std::string strTo(size_needed, 0);
-    WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, &strTo[0], size_needed, NULL, NULL);
-    return strTo;
-}
 
-class Event_SceneChange : public Event {
-    // Scene to change
-    std::string sceneFileName="_____";
 
-public:
-    Event_SceneChange() { setEventType(EventType::SceneChange); }
-
-    Event_SceneChange(std::string ename, EventTime etime, std::string s)
-    {
-        setEventType(EventType::SceneChange);
-        setEventName(ename);
-        setEventTime(etime);
-        setSceneName(s);
-    }
-    void setSceneName(std::string newSceneName) {
-        sceneFileName = newSceneName;
-    }
-
-    std::string getSceneName() {
-        return sceneFileName;
-    }
-
-    void doThing() override; // Declaration of the overridden virtual function
-};
 
 inline class SceneEditorManager
 {
@@ -95,7 +95,6 @@ public:
 
     void resetCurrentSceneData()
     {
-        //manager_GameManager.ResetGame();
         currentScene.gameObjectList.clear();
         currentScene.lightList.clear();
         currentScene.sceneName.clear();
@@ -147,6 +146,7 @@ public:
                         >> rotation.x >> rotation.y >> rotation.z
                         >> scale.x >> scale.y >> scale.z
                         >> color.r >> color.g >> color.b;
+
 
                     // Create ObjectTransform based on parsed data
                     ObjectTransform transform(translation, rotation, scale);
@@ -323,7 +323,6 @@ public:
                     iss >> name;
                     manager_Inventory.addItemToList(name);
                 }
-                //manager_GameManager.ResetGame();
             }
             inFile.close();
         }
@@ -334,20 +333,12 @@ public:
 
     }
 
-    //find a scene based on its name, load it
-    void findPlipFile(std::string s) {
-        // Get the current path of the executable
+    void findPlipFile(std::string s)//find a scene based on its name, load it
+	{
         std::filesystem::path currentPath = std::filesystem::current_path();
-
-        // Navigate to the parent directory
-        currentPath = currentPath.parent_path();
-
-        // Append "Scenes" directory
-        currentPath /= "Scenes";
-
-        // Iterate over the files in the "Scenes" directory
-        for (const auto& entry : std::filesystem::directory_iterator(currentPath)) {
-            // Check if the file is a regular file and has the ".plip" extension
+    	currentPath = currentPath.parent_path();
+    	currentPath /= "Scenes";
+    	for (const auto& entry : std::filesystem::directory_iterator(currentPath)) {
             if (entry.is_regular_file() && entry.path().extension() == ".plip") {
                 if (s._Equal( entry.path().filename().string()))
                 {
@@ -360,6 +351,7 @@ public:
         std::cout << "file not found";
 
     }
+
     void changeScene(std::string sceneToChange)
     {
         findPlipFile(sceneToChange);
@@ -370,24 +362,19 @@ void Event_SceneChange::doThing()
 {
     std::cout << "Scene change called";
     Manager_Scene.changeScene(sceneFileName);
-    //manager_GameManager.SetPlayer();
 }
 
 
-void LoadScene()//loads file into the scene manager
+void LoadScene()//loads file into the scene manager using cursed windows operating system things
 {
-	
-    // Initialize COM for Common Item Dialog
     CoInitialize(NULL);
-
-    // Create a buffer to store the selected file's path
     wchar_t szFile[MAX_PATH] = L"";
 
     OPENFILENAME ofn;
     ZeroMemory(&ofn, sizeof(OPENFILENAME));
     ofn.lStructSize = sizeof(OPENFILENAME);
-    ofn.hwndOwner = NULL; // The parent window; set to NULL for no parent.
-    ofn.lpstrFile = szFile; // The buffer to store the selected file's path.
+    ofn.hwndOwner = NULL;
+    ofn.lpstrFile = szFile;
     ofn.nMaxFile = sizeof(szFile);
     ofn.lpstrFilter = L"All Files (*.*)\0*.*\0"; // Filter for file types.
     ofn.nFilterIndex = 1;
@@ -401,22 +388,14 @@ void LoadScene()//loads file into the scene manager
     else {
         wprintf(L"File selection canceled.\n");
     }
-
-    // Release COM resources
-    CoUninitialize();
-
-    Manager_Scene.ReadSceneFromFile(szFile);
-
-
+    CoUninitialize();    
+	Manager_Scene.ReadSceneFromFile(szFile);
 }
 
 std::string select_scene()
 {
-    // Initialize COM for Common Item Dialog
-    CoInitialize(NULL);
-
-    // Create a buffer to store the selected file's path
-    wchar_t szFile[MAX_PATH] = L"";
+	CoInitialize(NULL);
+	wchar_t szFile[MAX_PATH] = L"";
 
     OPENFILENAME ofn;
     ZeroMemory(&ofn, sizeof(OPENFILENAME));
@@ -428,15 +407,12 @@ std::string select_scene()
     ofn.nFilterIndex = 1;
     ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
-    if (GetOpenFileName(&ofn)) {
-        wprintf(L"Selected File: %s\n", szFile);
-    }
-    else {
-        wprintf(L"File selection canceled.\n");
-    }
+    if (GetOpenFileName(&ofn)) { wprintf(L"Selected File: %s\n", szFile); }
+    else { wprintf(L"File selection canceled.\n"); }
 
-    // Release COM resources
     CoUninitialize();
+   
+
     std::filesystem::path filePath(szFile);
     std::string fileName = filePath.stem().string(); // Extract file name
     std::string fileExtension = filePath.extension().string(); // Extract file extension
@@ -447,14 +423,13 @@ std::string select_scene()
 
 inline void SaveScene(std::vector<std::shared_ptr<GameObject>> gameObjects)
 {
-	//file saving
     std::ofstream outFile(Manager_Scene.filepath , std::ios::out | std::ios::trunc);
 
     if (outFile.is_open()) {
         outFile << "OBJECTS\n";
         for (const std::shared_ptr<GameObject> &gameObject : gameObjects) {
             outFile << gameObject->objectType << " ";
-            outFile << gameObject->name<<" "; // Write each string on a new line
+            outFile << gameObject->name<<" "; 
             outFile << gameObject->transform.translation.x << " ";
             outFile << gameObject->transform.translation.y << " ";
             outFile << gameObject->transform.translation.z << " ";
@@ -469,8 +444,6 @@ inline void SaveScene(std::vector<std::shared_ptr<GameObject>> gameObjects)
             outFile << gameObject->renderData->material.color.b<< " ";
             if(gameObject->objectType==type_Light)
             {
-                //TODO
-                //CONVERT OBJECT TO LIGHT OBJECT, GET THE LIGHT INTENSITY, SEND IT TO THE FILE
                 const auto light = static_cast<Light*>(gameObject.get());
                 outFile << light->getIntensity();
             }
@@ -485,12 +458,7 @@ inline void SaveScene(std::vector<std::shared_ptr<GameObject>> gameObjects)
 	        {
                 outFile <<event->getType() <<" ";
                 outFile << point->name<<" ";
-                std::string eventname = event->getName();
-                if (eventname.empty())
-                {
-                    eventname = "_";
-                }
-                else std::replace(eventname.begin(), eventname.end(), ' ', '_');
+                std::string eventname =clean_string_for_file(event->getName());
 	        	outFile << eventname <<" ";
                 outFile <<event->getTime() <<" ";
                 outFile << (event->getIsConditional() ? 1:0) << " ";
@@ -499,50 +467,35 @@ inline void SaveScene(std::vector<std::shared_ptr<GameObject>> gameObjects)
                     outFile << event->conditionalEventData.getItem().name << " ";
                     outFile << event->conditionalEventData.getItem().count << " ";
                 }
+
+                /*use this to test new event feature changes
                 if (event->getType() == EventType::Print)
                 {
 	                //outFile<<event
                     const auto numEvent = static_cast<PrintNum_Event*>(event.get());
                 }
-                else if (event->getType() == EventType::TextBox)
+                */
+
+	        	if (event->getType() == EventType::TextBox)
                 {
 
                     const auto printEvent = static_cast<Event_TextBox*>(event.get());
-                    std::string s = printEvent->getString();
-                    if (s.empty())
-                    {
-                        s = "_";
-                    }
-                    else std::replace(s.begin(), s.end(), ' ', '_');
+                    std::string s =clean_string_for_file(printEvent->getString());
                     outFile << s<<" ";
                 }
                 else if(event->getType()==EventType::Inventory)
                 {
                     const auto inventoryEvent = static_cast<Event_Inventory*>(event.get());
-                    std::string s = inventoryEvent->getItem().name;
-                    if (s.empty())
-                    {
-                        s = "_";
-                    }
-                    else std::replace(s.begin(), s.end(), ' ', '_');
-                    outFile << s << " ";
-
+                    std::string s =clean_string_for_file(inventoryEvent->getItem().name);
                     int count= inventoryEvent->getItem().count;
                     outFile << count;
                 }
                 else if (event->getType() == EventType::SceneChange)
                 {
                     const auto inventoryEvent = static_cast<Event_SceneChange*>(event.get());
-                    std::string s = inventoryEvent->getSceneName();
-                    if (s.empty())
-                    {
-                        s = "_";
-                    }
-                    else std::replace(s.begin(), s.end(), ' ', '_');
+                    std::string s =clean_string_for_file(inventoryEvent->getSceneName());
                     outFile << s << " ";
                 }
-                
-
                 outFile << "\n";
 
 	        }
@@ -594,28 +547,18 @@ void CreateNewScene()
     ofn.lpstrDefExt = L"plip"; // Default file extension.
     ofn.Flags = OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT;
 
-    // Open the Save File dialog
-    if (GetSaveFileName(&ofn)) {
-        // The user selected or created a file. The file path is in szFile.
+    if (GetSaveFileName(&ofn)) 
+    {
         std::wstring selectedFilePath(szFile);
         wprintf(L"Selected File: %s\n", selectedFilePath.c_str());
     }
-    else {
-        // The user canceled the dialog.
-        wprintf(L"File selection canceled.\n");
-    }
-    // Release COM resources
+    else { wprintf(L"File selection canceled.\n"); }
     CoUninitialize();
 
-    // Create the file
     std::ofstream outFile(szFile);
-
-    // Check if the file is opened successfully
-    if (outFile.is_open()) {
-        // Write data to the file if needed
+	if (outFile.is_open()) {
         outFile.close();
-
-        wprintf(L"File '%s' with extension '%s' created successfully.\n", szFile, ".plip");
+        //wprintf(L"File '%s' with extension '%s' created successfully.\n", szFile, ".plip");
         Manager_Scene.sceneLoaded = true;
 
     }
@@ -623,14 +566,10 @@ void CreateNewScene()
         wprintf(L"Failed to create the file.\n");
     }
 
-
     Manager_Scene.resetCurrentSceneData();
     Manager_Scene.filepath = szFile;
-    // Example file path
     std::wstring filePath = szFile;
     std::wstring fileName = filePath.substr(filePath.find_last_of(L"\\") + 1);
-    wprintf(L"Selected File Name: %s\n", fileName.c_str());
-
     Manager_Scene.setSceneName(fileName);
 }
 
