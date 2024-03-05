@@ -27,19 +27,17 @@ Camera camera(glm::vec3(0.0f, 0.0f, -5.0f));
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
+
 // timing
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
+
 glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 glm::mat4 view;
 
 
-//game view camera
 std::shared_ptr<Camera> editViewCamera = std::make_shared<Camera>(camera);
-
-
 std::shared_ptr<Camera> gameViewCamera = std::make_shared<Camera>(camera);
-
 std::shared_ptr<Camera> currentCamera;
 
 void setCamera(std::shared_ptr<Camera> cam)
@@ -51,9 +49,7 @@ void setCamera(std::shared_ptr<Camera> cam)
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
-
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
-
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
@@ -70,36 +66,26 @@ void render()
 {
     if (Manager_Scene.sceneLoaded)
     {
-        //std::cout << "scene render";
-       //render the scene
         for (std::shared_ptr<GameObject> g : Manager_Scene.currentScene.gameObjectList)
         {
-
             Shader s = g->renderData->material.shader;
             s.use();
-            
             if(g->objectType==ObjectType::type_Platform || g->objectType==ObjectType::type_Player)
             {
-                
                 s.setInt("numberoflights", Manager_Scene.currentScene.lightList.size());
                 for (auto it = Manager_Scene.currentScene.lightList.begin(); it != Manager_Scene.currentScene.lightList.end(); ++it)
                 {
-                    
                     int lightIndex = std::distance(Manager_Scene.currentScene.lightList.begin(), it);
                     std::string uniformPos = "pointLights[" + std::to_string(lightIndex) + "].position";
                     std::string uniformColor = "pointLights[" + std::to_string(lightIndex) + "].color";
                     s.setVec3(uniformPos, (*it)->transform.translation);
                     s.setVec3(uniformColor, (*it)->renderData->material.color*(*it)->getIntensity());
-                    
                 }
-                
             }
             s.setMat4("projection", projection);
-
             view = currentCamera->GetViewMatrix();
             s.setMat4("view", view);
             s.setMat4("model", g->transform.model);
-
             if (g->renderData->material.isTextured)
             {
                 glBindTexture(GL_TEXTURE_2D, g->renderData->material.textureID);
@@ -107,7 +93,6 @@ void render()
             }
             else
                 s.setVec4("objColor", g->renderData->material.color);
-
             g->renderData->draw();
         }
     }

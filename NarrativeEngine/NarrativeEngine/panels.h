@@ -3,14 +3,6 @@
 #include <functional>
 #include "scene.h"
 
-/**
- * Every window has the following
- * Name- placed in ImGui:Begin(name)
- * Some stuff in it
- * End
- *
- */
-
 class Selector
 {
 
@@ -733,7 +725,6 @@ inline void Window_PlayerInventory()
 
     ImGui::End();
 }
-
 
 inline void Window_GameBuilder()
 {

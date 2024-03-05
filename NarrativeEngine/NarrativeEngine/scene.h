@@ -364,10 +364,10 @@ void Event_SceneChange::doThing()
     Manager_Scene.changeScene(sceneFileName);
 }
 
-
-void LoadScene()//loads file into the scene manager using cursed windows operating system things
+std::wstring select_file(const wchar_t* filter, const wchar_t* defaultExtension, DWORD flags)
 {
     CoInitialize(NULL);
+
     wchar_t szFile[MAX_PATH] = L"";
 
     OPENFILENAME ofn;
@@ -376,48 +376,58 @@ void LoadScene()//loads file into the scene manager using cursed windows operati
     ofn.hwndOwner = NULL;
     ofn.lpstrFile = szFile;
     ofn.nMaxFile = sizeof(szFile);
-    ofn.lpstrFilter = L"All Files (*.*)\0*.*\0"; // Filter for file types.
+    ofn.lpstrFilter = filter;
+    ofn.lpstrDefExt = defaultExtension;
     ofn.nFilterIndex = 1;
-    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+    ofn.Flags = flags;
 
     if (GetOpenFileName(&ofn)) {
         wprintf(L"Selected File: %s\n", szFile);
-        Manager_Scene.filepath = szFile;
-        Manager_Scene.sceneLoaded = true;
+        CoUninitialize();
+        return szFile;
     }
     else {
         wprintf(L"File selection canceled.\n");
+        CoUninitialize();
+        return L"";
     }
-    CoUninitialize();    
-	Manager_Scene.ReadSceneFromFile(szFile);
+}
+
+void LoadScene()
+{
+    std::wstring filePath = select_file(L"All Files (*.*)\0*.*\0", NULL, OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST);
+    if (!filePath.empty()) {
+        Manager_Scene.filepath = filePath;
+        Manager_Scene.sceneLoaded = true;
+    }
+    Manager_Scene.ReadSceneFromFile(filePath.c_str());
 }
 
 std::string select_scene()
 {
-	CoInitialize(NULL);
-	wchar_t szFile[MAX_PATH] = L"";
+    std::wstring filePath = select_file(L"All Files (*.*)\0*.*\0", NULL, OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST);
+    if (!filePath.empty()) {
+        std::filesystem::path fsPath(filePath);
+        std::string fileName = fsPath.stem().string();
+        return fileName;
+    }
+    return "";
+}
 
-    OPENFILENAME ofn;
-    ZeroMemory(&ofn, sizeof(OPENFILENAME));
-    ofn.lStructSize = sizeof(OPENFILENAME);
-    ofn.hwndOwner = NULL; // The parent window; set to NULL for no parent.
-    ofn.lpstrFile = szFile; // The buffer to store the selected file's path.
-    ofn.nMaxFile = sizeof(szFile);
-    ofn.lpstrFilter = L"All Files (*.*)\0*.*\0"; // Filter for file types.
-    ofn.nFilterIndex = 1;
-    ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
-
-    if (GetOpenFileName(&ofn)) { wprintf(L"Selected File: %s\n", szFile); }
-    else { wprintf(L"File selection canceled.\n"); }
-
-    CoUninitialize();
-   
-
-    std::filesystem::path filePath(szFile);
-    std::string fileName = filePath.stem().string(); // Extract file name
-    std::string fileExtension = filePath.extension().string(); // Extract file extension
-
-    return fileName;
+void CreateNewScene()
+{
+    std::wstring filePath = select_file(L"All Files (*.*)\0*.*\0", L"plip", OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT);
+    if (!filePath.empty()) {
+        Manager_Scene.sceneLoaded = true;
+        Manager_Scene.resetCurrentSceneData();
+        Manager_Scene.filepath = filePath;
+        std::wstring fileName = filePath.substr(filePath.find_last_of(L"\\") + 1);
+        Manager_Scene.setSceneName(fileName);
+    }
+    std::ofstream outFile(filePath);
+    if (!outFile.is_open()) {
+        wprintf(L"Failed to create the file.\n");
+    }
 }
 
 
@@ -528,49 +538,4 @@ inline void SaveScene(std::vector<std::shared_ptr<GameObject>> gameObjects)
         std::cerr << "Failed to open the file for writing." << std::endl;
     }
 }
-
-void CreateNewScene()
-{
-    CoInitialize(NULL);
-
-    // Initialize the OPENFILENAME structure
-
-    OPENFILENAME ofn;
-    wchar_t szFile[MAX_PATH] = L"";
-    ZeroMemory(&ofn, sizeof(OPENFILENAME));
-    ofn.lStructSize = sizeof(OPENFILENAME);
-    ofn.hwndOwner = NULL; // The parent window; set to NULL for no parent.
-    ofn.lpstrFile = szFile; // Buffer to store the selected file's path.
-    ofn.nMaxFile = sizeof(szFile);
-    ofn.lpstrFilter = L"All Files (*.*)\0*.*\0"; // Filter for file types.
-    ofn.nFilterIndex = 1;
-    ofn.lpstrDefExt = L"plip"; // Default file extension.
-    ofn.Flags = OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT;
-
-    if (GetSaveFileName(&ofn)) 
-    {
-        std::wstring selectedFilePath(szFile);
-        wprintf(L"Selected File: %s\n", selectedFilePath.c_str());
-    }
-    else { wprintf(L"File selection canceled.\n"); }
-    CoUninitialize();
-
-    std::ofstream outFile(szFile);
-	if (outFile.is_open()) {
-        outFile.close();
-        //wprintf(L"File '%s' with extension '%s' created successfully.\n", szFile, ".plip");
-        Manager_Scene.sceneLoaded = true;
-
-    }
-    else {
-        wprintf(L"Failed to create the file.\n");
-    }
-
-    Manager_Scene.resetCurrentSceneData();
-    Manager_Scene.filepath = szFile;
-    std::wstring filePath = szFile;
-    std::wstring fileName = filePath.substr(filePath.find_last_of(L"\\") + 1);
-    Manager_Scene.setSceneName(fileName);
-}
-
 
