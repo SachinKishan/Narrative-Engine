@@ -1003,56 +1003,8 @@ class CameraObject:public GameObject
 
 
 
-
-bool ray_collision(glm::vec3 origin, glm::vec3 dir, std::vector<std::shared_ptr<GameObject>> gameObjects, std::shared_ptr<GameObject>& obj)
-{
-    float totaldist = 0;
-	glm::vec3 current_pos = origin;
-    for (int i = 0; i < MAX_RAY_ITERATIONS; i++)
-    {
-        float min_dist = std::numeric_limits<float>::infinity();
-        double calc_distance = 0;
-        //find if collision
-        //search shortest dist
-        for (std::shared_ptr<GameObject>& gameObject : gameObjects)
-        {
-        	if (gameObject->collider.CollisionTest(current_pos,gameObject->transform.translation, gameObject->transform.rotation
-                , gameObject->transform.scale))
-            {
-                //std::cout <<std::endl <<"COLLISION";
-                //std::cout <<std::endl<< gameObject->name;
-                obj= gameObject;
-                return true;
-            }
-           // calc_distance = glm::distance(gameObject->transform.translation, current_pos);
-            calc_distance = gameObject->collider.sdBox(current_pos, gameObject->transform.translation, gameObject->transform.rotation
-                , gameObject->transform.scale);
-            //std::cout << std::endl << gameObject->name << " - distance: " << calc_distance << " ";
-            if (calc_distance < min_dist)
-            {
-
-                min_dist = calc_distance;
-            }
-        }
-        //travel that dist
-        totaldist += min_dist;
-        //if (min_dist - 0.1 < 0.0001)std::cout << "\nSMALL\n ";
-        //std::cout << "total dist: " << totaldist;
-        current_pos = origin+dir * totaldist;
-        //std::cout<<"\nCurrent pos: "<<current_pos.x<<" "<<current_pos.y<<" "<<current_pos.z;
-        //if we go beyond, stop
-        if (totaldist > 100000)
-        {
-	        //std::cout << "reached infinity";
-        	return false;
-        }
-    }
-    return false;
-}
-
-
-
-bool ray_collision(glm::vec3 origin, glm::vec3 dir, std::vector<std::shared_ptr<MovementPoint>> movementPoints, std::shared_ptr<MovementPoint>& obj)
+template<typename T>
+bool ray_collision_impl(glm::vec3 origin, glm::vec3 dir, const std::vector<std::shared_ptr<T>>& objects, std::shared_ptr<T>& obj)
 {
     float totaldist = 0;
     glm::vec3 current_pos = origin;
@@ -1060,40 +1012,35 @@ bool ray_collision(glm::vec3 origin, glm::vec3 dir, std::vector<std::shared_ptr<
     {
         float min_dist = std::numeric_limits<float>::infinity();
         double calc_distance = 0;
-        //find if collision
-        //search shortest dist
-        for (std::shared_ptr<MovementPoint>& point : movementPoints)
+        for (const auto& object : objects)
         {
-            if (point->collider.CollisionTest(current_pos, point->transform.translation, point->transform.rotation
-                , point->transform.scale))
+            if (object->collider.CollisionTest(current_pos, object->transform.translation, object->transform.rotation, object->transform.scale))
             {
-                //std::cout <<std::endl <<"COLLISION";
-                //std::cout <<std::endl<< gameObject->name;
-                obj = point;
+                obj = object;
                 return true;
             }
-            // calc_distance = glm::distance(gameObject->transform.translation, current_pos);
-            calc_distance = point->collider.sdBox(current_pos, point->transform.translation, point->transform.rotation
-                , point->transform.scale);
-            //std::cout << std::endl << gameObject->name << " - distance: " << calc_distance << " ";
+            calc_distance = object->collider.sdBox(current_pos, object->transform.translation, object->transform.rotation, object->transform.scale);
             if (calc_distance < min_dist)
             {
-
                 min_dist = calc_distance;
             }
         }
-        //travel that dist
         totaldist += min_dist;
-        //if (min_dist - 0.1 < 0.0001)std::cout << "\nSMALL\n ";
-        //std::cout << "total dist: " << totaldist;
         current_pos = origin + dir * totaldist;
-        //std::cout<<"\nCurrent pos: "<<current_pos.x<<" "<<current_pos.y<<" "<<current_pos.z;
-        //if we go beyond, stop
         if (totaldist > 100000)
         {
-            //std::cout << "reached infinity";
             return false;
         }
     }
     return false;
+}
+
+bool ray_collision(glm::vec3 origin, glm::vec3 dir, const std::vector<std::shared_ptr<GameObject>>& gameObjects, std::shared_ptr<GameObject>& obj)
+{
+    return ray_collision_impl(origin, dir, gameObjects, obj);
+}
+
+bool ray_collision(glm::vec3 origin, glm::vec3 dir, const std::vector<std::shared_ptr<MovementPoint>>& movementPoints, std::shared_ptr<MovementPoint>& obj)
+{
+    return ray_collision_impl(origin, dir, movementPoints, obj);
 }

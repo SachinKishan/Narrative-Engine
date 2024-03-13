@@ -20,8 +20,8 @@
 
 //camera
 // settings
- unsigned int SCR_WIDTH = 1200;
- unsigned int SCR_HEIGHT = 800;
+unsigned int SCR_WIDTH = 1200;
+unsigned int SCR_HEIGHT = 800;
 
 Camera camera(glm::vec3(0.0f, 0.0f, -5.0f));
 float lastX = SCR_WIDTH / 2.0f;
@@ -99,16 +99,38 @@ void render()
 }
 
 
-
-
-int main()
+void renderInitalise()
 {
-    // glfw: initialize and configure
-    // ------------------------------
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+}
+
+void ImguiInitialise(GLFWwindow* window)
+{
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330");
+    ImGui::GetIO().FontGlobalScale = 1.3;
+
+}
+
+void initialiseWindow(GLFWwindow* window)
+{
+    glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
+    glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
+}
+
+int main()
+{
+    renderInitalise();
 
 #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -117,47 +139,24 @@ int main()
     // glfw window creation
     // --------------------
     GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Engine", NULL, NULL);
+
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
         return -1;
     }
-    glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    glfwSetCursorPosCallback(window, mouse_callback);
-    glfwSetScrollCallback(window, scroll_callback);
-    glfwSetMouseButtonCallback(window, mouse_button_callback);
-    glfwSetFramebufferSizeCallback(window, framebufferSizeCallback);
-    // glad: load all OpenGL function pointers
-    // ---------------------------------------
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    initialiseWindow(window);
+    
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
-    
 
-    // uncomment this call to draw in wireframe polygons.
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	ImguiInitialise(window);
 
-
-    //IMGUI INITIALISATION
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    ImGui::StyleColorsDark();
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 330");
-
-
-    float size = 1;
-    bool draw = false;
-    float color[4] = { 0.8f, 0.3f,0.02f,1.0f };
-
-    
-    
     glEnable(GL_DEPTH_TEST);
-
     //render buffer things
     unsigned int framebuffer;
     glGenFramebuffers(1, &framebuffer);
@@ -186,8 +185,9 @@ int main()
     std::wstring exePath = GetExePath();
     std::filesystem::path shadersPath = std::filesystem::path(exePath) / "Shaders"; // Assuming Shaders folder is in the same directory as the executable
 
-    // Set the path to the shaders
-    std::filesystem::current_path(shadersPath);
+
+    //quad for framebuffer
+	std::filesystem::current_path(shadersPath);
     Shader screenShader("screenShaderVert.vert", "textureFragShader.frag");
     std::shared_ptr<ScreenQuad> quad = std::make_shared<ScreenQuad>();
     Material m(glm::vec4(1, 1, 1, 1));
@@ -196,23 +196,16 @@ int main()
     quad->material.shader.setInt("texture1", 0);
 
 
-    ImGui::GetIO().FontGlobalScale = 1.3;
 	setCamera(editViewCamera);
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
     {
-
-       
-     
-        // input
+    	// input
         // -----
         float currentFrame = static_cast<float>(glfwGetTime());
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
-
-        // input
-        // -----
         processInput(window);
 
         
@@ -222,8 +215,8 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
         //glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+        //glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+        //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
         glEnable(GL_DEPTH_TEST);
 
         //after clearing buffer, declare new frame
@@ -278,32 +271,21 @@ int main()
     	Window_General();
         //Window_Basic();
         Window_Debug();
-
-
         ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
+    	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-
-        // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-        // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    //end imgui functions
-    ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
-
-    // glfw: terminate, clearing all previously allocated GLFW resources.
-    // ------------------------------------------------------------------
     glfwTerminate();
     return 0;
 }
 
-// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
-// ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow* window)
 {
 
@@ -368,7 +350,6 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
     }
 }
 
-
 glm::vec3 convertMouseSpace(int x,int y)
 {
 	//viewport normalise to screen space
@@ -389,7 +370,6 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
     currentCamera->ProcessMouseScroll(static_cast<float>(yoffset));
 }
-
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
@@ -430,8 +410,5 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 
             }
         }
-
     }
-
-
 }
