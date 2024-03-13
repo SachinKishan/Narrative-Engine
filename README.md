@@ -9,8 +9,10 @@ Features accomplished:
 4. Object picking using ray casting(through the use of dynamic box SDFs)
 5. Window resizing support
 6. Player movement
-7. Interactable points 
-8. Player collectable objects 
+7. Interactable "event" points that users can customize for different outcomes and conditional events. 
+8. Player collectible objects and an inventory system
+9. Scene changing system
+
 
 What's next?
 1. A "game builder" that builds game files and provides a file to execute the game along with an executor for the game
