@@ -5,13 +5,14 @@ I've seen a lot of storyteller/writer-based tools such as Twine which usually ai
 Features accomplished:
 1. Scene loading, editing, saving
 2. Scene rendering
-3. Point lights and multi-point support
-4. Object picking using ray casting(through the use of dynamic box SDFs)
-5. Window resizing support
-6. Player movement
-7. Interactable "event" points that users can customize for different outcomes and conditional events. 
-8. Player collectible objects and an inventory system
-9. Scene changing system
+3. Point lights
+4. Multi-point support
+5. Object picking using ray casting(through the use of dynamic box SDFs)
+6. Window resizing support
+7. Player movement
+8. Interactable "event" points that users can customize for different outcomes and conditional events. 
+9. Player collectible objects and an inventory system
+10. Scene changing system
 
 
 What's next?
