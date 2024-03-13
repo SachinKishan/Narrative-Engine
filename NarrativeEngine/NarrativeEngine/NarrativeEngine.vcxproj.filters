@@ -95,6 +95,9 @@
     <ClInclude Include="gamehandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="renderdata.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="defaultShader.frag">

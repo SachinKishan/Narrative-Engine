@@ -176,6 +176,7 @@
     <ClInclude Include="imgui_cpp\imstb_textedit.h" />
     <ClInclude Include="imgui_cpp\imstb_truetype.h" />
     <ClInclude Include="panels.h" />
+    <ClInclude Include="renderdata.h" />
     <ClInclude Include="scene.h" />
     <ClInclude Include="shader.h" />
   </ItemGroup>
