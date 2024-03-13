@@ -1,62 +1,10 @@
 #pragma once
 #include <iostream>
+#include "event.h"
+
 #include "gameobject.h"
 
 
-class UI_Manager
-{
-
-private:
-	//dialogue boxes
-	int numberOfDialogueBoxes;
-	std::vector<std::string> dialogueText;
-	std::vector<bool> displayTextVector;
-
-
-	std::string currentText;
-	bool displayText = false;
-public:
-	UI_Manager()
-	{
-
-	}
-	void addTextBox(const std::string newText)
-	{
-		dialogueText.push_back(newText);
-		displayTextVector.push_back(true);
-	}
-	void setText(const std::string newText)
-	{
-		currentText = newText;
-
-	}
-	std::string getText() { return currentText; }
-	bool shouldDisplayText() { return displayText; }
-	void setDisplayCondition(bool condition)
-	{
-		displayText = condition;
-	}
-	void DisplayNextBox()
-	{
-		if (dialogueText.empty()) { setDisplayCondition(false); std::cout << "empty"; }
-		else
-		{
-			DisplayDialogue(dialogueText.back());
-		}
-	}
-	void DisplayDialogue(const std::string newText)
-	{
-		setText(newText);
-		setDisplayCondition(true);
-	}
-	void movetonextdialogue() { dialogueText.pop_back(); }
-	void ClearDialogue()
-	{
-		dialogueText.clear();
-		setDisplayCondition(false);
-	}
-
-}manager_UI;
 
 inline class GameManager
 {
@@ -113,110 +61,6 @@ public:
 	}
 	
 }manager_GameManager;
-
-
-
-class Event_TextBox :public Event
-{
-private:
-	std::string stringtoprint;
-public:
-	Event_TextBox() { setEventType(EventType::TextBox); }
-	Event_TextBox(std::string ename, EventType etype, EventTime etime, std::string s)
-	{
-		setEventType(EventType::TextBox);
-		setEventName(ename);
-		setEventTime(etime);
-		 setString(s);
-	}
-
-	std::string getString() { return stringtoprint; }
-	void setString(std::string s) { stringtoprint = s; }
-	void doThing() override
-	{
-		manager_UI.addTextBox(stringtoprint);
-		manager_UI.DisplayNextBox();
-	}
-};
-
-class PrintNum_Event :public Event
-{
-private:
-
-public: 
-	PrintNum_Event() = default;
-	PrintNum_Event(std::string ename, EventType etype, EventTime etime)
-	{
-		setEventType(etype);
-		setEventName(ename);
-		setEventTime(etime);
-		setEventType(EventType::Print);
-	}
-	void doThing() override
-	{
-		std::cout << 10;
-	}
-};
-
-class Event_Inventory :public Event
-{
-private:
-	Item item;
-
-public:
-	Event_Inventory()
-	{
-		item.name = "";
-		item.count = 0;
-		setEventType(EventType::Inventory);
-	}
-	Event_Inventory(std::string ename, EventTime etime, std::string name, int count)
-	{
-		setEventName(ename);
-		setEventTime(etime);
-		item.name = name;
-		item.count = count;
-		setEventType(EventType::Inventory);
-	}
-	void setItem(std::string itemName, int n)
-	{
-		item.name = itemName;
-		item.count = n;
-	}
-	void setCount(int n) { item.count = n; }
-	Item getItem() { return item; }
-	void doThing() override
-	{
-		manager_Inventory.addItemToInventory(item);
-	}
-};
-
-
-class Event_SceneChange : public Event {
-	// Scene to change
-	std::string sceneFileName = "_____";
-
-public:
-	Event_SceneChange() { setEventType(EventType::SceneChange); }
-
-	Event_SceneChange(std::string ename, EventTime etime, std::string s)
-	{
-		setEventType(EventType::SceneChange);
-		setEventName(ename);
-		setEventTime(etime);
-		setSceneName(s);
-	}
-	void setSceneName(std::string newSceneName) {
-		sceneFileName = newSceneName;
-	}
-
-	std::string getSceneName() {
-		return sceneFileName;
-	}
-
-	void doThing() override; // Declaration of the overridden virtual function
-};
-
 
 
 class GameBuilder
