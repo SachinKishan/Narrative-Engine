@@ -56,18 +56,11 @@ class BoxCollider {
 private:
 
 public:
-	// Constructor for the box collider
 	BoxCollider(){}
 
-	// Function to calculate the signed distance f rom a point to the box
 	float sdBox(const glm::vec3 p, glm::vec3 boxCenter, glm::vec3 boxRotation, glm::vec3 boxScale) const {
-		// Apply inverse transformations to the point
 		glm::vec3 localPoint = inverseTransformPoint(p, boxCenter, boxRotation, boxScale);
-
-		// Calculate half extents in local space
 		glm::vec3 halfExtent =boxScale / 2.0f;
-
-		// Calculate signed distance in local space
 		glm::vec3 q = glm::abs(localPoint) - halfExtent;
 		float dist = glm::length(vecMax(glm::vec3(0.0), q)) + min(max(q.x, max(q.y, q.z)), 0.0f);
 		//std::cout << "\nBox dist: " << dist<<"\n";
@@ -106,3 +99,35 @@ private:
 	}
 
 };
+
+template<typename T>
+bool ray_collision_impl(glm::vec3 origin, glm::vec3 dir, const std::vector<std::shared_ptr<T>>& objects, std::shared_ptr<T>& obj)
+{
+	float totaldist = 0;
+	glm::vec3 current_pos = origin;
+	for (int i = 0; i < MAX_RAY_ITERATIONS; i++)
+	{
+		float min_dist = std::numeric_limits<float>::infinity();
+		double calc_distance = 0;
+		for (const auto& object : objects)
+		{
+			if (object->collider.CollisionTest(current_pos, object->transform.translation, object->transform.rotation, object->transform.scale))
+			{
+				obj = object;
+				return true;
+			}
+			calc_distance = object->collider.sdBox(current_pos, object->transform.translation, object->transform.rotation, object->transform.scale);
+			if (calc_distance < min_dist)
+			{
+				min_dist = calc_distance;
+			}
+		}
+		totaldist += min_dist;
+		current_pos = origin + dir * totaldist;
+		if (totaldist > 100000)
+		{
+			return false;
+		}
+	}
+	return false;
+}

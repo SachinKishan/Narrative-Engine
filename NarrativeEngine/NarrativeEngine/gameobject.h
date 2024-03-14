@@ -436,37 +436,7 @@ class CameraObject:public GameObject
 };
 
 
-template<typename T>
-bool ray_collision_impl(glm::vec3 origin, glm::vec3 dir, const std::vector<std::shared_ptr<T>>& objects, std::shared_ptr<T>& obj)
-{
-    float totaldist = 0;
-    glm::vec3 current_pos = origin;
-    for (int i = 0; i < MAX_RAY_ITERATIONS; i++)
-    {
-        float min_dist = std::numeric_limits<float>::infinity();
-        double calc_distance = 0;
-        for (const auto& object : objects)
-        {
-            if (object->collider.CollisionTest(current_pos, object->transform.translation, object->transform.rotation, object->transform.scale))
-            {
-                obj = object;
-                return true;
-            }
-            calc_distance = object->collider.sdBox(current_pos, object->transform.translation, object->transform.rotation, object->transform.scale);
-            if (calc_distance < min_dist)
-            {
-                min_dist = calc_distance;
-            }
-        }
-        totaldist += min_dist;
-        current_pos = origin + dir * totaldist;
-        if (totaldist > 100000)
-        {
-            return false;
-        }
-    }
-    return false;
-}
+
 
 bool ray_collision(glm::vec3 origin, glm::vec3 dir, const std::vector<std::shared_ptr<GameObject>>& gameObjects, std::shared_ptr<GameObject>& obj)
 {
