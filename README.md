@@ -23,4 +23,7 @@ What's next?
 This engine is meant to be a hobby project. 
 If you have any suggestions, let me know at sachinkishan02@gmail.com or Twitter- @SachinKishan9
 
+<img width="414" alt="Screenshot 2023-12-19 125826" src="https://github.com/SachinKishan/Narrative-Engine/assets/33657481/2378ab60-7892-46ab-a1f5-1d1e93fda665">
 
+
+<img width="600" alt="Screenshot 2024-02-04 172034" src="https://github.com/SachinKishan/Narrative-Engine/assets/33657481/a2a0ddc0-d06c-40ed-a4ea-351686d122ae">
