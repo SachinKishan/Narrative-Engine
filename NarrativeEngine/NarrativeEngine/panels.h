@@ -2,6 +2,7 @@
 
 #include <functional>
 #include "scene.h"
+#include "GameBuilder.h"
 
 class Selector
 {
@@ -708,6 +709,10 @@ inline void Window_Debug()//window for debugging
         //manager_UI.DisplayNextBox();
         Manager_Scene.findPlipFile("example.plip");
     }
+    if (ImGui::Button("find files"))
+    {
+        //create directory
+    }
 
     ImGui::End();
 }
@@ -728,18 +733,75 @@ inline void Window_PlayerInventory()
 
 inline void Window_GameBuilder()
 {
+    ImGui::Begin("Game Builder");
+
+
+    //game name
+    ImGui::Text("Game name: ");
+    ImGui::SameLine();
+    // Input field to change the object's name
+    char objectName[256]; // Assuming a maximum name length of 255 characters
+    memset(objectName, 0, sizeof(objectName)); // Clear the memory
+    strcpy_s(objectName, manager_GameBuilder.getGameName().c_str());
+    ImGui::InputText("#GameName", objectName, IM_ARRAYSIZE(objectName));
+
+    // Set the object's name if it's changed
+    if (strcmp(objectName, manager_GameBuilder.getGameName().c_str()) != 0)
+    {
+        manager_GameBuilder.setGameName(std::string(objectName));
+    }
+
+
     //game scenes
+    ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::Spacing();
+
+	ImGui::Text("Scene List");
+    static std::string selectedName = "";
+    ImGui::Text("Starting Scene: ");
+    for (auto scene : manager_GameBuilder.getSceneList())
+    {
+        /*
+        if (ImGui::Selectable(clean_string_for_display(scene).c_str(), selectedName == scene)) {
+            selectedName = scene;
+            //std::cout<< selectedName; 
+        }*/
+        ImGui::Text(scene.c_str());
+    }
+
     //  add a scene button
-    //if(ImGui("Add scene to game"))//rewrite this
-    //{
-	    
-    //}
+    if(ImGui::Button("Add scene to game build"))//rewrite this
+    {
 
+        //manager_GameBuilder.addSceneToGame(select_scene());
+        manager_GameBuilder.addSceneToGame(select_SceneFilePath());
+
+
+        if(manager_GameBuilder.getSceneList().size()==1)
+        {
+            manager_GameBuilder.setStartScene(0);
+        }
+    }
     //  remove a scene
+    if (ImGui::Button("Remove scene from game build"))
+    {
+        //manager_GameBuilder.removeSceneFromGame(select_scene());
+        manager_GameBuilder.getSceneList().pop_back();
+    }
+	//starting scene mark
 
-    //starting scene mark
+
 
     //create game button
-    //bundle it all up in a single folder
+    if(ImGui::Button("Build Game"))
+    {
+        manager_GameBuilder.createSceneConfigurator();
+    }
+
+
+    ImGui::End();
+
+	//bundle it all up in a single folder
 
 }

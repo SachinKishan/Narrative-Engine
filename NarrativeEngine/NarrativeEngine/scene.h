@@ -81,8 +81,6 @@ public:
     
 };
 
-
-
 inline class SceneEditorManager
 {
 private:
@@ -411,7 +409,13 @@ std::string select_scene()
         std::string fileName = fsPath.stem().string();
         return fileName;
     }
-    return "";
+    return "null- please delete";
+}
+
+std::wstring select_SceneFilePath()
+{
+    std::wstring filePath = select_file(L"All Files (*.*)\0*.*\0", NULL, OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST);
+    return (filePath);
 }
 
 void CreateNewScene()
@@ -429,7 +433,6 @@ void CreateNewScene()
         wprintf(L"Failed to create the file.\n");
     }
 }
-
 
 inline void SaveScene(std::vector<std::shared_ptr<GameObject>> gameObjects)
 {
@@ -539,3 +542,43 @@ inline void SaveScene(std::vector<std::shared_ptr<GameObject>> gameObjects)
     }
 }
 
+
+
+// Function to create a directory
+bool createDirectory(const std::wstring& directoryPath) {
+    return CreateDirectory(directoryPath.c_str(), NULL) || ERROR_ALREADY_EXISTS == GetLastError();
+}
+
+// Function to copy file
+bool copyFile(const std::wstring& sourceFile, const std::wstring& destFile) {
+    return CopyFile(sourceFile.c_str(), destFile.c_str(), FALSE);
+}
+
+// Function to copy files to a new directory
+bool copyFilesToDirectory(const std::vector<std::wstring>& filePaths, const std::wstring& directoryPath, const std::wstring& configfilePath) {
+    // Create directory
+    if (!createDirectory(directoryPath)) {
+        std::cerr << "Failed to create directory." << std::endl;
+        return false;
+    }
+    else
+    {
+        // Copy files
+        for (const std::wstring& filePath : filePaths)
+        {
+            std::filesystem::path fsPath(filePath);
+            std::wstring fileName = fsPath.stem();
+
+            std::wstring destFilePath = directoryPath + L"\\" + fileName + L".plip";
+            if (!copyFile(filePath, destFilePath))
+            {
+                std::cerr << "Failed to copy file: " << filePath.c_str() << std::endl;
+            }
+
+        }
+        copyFile(configfilePath, directoryPath + L"\\" + L"plipconfigs.config");
+
+        std::cout << "Files copied successfully to directory: " << directoryPath.c_str() << std::endl;
+        return true;
+    }
+}

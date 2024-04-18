@@ -1,0 +1,18 @@
+OBJECTS
+0 platform0 0 -1.027 -7 0 0 0 10 0.402 10 1 1 1 
+1 light0 0 8.904 -7 0 0 0 1 1 1 1 1 1 0.411
+2 Player 0 0 -7 0 0 0 1 1 1 1 1 1 
+4 move0 0 5.822 -7 19.726 0 0 0.2 0.2 0.2 1 0.0882353 0.0882353 
+4 move1 0 3.082 -7 0 0 0 0.2 0.2 0.2 1 1 1 
+4 move2 1.37 4.11 -7 0 0 0 0.2 0.2 0.2 0 0.617647 1 
+EVENTS
+2 move0 _ 0 0 Archicoin 5
+0 move0 receive 0 0 You_got_5_archies 
+0 move1 Archi 0 1 Archicoin 10 you_have_more_than_10_archicoin,_you_can_go_to_the_next_level 
+3 move1 changelevel 0 1 Archicoin 10 example.plip 
+0 move2 lose_archi 0 0 You_lost_1_archicoin! 
+2 move2 lose 0 0 Archicoin -1
+CAMERA
+12.6634 5.44605 12.8433 0.00416394 0.999962 0.00766903 0.5 -118.5 
+INVENTORY
+Archicoin

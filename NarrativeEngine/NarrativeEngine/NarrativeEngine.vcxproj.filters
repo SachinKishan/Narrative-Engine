@@ -107,6 +107,9 @@
     <ClInclude Include="GUIManagement.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="GameBuilder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="defaultShader.frag">

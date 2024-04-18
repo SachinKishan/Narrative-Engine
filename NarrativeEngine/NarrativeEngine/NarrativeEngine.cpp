@@ -269,8 +269,12 @@ int main()
         }
 
     	Window_General();
-        //Window_Basic();
-        Window_Debug();
+        Window_GameBuilder();
+
+    	//Window_Basic();
+
+    	Window_Debug();
+        
         ImGui::Render();
 
     	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -350,21 +354,7 @@ void mouse_callback(GLFWwindow* window, double xposIn, double yposIn)
     }
 }
 
-glm::vec3 convertMouseSpace(int x,int y)
-{
-	//viewport normalise to screen space
-    float n_x = (2.0f * x) / SCR_WIDTH - 1.0f;
-    float n_y = 1.0f - (2.0f * y) / SCR_HEIGHT;
-    float n_z = 1.0f;
-    glm::vec3 n_ray(n_x, n_y, n_z);
-    glm::vec4 ray_clip(n_ray.x, n_ray.y, -1.0, 1.0);
-    glm::vec4 eye_ray = glm::inverse(projection) * ray_clip;
-    eye_ray = glm::vec4(eye_ray.x, eye_ray.y, -1.0, 0.0);
- 
-    glm::vec3 world_ray(glm::inverse(currentCamera->GetViewMatrix()) * eye_ray);
-    world_ray = normalize(world_ray);
-    return world_ray;//this is the direction of the ray
-}
+
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {

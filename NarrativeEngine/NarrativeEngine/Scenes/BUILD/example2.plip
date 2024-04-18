@@ -1,0 +1,10 @@
+OBJECTS
+2 Player 0 0 -7 0 0 0 1 1 1 1 1 1 
+1 light0 0 2.477 -7 0 0 0 1 1 1 1 1 1 0.5
+1 light1 8.824 7.43 5.074 0 0 0 1 1 1 1 1 1 0.5
+4 move0 3.096 0 -7 0 0 0 0.2 0.2 0.2 1 1 1 
+EVENTS
+3 move0 s 0 0 example.plip 
+CAMERA
+0 -2.32011 9.25431 0 1 0 0 -90 
+INVENTORY

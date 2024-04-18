@@ -165,6 +165,7 @@
     <ClInclude Include="camera.h" />
     <ClInclude Include="collision.h" />
     <ClInclude Include="event.h" />
+    <ClInclude Include="GameBuilder.h" />
     <ClInclude Include="gamehandler.h" />
     <ClInclude Include="gameobject.h" />
     <ClInclude Include="GUIManagement.h" />
