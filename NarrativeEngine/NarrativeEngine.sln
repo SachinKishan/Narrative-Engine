@@ -5,6 +5,8 @@ VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NarrativeEngine", "NarrativeEngine\NarrativeEngine.vcxproj", "{0964C07A-48B3-4D87-953F-D5564105A191}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NarrativeExecutor", "NarrativeExecutor\NarrativeExecutor.vcxproj", "{64EF5606-9645-4588-B64E-5EC5C081455A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,14 @@ Global
 		{0964C07A-48B3-4D87-953F-D5564105A191}.Release|x64.Build.0 = Release|x64
 		{0964C07A-48B3-4D87-953F-D5564105A191}.Release|x86.ActiveCfg = Release|Win32
 		{0964C07A-48B3-4D87-953F-D5564105A191}.Release|x86.Build.0 = Release|Win32
+		{64EF5606-9645-4588-B64E-5EC5C081455A}.Debug|x64.ActiveCfg = Debug|x64
+		{64EF5606-9645-4588-B64E-5EC5C081455A}.Debug|x64.Build.0 = Debug|x64
+		{64EF5606-9645-4588-B64E-5EC5C081455A}.Debug|x86.ActiveCfg = Debug|Win32
+		{64EF5606-9645-4588-B64E-5EC5C081455A}.Debug|x86.Build.0 = Debug|Win32
+		{64EF5606-9645-4588-B64E-5EC5C081455A}.Release|x64.ActiveCfg = Release|x64
+		{64EF5606-9645-4588-B64E-5EC5C081455A}.Release|x64.Build.0 = Release|x64
+		{64EF5606-9645-4588-B64E-5EC5C081455A}.Release|x86.ActiveCfg = Release|Win32
+		{64EF5606-9645-4588-B64E-5EC5C081455A}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
