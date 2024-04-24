@@ -160,3 +160,29 @@ private:
 };
 #endif
 
+//camera
+// settings
+unsigned int SCR_WIDTH = 1200;
+unsigned int SCR_HEIGHT = 800;
+
+Camera camera(glm::vec3(0.0f, 0.0f, -5.0f));
+float lastX = SCR_WIDTH / 2.0f;
+float lastY = SCR_HEIGHT / 2.0f;
+bool firstMouse = true;
+
+// timing
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
+
+glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+glm::mat4 view;
+
+
+std::shared_ptr<Camera> editViewCamera = std::make_shared<Camera>(camera);
+std::shared_ptr<Camera> gameViewCamera = std::make_shared<Camera>(camera);
+std::shared_ptr<Camera> currentCamera;
+
+void setCamera(std::shared_ptr<Camera> cam)
+{
+    currentCamera = cam;
+}

@@ -190,7 +190,7 @@ int main()
         {
             Window_Dialogue();
         }
-
+        Window_LoadGame();
         //Window_General();
 
         //Window_Basic();

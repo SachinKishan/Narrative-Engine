@@ -1,5 +1,8 @@
 #pragma once
 #include <algorithm> // Include for std::max
+#include <memory>
+#include <vector>
+#include<glm/glm.hpp>
 #define MAX_RAY_ITERATIONS 100
 
 

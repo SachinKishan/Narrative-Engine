@@ -1,12 +1,14 @@
 #pragma once
 #include <codecvt>
 #include <vector>
+#include <tchar.h>
 
 #include <Windows.h>
 #include <commdlg.h>
 #include <fstream>
 #include "gamehandler.h"
 #include "gameobject.h"
+
 
 
 std::string clean_string_for_file(std::string uncleanString)//used to ensure strings are safe to store in file
@@ -581,4 +583,28 @@ bool copyFilesToDirectory(const std::vector<std::wstring>& filePaths, const std:
         std::cout << "Files copied successfully to directory: " << directoryPath.c_str() << std::endl;
         return true;
     }
+}
+
+
+//read config file
+//load accordingly
+
+std::wstring read_config_file(std::wstring path)
+{
+	std::ifstream configFile(path);
+    if (configFile.is_open()) {
+        std::string line;
+        while (std::getline(configFile, line)) 
+        {
+            if(line._Equal("STARTING SCENE "))
+            {
+                std::string sceneName;
+                std::getline(configFile, sceneName);
+                std::cout << sceneName;
+                std::wstring ws(sceneName.begin(), sceneName.end()); // converting s1 to ws in its range
+                return ws;
+            }
+        }
+    }
+    return L"";
 }

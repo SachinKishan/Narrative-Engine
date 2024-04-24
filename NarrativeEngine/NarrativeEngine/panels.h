@@ -709,12 +709,15 @@ inline void Window_Debug()//window for debugging
         //manager_UI.DisplayNextBox();
         Manager_Scene.findPlipFile("example.plip");
     }
+
+//#ifdef ENGINE
     if (ImGui::Button("find files"))
     {
         //create directory
     }
+//#endif
 
-    ImGui::End();
+	ImGui::End();
 }
 
 inline void Window_PlayerInventory()
@@ -804,4 +807,21 @@ inline void Window_GameBuilder()
 
 	//bundle it all up in a single folder
 
+}
+
+void Window_LoadGame()
+{
+    ImGui::Begin("Start Menu");
+
+    ImGui::Text("Load a configuration file with file ending .config");
+    if(ImGui::Button("Load Game"))
+    {
+        std::wstring path = select_SceneFilePath();
+        std::filesystem::path gamePath = std::filesystem::path(path);
+        std::wstring a= read_config_file(path);
+        Manager_Scene.ReadSceneFromFile(a+L".plip");
+
+    }
+
+    ImGui::End();
 }
