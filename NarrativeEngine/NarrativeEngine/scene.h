@@ -364,6 +364,7 @@ void Event_SceneChange::doThing()
     Manager_Scene.changeScene(sceneFileName);
 }
 
+
 std::wstring select_file(const wchar_t* filter, const wchar_t* defaultExtension, DWORD flags)
 {
     CoInitialize(NULL);
@@ -502,8 +503,9 @@ inline void SaveScene(std::vector<std::shared_ptr<GameObject>> gameObjects)
                 {
                     const auto inventoryEvent = static_cast<Event_Inventory*>(event.get());
                     std::string s =clean_string_for_file(inventoryEvent->getItem().name);
+                    outFile << s<<" ";
                     int count= inventoryEvent->getItem().count;
-                    outFile << count;
+                    outFile << count<<" ";
                 }
                 else if (event->getType() == EventType::SceneChange)
                 {
