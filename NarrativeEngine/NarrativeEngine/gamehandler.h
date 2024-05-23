@@ -9,6 +9,7 @@
 inline class GameManager
 {
 private:
+	std::wstring pathOfStartScene;
 	glm::vec3 playerStartPoint;
 	std::shared_ptr<MovementPoint> currentMovementPoint;
 	std::shared_ptr<Player> player = nullptr;
@@ -16,6 +17,14 @@ private:
 
 public:
 
+	void setPathOfStartScene(std::wstring a)
+	{
+		pathOfStartScene = a;
+	}
+	std::wstring getStartScenePath()
+	{
+		return pathOfStartScene;
+	}
 	void ResetGame()
 	{
 		if(player)
@@ -59,6 +68,16 @@ public:
 				event->runEvent();
 		}
 	}
+	std::shared_ptr<MovementPoint> & getCurrentPoint()
+	{
+		return currentMovementPoint;
+	}
 	
 }manager_GameManager;
 
+inline void Event_ObjectDisappear::doThing()
+{
+	const std::shared_ptr<GameObject> m = manager_GameManager.getCurrentPoint();
+	m->transform.translation = glm::vec3(10000, 10000, 10000);
+	m->transform.CalculateModel();
+}

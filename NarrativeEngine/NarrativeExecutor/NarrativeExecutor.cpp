@@ -133,7 +133,7 @@ int main()
 
 	// render loop
     // -----------
-    while (!glfwWindowShouldClose(window))
+    while (!glfwWindowShouldClose(window)  && shouldRun )
     {
         // input
         // -----

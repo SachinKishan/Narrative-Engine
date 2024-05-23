@@ -129,7 +129,7 @@ int main()
 	setCamera(editViewCamera);
     // render loop
     // -----------
-    while (!glfwWindowShouldClose(window))
+    while (!glfwWindowShouldClose(window) && shouldRun)
     {
     	// input
         // -----

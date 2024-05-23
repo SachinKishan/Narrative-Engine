@@ -258,6 +258,18 @@ inline void EventSelection(std::shared_ptr<MovementPoint>& point)
             point->events.push_back(e);
             std::cout << "Event added";
         }
+        if(ImGui::Button("Add game quit event"))
+        {
+            std::shared_ptr<Event_CloseApplication> e = std::make_shared<Event_CloseApplication>();
+            point->events.push_back(e);
+            std::cout << "Event added";
+        }
+        if(ImGui::Button("Add object disappear event"))
+        {
+            std::shared_ptr<Event_ObjectDisappear> e = std::make_shared<Event_ObjectDisappear>();
+            point->events.push_back(e);
+            std::cout << "Event added";
+        }
         if (ImGui::Button("Delete last event"))
         {
             point->events.pop_back();
@@ -820,7 +832,7 @@ void Window_LoadGame()
         std::filesystem::path gamePath = std::filesystem::path(path);
         std::wstring a= read_config_file(path);
         Manager_Scene.ReadSceneFromFile(a+L".plip");
-
+        //manager_GameBuilder.setStartScene(read_config_file(path) + ".plip");
     }
 
     ImGui::End();

@@ -16,7 +16,6 @@ enum ObjectType
     type_MovementPoint
 };
 
-
 // Function to get the path to the current executable
 inline std::wstring GetExePath() {
     wchar_t buffer[MAX_PATH];
@@ -447,3 +446,4 @@ bool ray_collision(glm::vec3 origin, glm::vec3 dir, const std::vector<std::share
 {
     return ray_collision_impl(origin, dir, movementPoints, obj);
 }
+

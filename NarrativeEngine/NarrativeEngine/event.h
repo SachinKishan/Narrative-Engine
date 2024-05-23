@@ -14,7 +14,9 @@ enum EventType
     TextBox,
     Print,
     Inventory,
-    SceneChange
+    SceneChange,
+	CloseApplication,
+	ObjectDisappear
 };
 
 class ConditionalEventData
@@ -201,3 +203,29 @@ public:
 	void doThing() override; // Declaration of the overridden virtual function
 };
 
+bool shouldRun = true;
+class Event_CloseApplication :public Event
+{
+public:
+	Event_CloseApplication()
+	{
+		setEventType(EventType::CloseApplication);
+	}
+	void doThing() override
+	{
+		shouldRun = false;
+	}
+};
+
+class Event_ObjectDisappear:public Event
+{
+private:
+	// currentObject;
+public:
+	Event_ObjectDisappear()
+	{
+		setEventType(EventType::ObjectDisappear);
+	}
+	void doThing() override;
+
+};
