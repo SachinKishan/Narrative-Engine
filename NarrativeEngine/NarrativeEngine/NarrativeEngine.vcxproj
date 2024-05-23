@@ -71,20 +71,20 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>C:\Users\sachi\OneDrive\Documents\GitHub\Game Engine\PlipPlop\NarrativeEngine\NarrativeEngine\Libraries\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\sachi\OneDrive\Documents\GitHub\Game Engine\PlipPlop\NarrativeEngine\NarrativeEngine\Libraries\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)\Libraries\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)\Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>C:\Users\sachi\OneDrive\Documents\GitHub\Game Engine\PlipPlop\NarrativeEngine\NarrativeEngine\Libraries\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\sachi\OneDrive\Documents\GitHub\Game Engine\PlipPlop\NarrativeEngine\NarrativeEngine\Libraries\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)\Libraries\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)\Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\sachi\OneDrive\Documents\GitHub\Game Engine\PlipPlop\NarrativeEngine\NarrativeEngine\Libraries\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\sachi\OneDrive\Documents\GitHub\Game Engine\PlipPlop\NarrativeEngine\NarrativeEngine\Libraries\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)\Libraries\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)\Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\Users\sachi\OneDrive\Documents\GitHub\Game Engine\PlipPlop\NarrativeEngine\NarrativeEngine\Libraries\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\sachi\OneDrive\Documents\GitHub\Game Engine\PlipPlop\NarrativeEngine\NarrativeEngine\Libraries\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)\Libraries\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)\Libraries\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
