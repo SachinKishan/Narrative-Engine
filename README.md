@@ -13,11 +13,11 @@ Features accomplished:
 8. Interactable "event" points that users can customize for different outcomes and conditional events. 
 9. Player collectible objects and an inventory system
 10. Scene changing system
-
+11. A "game builder" that builds game files and provides a file to execute the game along with an executor for the game
+12. An executor application that can execute game files
 
 What's next?
-1. A "game builder" that builds game files and provides a file to execute the game along with an executor for the game
-2. An executor application that can execute game files
+1. The Narrative Engine is opening up for public contributions! Watch this space for updates.
 
 
 This engine is meant to be a hobby project. 
