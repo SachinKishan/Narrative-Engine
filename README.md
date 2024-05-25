@@ -37,13 +37,22 @@ Currently some features do not work on Mac devices.
 ## How to make a PR
 To make a PR, fork the repo, make your changes and create a Pull Request. Your PR description should preferably have the following format
 
-1. The goal
+1. The goal of the PR in the title
 2. What changes you made(in brief) to achieve the goal
 3. Any test cases you ran to ensure robust functioning (are there edge cases to worry about?)
 
+You can look at possible issues to take up and develop in the Issues tab of the repository.
 
 <hr>
 
+## Current focus
+This project is being set up for open source contribution with a few goals in mind
+
+1. Create an MVP for writers and other users to test with
+2. Ensure a robust contribution pipeline
+
+
+<hr>
 
 This engine is meant to be a hobby project. 
 If you have any suggestions, let me know at sachinkishan02@gmail.com or Twitter- @SachinKishan9
