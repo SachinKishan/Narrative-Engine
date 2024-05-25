@@ -19,6 +19,31 @@ Features accomplished:
 What's next?
 1. The Narrative Engine is opening up for public contributions! Watch this space for updates.
 
+<hr>
+
+## Project Set Up
+
+### Windows
+The project requires Microsoft Visual Studio as an IDE. Simply fork the repo and open it up and it should work as intended.
+
+### Linux
+TBD
+
+### Mac
+Currently some features do not work on Mac devices.
+
+<hr>
+
+## How to make a PR
+To make a PR, fork the repo, make your changes and create a Pull Request. Your PR should preferably have the following format
+
+1. The goal
+2. What changes you made(in brief) to achieve the goal
+3. Any test cases you ran to ensure robust functioning (are there edge cases to worry about?)
+
+
+<hr>
+
 
 This engine is meant to be a hobby project. 
 If you have any suggestions, let me know at sachinkishan02@gmail.com or Twitter- @SachinKishan9
