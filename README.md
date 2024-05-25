@@ -35,7 +35,7 @@ Currently some features do not work on Mac devices.
 <hr>
 
 ## How to make a PR
-To make a PR, fork the repo, make your changes and create a Pull Request. Your PR should preferably have the following format
+To make a PR, fork the repo, make your changes and create a Pull Request. Your PR description should preferably have the following format
 
 1. The goal
 2. What changes you made(in brief) to achieve the goal
