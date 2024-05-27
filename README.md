@@ -27,8 +27,34 @@ What's next?
 The project requires Microsoft Visual Studio as an IDE. Simply fork the repo and open it up and it should work as intended.
 
 ### Linux
-TBD
+Current release of the Narrative Engine requires use of Wine as a compatibility layer.
+### Instructions to install Wine:
+#### Ubuntu (and Ubuntu-based Distributions)
+1. Add 32-bit architecture:
+	`sudo dpkg --add-architecture i386`
+2. Download and add the repository key:
+	`sudo mkdir -pm755 /etc/apt/keyrings`
+	`sudo wget -O /etc/apt/keyrings/winehq-archive.key [https://dl.winehq.org/wine-builds/winehq.key](https://dl.winehq.org/wine-builds/winehq.key)`
+3. Find Ubuntu Version:
+	`cat /etc/os-release`
+4. Add the WineHQ sources file w.r.t. your Ubuntu version:
+	- Ubuntu 24.04:
+	`sudo wget -NP /etc/apt/sources.list.d/ [https://dl.winehq.org/wine-builds/ubuntu/dists/noble/winehq-noble.sources](https://dl.winehq.org/wine-builds/ubuntu/dists/noble/winehq-noble.sources)`
+	- Ubuntu 22.04:
+	`sudo wget -NP /etc/apt/sources.list.d/ [https://dl.winehq.org/wine-builds/ubuntu/dists/jammy/winehq-jammy.sources](https://dl.winehq.org/wine-builds/ubuntu/dists/jammy/winehq-jammy.sources)`
+	- Ubuntu 20.04:
+	`sudo wget -NP /etc/apt/sources.list.d/ [https://dl.winehq.org/wine-builds/ubuntu/dists/focal/winehq-focal.sources](https://dl.winehq.org/wine-builds/ubuntu/dists/focal/winehq-focal.sources)`
+5. Update package information and install WineHQ Stable:
+	`sudo apt update && sudo apt install --install-recommends winehq-stable`
+#### Fedora (and Fedora-based Distributions):
+1. Add the repository:
+	`sudo dnf config-manager --add-repo [https://dl.winehq.org/wine-builds/fedora/$(rpm -E %fedora)/winehq.repo](https://dl.winehq.org/wine-builds/fedora/$(rpm -E %fedora)/winehq.repo)`
+2. Install WineHQ Stable:
+	`sudo dnf install winehq-stable`
 
+For additional help, visit WineHQ's website for FAQs and general troubleshooting while installing Wine: https://www.winehq.org/
+
+That's it, you should be able to open the Windows executable build for NarrativeEngine using Wine's Application Loader. Be sure to install any additional dependencies Wine prompts while running the NarrativeEngine for the first time. :)
 ### Mac
 Currently some features do not work on Mac devices.
 
