@@ -131,7 +131,7 @@ int main()
 
 	setCamera(editViewCamera);
 
-
+    Model bp("C:\\Users\\sachi\\OneDrive\\Documents\\GitHub\Game Engine\\PlipPlop\\NarrativeEngine\\NarrativeEngine\\backpack.obj");
     
 
 
