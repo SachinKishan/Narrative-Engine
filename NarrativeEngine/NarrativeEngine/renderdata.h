@@ -1,6 +1,7 @@
 #pragma once
 #include <glm/ext/matrix_transform.hpp>
 
+#include "model_loading.h"
 #include "shader.h"
 #define M_PI 3.14159265358979323846264338327950288
 
@@ -92,6 +93,10 @@ public:
     virtual void draw() {}
     virtual void deInitialize() {}
     bool isSkyBox = false;
+    bool hasModel=false;
+    Model modelData;//has all the model vertex and texture data stored here
+
+
 
     void SetMaterial(Material mat)
     {

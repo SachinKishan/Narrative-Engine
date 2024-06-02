@@ -504,6 +504,19 @@ inline void Window_ObjectSelection()
                 selectedObject->renderData->material.color = glm::vec4(newColor[0], newColor[1], newColor[2], newColor[3]);
             }
         }
+        if(selectedObject->objectType==ObjectType::type_Platform)
+        {
+           
+                if(ImGui::Button("Change 3D model"))
+                {
+                    std::wstring path = select_SceneFilePath();
+                    std::filesystem::path gamePath = std::filesystem::path(path);
+                	selectedObject->renderData->modelData = Model(convertWStringToString(gamePath));
+                    selectedObject->renderData->hasModel = true;
+                }
+        }
+
+
         if(selectedObject->objectType==ObjectType::type_Light)
         {
             std::shared_ptr<Light> lightObject = std::dynamic_pointer_cast<Light>(selectedObject);
