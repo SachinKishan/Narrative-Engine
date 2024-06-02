@@ -18,6 +18,9 @@
 
 #include "CallBack.h"
 
+#include "model_loading.h"
+
+
 
 
 void render()
@@ -127,6 +130,11 @@ int main()
 
 
 	setCamera(editViewCamera);
+
+
+    
+
+
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window) && shouldRun)
