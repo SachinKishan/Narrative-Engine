@@ -1,4 +1,3 @@
-
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
@@ -17,7 +16,7 @@
 #include<glm/gtx/norm.hpp>
 
 #include "CallBack.h"
-
+#include <locale.h>
 
 
 void render()
@@ -63,7 +62,10 @@ int main()
     renderInitalise();
 
 #ifdef __APPLE__
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // Required on macOS
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // Use Core Profile
 #endif
 
     // glfw window creation
@@ -131,7 +133,7 @@ int main()
 
 
 
-	// render loop
+    // render loop
     // -----------
     while (!glfwWindowShouldClose(window)  && shouldRun )
     {
@@ -150,7 +152,7 @@ int main()
         glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
         //glBindFramebuffer(GL_FRAMEBUFFER, 0);
         //glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+        //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
 
         //after clearing buffer, declare new frame
