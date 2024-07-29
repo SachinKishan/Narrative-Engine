@@ -1,28 +1,53 @@
 #pragma once
 #include <string>
-#include<cmath>
+#include <cmath>
 #include "collision.h"
 #include "renderdata.h"
+#include <mach-o/dyld.h>
 
 #include<filesystem>
 
 
 enum ObjectType
 {
-	type_Platform,
+    type_Platform,
     type_Light,
     type_Player,
     type_Interactable,
     type_MovementPoint
 };
 
+
+//std::wstring convertStringToWString(const std::string& str) {
+//    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+//    return converter.from_bytes(str);
+//}
+
 // Function to get the path to the current executable
+#ifdef __APPLE__
+inline std::wstring GetExePath() {
+    uint32_t size = 0;
+    _NSGetExecutablePath(nullptr, &size); // Get the size of the buffer needed
+    std::string buffer(size, '\0'); // Create a buffer of the required size
+    _NSGetExecutablePath(buffer.data(), &size); // Get the executable path
+    
+    // Convert the buffer to a wide string
+    std::wstring wbuffer(buffer.begin(), buffer.end());
+    
+    // Find the last separator and get the directory path
+    std::wstring::size_type pos = wbuffer.find_last_of(L"/");
+    return wbuffer.substr(0, pos);
+//    return convertStringToWString("-excutable file here-");
+}
+#else
 inline std::wstring GetExePath() {
     wchar_t buffer[MAX_PATH];
-    GetModuleFileName(NULL, buffer, MAX_PATH);
+    etModuleFileName(NULL, buffer, PATH_MAX);
     std::wstring::size_type pos = std::wstring(buffer).find_last_of(L"\\/");
     return std::wstring(buffer).substr(0, pos);
 }
+#endif
+
 
 class GameObject
 {
@@ -37,38 +62,36 @@ public:
         name = "nothing selected";
     }
 
-	GameObject(const std::string name) : name(name)//test constructor
-	{
+    GameObject(const std::string name) : name(name)//test constructor
+    {
         std::wstring exePath = GetExePath();
         std::filesystem::path shadersPath = std::filesystem::path(exePath) / "Shaders"; // Assuming Shaders folder is in the same directory as the executable
         // Set the path to the shaders
         std::filesystem::current_path(shadersPath);
-    	auto path = std::filesystem::current_path();
-        std::cout << path;
+        auto path = std::filesystem::current_path();
+        //std::cout << path;
         renderData = std::make_shared<Cube>();// new Plane();
         const Material mat(glm::vec4(1, 1, 1, 1));
         renderData->SetMaterial(mat);
-    	Shader s("defaultShader.vert","defaultShader.frag");
-    	renderData->material.setShader(s);
+        Shader s("defaultShader.vert","defaultShader.frag");
+        renderData->material.setShader(s);
         std::cout << "\n GAME OBJECT CREATED \n";
-	}
+    }
 
     GameObject(const std::string name, ObjectTransform transformData) :name(name), transform(transformData)
     {
         std::wstring exePath = GetExePath();
         std::filesystem::path shadersPath = std::filesystem::path(exePath) / "Shaders"; // Assuming Shaders folder is in the same directory as the executable
-
         // Set the path to the shaders
         std::filesystem::current_path(shadersPath);
         auto path = std::filesystem::current_path();
 
-        std::cout << path;
-    	renderData = std::make_shared<Cube>();// new Plane();
+        //std::cout << path;
+        renderData = std::make_shared<Cube>();// new Plane();
         const Material mat(glm::vec4(1, 1, 1, 1));
         renderData->SetMaterial(mat);
         Shader s("defaultShader.vert", "colorShader.frag");
         renderData->material.setShader(s);
-
         std::cout << "\n GAME OBJECT CREATED \n";
     }
     GameObject(const std::string name, ObjectTransform transformData, glm::vec3 color) :name(name), transform(transformData)
@@ -80,7 +103,7 @@ public:
         std::filesystem::current_path(shadersPath);
         auto path = std::filesystem::current_path();
 
-        std::cout << path;
+        //std::cout << path;
         renderData = std::make_shared<Cube>();// new Plane();
         const Material mat(glm::vec4(1, 1, 1, 1));
         renderData->SetMaterial(mat);
@@ -113,7 +136,7 @@ public:
         // Set the path to the shaders
         std::filesystem::current_path(shadersPath);
         auto path = std::filesystem::current_path();
-        std::cout << path;
+        //std::cout << path;
         renderData = std::make_shared<Cube>();// new Plane();
         const Material mat(glm::vec4(1, 1, 1, 1));
         renderData->SetMaterial(mat);
@@ -122,7 +145,7 @@ public:
         std::cout << "\n GAME OBJECT CREATED \n";
     }
 
-    Platform(const std::string name, ObjectTransform transformData) 
+    Platform(const std::string name, ObjectTransform transformData)
     {
         objectType = ObjectType::type_Platform;
 
@@ -136,16 +159,15 @@ public:
         std::filesystem::current_path(shadersPath);
         auto path = std::filesystem::current_path();
 
-        std::cout << path;
+        //std::cout << path;
         renderData = std::make_shared<Cube>();// new Plane();
         const Material mat(glm::vec4(1, 1, 1, 1));
         renderData->SetMaterial(mat);
         Shader s("defaultShader.vert", "defaultShaderwithlighting.frag");
         renderData->material.setShader(s);
-
         std::cout << "\n GAME OBJECT CREATED \n";
     }
-    Platform(const std::string name, ObjectTransform transformData, glm::vec3 color) 
+    Platform(const std::string name, ObjectTransform transformData, glm::vec3 color)
     {
 
         GameObject::name = name;
@@ -159,7 +181,7 @@ public:
         std::filesystem::current_path(shadersPath);
         auto path = std::filesystem::current_path();
 
-        std::cout << path;
+        //std::cout << path;
         renderData = std::make_shared<Cube>();// new Plane();
         const Material mat(glm::vec4(1, 1, 1, 1));
         renderData->SetMaterial(mat);
@@ -193,7 +215,7 @@ public:
         // Set the path to the shaders
         std::filesystem::current_path(shadersPath);
         auto path = std::filesystem::current_path();
-        std::cout << path;
+        //std::cout << path;
         renderData = std::make_shared<Cube>();// new Plane();
         const Material mat(glm::vec4(1, 1, 1, 1));
         renderData->SetMaterial(mat);
@@ -202,7 +224,7 @@ public:
         std::cout << "\n GAME OBJECT CREATED \n";
     }
 
-    Light(const std::string name, ObjectTransform transformData) 
+    Light(const std::string name, ObjectTransform transformData)
     {
         GameObject::name = name;
         objectType = ObjectType::type_Light;
@@ -215,7 +237,7 @@ public:
         std::filesystem::current_path(shadersPath);
         auto path = std::filesystem::current_path();
 
-        std::cout << path;
+        //std::cout << path;
         renderData = std::make_shared<Cube>();// new Plane();
         const Material mat(glm::vec4(1, 1, 1, 1));
         renderData->SetMaterial(mat);
@@ -225,7 +247,7 @@ public:
         std::cout << "\n GAME OBJECT CREATED \n";
     }
     Light(const std::string name, ObjectTransform transformData, glm::vec3 color)
-	{
+    {
         GameObject::name = name;
         GameObject::transform = transformData;
         objectType = ObjectType::type_Light;
@@ -237,7 +259,7 @@ public:
         std::filesystem::current_path(shadersPath);
         auto path = std::filesystem::current_path();
 
-        std::cout << path;
+        //std::cout << path;
         renderData = std::make_shared<Cube>();// new Plane();
         const Material mat(glm::vec4(1, 1, 1, 1));
         renderData->SetMaterial(mat);
@@ -247,12 +269,12 @@ public:
         std::cout << "\n GAME OBJECT CREATED \n";
     }
 
-	void setIntensity(float newIntensity)
+    void setIntensity(float newIntensity)
     {
         intensity = newIntensity;
     }
 
-	float getIntensity() const { return intensity; }
+    float getIntensity() const { return intensity; }
 };
 
 class Player: public GameObject
@@ -275,7 +297,7 @@ public:
         // Set the path to the shaders
         std::filesystem::current_path(shadersPath);
         auto path = std::filesystem::current_path();
-        std::cout << path;
+        //std::cout << path;
         renderData = std::make_shared<Cube>();// new Plane();
         const Material mat(glm::vec4(1, 1, 1, 1));
         renderData->SetMaterial(mat);
@@ -297,7 +319,7 @@ public:
         std::filesystem::current_path(shadersPath);
         auto path = std::filesystem::current_path();
 
-        std::cout << path;
+        //std::cout << path;
         renderData = std::make_shared<Cube>();// new Plane();
         const Material mat(glm::vec4(1, 1, 1, 1));
         renderData->SetMaterial(mat);
@@ -319,7 +341,7 @@ public:
         std::filesystem::current_path(shadersPath);
         auto path = std::filesystem::current_path();
 
-        std::cout << path;
+        //std::cout << path;
         renderData = std::make_shared<Cube>();// new Plane();
         const Material mat(glm::vec4(1, 1, 1, 1));
         renderData->SetMaterial(mat);
@@ -349,7 +371,7 @@ public:
     std::vector<std::shared_ptr<Event>> events;
     void deleteSpecificEvent()
     {
-	    
+        
     }
 
     MovementPoint() {
@@ -366,7 +388,7 @@ public:
         // Set the path to the shaders
         std::filesystem::current_path(shadersPath);
         auto path = std::filesystem::current_path();
-        std::cout << path;
+        //std::cout << path;
         renderData = std::make_shared<Cube>();// new Plane();
 
 
@@ -376,7 +398,7 @@ public:
         renderData->material.setShader(s);
         transform.scale = glm::vec3(0.2);
 
-    	std::cout << "\n GAME OBJECT CREATED \n";
+        std::cout << "\n GAME OBJECT CREATED \n";
 
     }
     MovementPoint(const std::string name, ObjectTransform transformData)
@@ -392,7 +414,7 @@ public:
         std::filesystem::current_path(shadersPath);
         auto path = std::filesystem::current_path();
 
-        std::cout << path;
+        //std::cout << path;
         renderData = std::make_shared<Cube>();// new Plane();
         const Material mat(glm::vec4(1, 1, 1, 1));
         renderData->SetMaterial(mat);
@@ -415,7 +437,7 @@ public:
         std::filesystem::current_path(shadersPath);
         auto path = std::filesystem::current_path();
 
-        std::cout << path;
+        //std::cout << path;
         renderData = std::make_shared<Cube>();// new Plane();
         const Material mat(glm::vec4(1, 1, 1, 1));
         renderData->SetMaterial(mat);
@@ -424,14 +446,14 @@ public:
         renderData->material.color = glm::vec4(color, 1);
         transform.scale = glm::vec3(0.2);
 
-    	std::cout << "\n GAME OBJECT CREATED \n";
+        //std::cout << "\n GAME OBJECT CREATED \n";
     }
 
 };
 
 class CameraObject:public GameObject
 {
-	
+    
 };
 
 
