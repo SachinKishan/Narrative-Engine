@@ -3,6 +3,7 @@
 #include <vector>
 #include <locale>
 #ifdef _WIN32
+	#define NOMINMAX
     #include <Windows.h>
     #include <commdlg.h>
     #include <tchar.h>
@@ -35,12 +36,21 @@ std::string clean_string_for_display(std::string uncleanString)
     return uncleanString;
 }
 
-
+#ifdef _WIN32
+std::string convertWStringToString(const std::wstring& wstr)
+{
+    int size_needed = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, NULL, 0, NULL, NULL);
+    std::string strTo(size_needed, 0);
+    WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, &strTo[0], size_needed, NULL, NULL);
+    return strTo;
+}
+#endif
+#ifdef __APPLE__
 std::string convertWStringToString(const std::wstring& wstr) {
     std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
     return converter.to_bytes(wstr);
 }
-
+#endif
 
 class Scene
 {
