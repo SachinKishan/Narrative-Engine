@@ -3,7 +3,10 @@
 #include <cmath>
 #include "collision.h"
 #include "renderdata.h"
+
+#ifdef __APPLE__
 #include <mach-o/dyld.h>
+#endif 
 
 #include<filesystem>
 
@@ -42,8 +45,8 @@ inline std::wstring GetExePath() {
 #else
 inline std::wstring GetExePath() {
     wchar_t buffer[MAX_PATH];
-    etModuleFileName(NULL, buffer, PATH_MAX);
-    std::wstring::size_type pos = std::wstring(buffer).find_last_of(L"\\/");
+    GetModuleFileName(NULL, buffer, MAX_PATH);
+	std::wstring::size_type pos = std::wstring(buffer).find_last_of(L"\\/");
     return std::wstring(buffer).substr(0, pos);
 }
 #endif
