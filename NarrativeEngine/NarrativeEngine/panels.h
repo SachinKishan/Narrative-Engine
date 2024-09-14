@@ -4,6 +4,11 @@
 #include "scene.h"
 #include "GameBuilder.h"
 
+
+#ifdef WIN32
+    #define strcpy(dest, src) strcpy_s(dest, sizeof(dest), src)
+#endif
+
 class Selector
 {
 
@@ -25,7 +30,7 @@ public:
 
 enum editor_state
 {
-	state_GameView,
+    state_GameView,
     state_EditorView
 };
 
@@ -39,7 +44,7 @@ public:
     {
         state = new_state;
     }
-	editor_state getState()
+    editor_state getState()
     {
         return state;
     }
@@ -56,7 +61,7 @@ inline void Window_Basic()
     ImGui::Text("whoopee");
 
 
-	ImGui::EndGroup();
+    ImGui::EndGroup();
 
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File")) {
@@ -97,7 +102,7 @@ inline void Window_Basic()
     // Rest of your ImGui rendering code
     ImGui::Text("Hello, world!");
 
-	ImGui::End();
+    ImGui::End();
 
 
 
@@ -157,12 +162,12 @@ inline void Window_SceneTree()
         }
         if(ImGui::Button("Remove object"))
         {
-	        if(manager_Selection.currentObject!=nullptr)
-	        {
+            if(manager_Selection.currentObject!=nullptr)
+            {
                 std::vector<std::shared_ptr<GameObject>>& currentVector = Manager_Scene.currentScene.gameObjectList;
 
                 Manager_Scene.currentScene.gameObjectList.erase(std::find(
-                    Manager_Scene.currentScene.gameObjectList.begin(), Manager_Scene.currentScene.gameObjectList.end(), 
+                    Manager_Scene.currentScene.gameObjectList.begin(), Manager_Scene.currentScene.gameObjectList.end(),
                     manager_Selection.currentObject));
 
                 if(manager_Selection.currentObject->objectType==ObjectType::type_Light)
@@ -177,19 +182,19 @@ inline void Window_SceneTree()
                         Manager_Scene.currentScene.movementPointList.begin(), Manager_Scene.currentScene.movementPointList.end(),
                         manager_Selection.currentObject));
                 }
-	        }
+            }
         }
 
        
-        for (std::shared_ptr<GameObject>& obj : Manager_Scene.currentScene.gameObjectList) 
+        for (std::shared_ptr<GameObject>& obj : Manager_Scene.currentScene.gameObjectList)
         {
             std::string selectedName = "";
             if(manager_Selection.currentObject != nullptr)
-	        	selectedName = manager_Selection.currentObject->name;
+                selectedName = manager_Selection.currentObject->name;
             if (ImGui::Selectable(clean_string_for_display(obj->name).c_str(), selectedName == obj->name)) {
                 selectedName = obj->name;
                 manager_Selection.changeSelection(obj);
-                //std::cout<< selectedName; 
+                //std::cout<< selectedName;
             }
         }
         //save scene
@@ -200,11 +205,11 @@ inline void Window_SceneTree()
         }
 
         //unload scene
-	    if(ImGui::Button("Unload Scene"))
-	    {
+        if(ImGui::Button("Unload Scene"))
+        {
             std::cout << "Scene unloaded\n";
             Manager_Scene.sceneLoaded = false;
-	    }
+        }
     }
 
 
@@ -281,7 +286,7 @@ inline void EventSelection(std::shared_ptr<MovementPoint>& point)
 
 void EventEditor(std::shared_ptr<MovementPoint> &point)
 {
-    for (size_t i = 0; i < point->events.size(); ++i) 
+    for (size_t i = 0; i < point->events.size(); ++i)
     {
         ImGui::Spacing();
         ImGui::Spacing();
@@ -303,7 +308,7 @@ void EventEditor(std::shared_ptr<MovementPoint> &point)
 
         char eventName[256]; // Assuming a maximum name length of 255 characters
         memset(eventName, 0, sizeof(eventName)); // Clear the memory
-        strcpy_s(eventName, event->getName().c_str());
+        strcpy(eventName, event->getName().c_str());
 
         // Concatenate the index to the label to make it unique
         std::string label = "Event Name##" + std::to_string(i);
@@ -318,7 +323,7 @@ void EventEditor(std::shared_ptr<MovementPoint> &point)
         // Display a combo box for selecting the event type
         const char* eventTypes[] = { "Enter", "Exit" };
         int currentEventType = static_cast<int>(event->getTime());
-    	label = "Event Type##" + std::to_string(i);
+        label = "Event Type##" + std::to_string(i);
 
         if (ImGui::Combo(label.c_str(), &currentEventType, eventTypes, IM_ARRAYSIZE(eventTypes)))
         {
@@ -330,11 +335,11 @@ void EventEditor(std::shared_ptr<MovementPoint> &point)
         {
             std::shared_ptr<Event_TextBox> ep = std::dynamic_pointer_cast<Event_TextBox>(event);
 
-        	char eventText[256]; 
+            char eventText[256];
             memset(eventText, 0, sizeof(eventText));
 
-            strcpy_s(eventText, ep->getString().c_str());
-        	std::string label = "Event text##" + std::to_string(i);
+            strcpy(eventText, ep->getString().c_str());
+            std::string label = "Event text##" + std::to_string(i);
 
             ImGui::InputText(label.c_str(), eventText, IM_ARRAYSIZE(eventText));
 
@@ -377,7 +382,7 @@ void EventEditor(std::shared_ptr<MovementPoint> &point)
 
         }
 
-		//handle conditionals on the event
+        //handle conditionals on the event
         label = "Is event conditional?#" + std::to_string(i);
         bool b=event->getIsConditional();
         ImGui::Checkbox(label.c_str(), &b);
@@ -422,16 +427,16 @@ inline void Window_ObjectSelection()
 
     if (manager_Selection.currentObject!=nullptr) {
         std::shared_ptr<GameObject>& selectedObject = manager_Selection.currentObject;
-    	ImGui::Text("Object name: ");
+        ImGui::Text("Object name: ");
         ImGui::SameLine();
         // Input field to change the object's name
         char objectName[256]; // Assuming a maximum name length of 255 characters
         memset(objectName, 0, sizeof(objectName)); // Clear the memory
-        strcpy_s(objectName, clean_string_for_display(selectedObject->name).c_str());
-    	ImGui::InputText("##ObjectName", objectName, IM_ARRAYSIZE(objectName));
+        strcpy(objectName, clean_string_for_display(selectedObject->name).c_str());
+        ImGui::InputText("##ObjectName", objectName, IM_ARRAYSIZE(objectName));
 
         // Set the object's name if it's changed
-        if (strcmp(objectName, selectedObject->name.c_str()) != 0) 
+        if (strcmp(objectName, selectedObject->name.c_str()) != 0)
         {
             selectedObject->name = clean_string_for_file(std::string(objectName));
         }
@@ -451,7 +456,7 @@ inline void Window_ObjectSelection()
         ImGui::SliderFloat("Y Pos", &position.y, -50.0f, 50.0f);
         ImGui::SameLine();
         ImGui::InputFloat("##YPos", &position.y);
-    	ImGui::SliderFloat("Z Pos", &position.z, -50.0f, 50.0f);
+        ImGui::SliderFloat("Z Pos", &position.z, -50.0f, 50.0f);
         ImGui::SameLine();
         ImGui::InputFloat("##ZPos", &position.z);
 
@@ -462,7 +467,7 @@ inline void Window_ObjectSelection()
         ImGui::SliderFloat("Y Rot", &rotation.y, -180.0f, 180.0f);
         ImGui::SameLine();
         ImGui::InputFloat("##YRot", &rotation.y);
-    	ImGui::SliderFloat("Z Rot", &rotation.z, -180.0f, 180.0f);
+        ImGui::SliderFloat("Z Rot", &rotation.z, -180.0f, 180.0f);
         ImGui::SameLine();
         ImGui::InputFloat("##ZRot", &rotation.z);
 
@@ -527,10 +532,10 @@ inline void Window_ObjectSelection()
             ImGui::Spacing();
             ImGui::Spacing();
             ImGui::Spacing();
-        	ImGui::Spacing();
             ImGui::Spacing();
             ImGui::Spacing();
-        	ImGui::Spacing();
+            ImGui::Spacing();
+            ImGui::Spacing();
             ImGui::Spacing();
             ImGui::Spacing();
             EventSelection(point);
@@ -619,18 +624,18 @@ inline void Window_GameView()
 
 
 
-	glDeleteFramebuffers(1, &fbo);
+    glDeleteFramebuffers(1, &fbo);
 
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
 
 
 
-	ImGui::Begin(" ");
+    ImGui::Begin(" ");
 
 
 
 
-	ImGui::End();
+    ImGui::End();
 
 
 }
@@ -678,7 +683,7 @@ inline void Window_Inventory()
     if (ImGui::BeginPopup("InventoryItemsPopup")) {
         for (const auto& item : manager_Inventory.getItemNames()) {
             // Selectable items in the dropdown
-            if (ImGui::Selectable(item.c_str())) 
+            if (ImGui::Selectable(item.c_str()))
             {
                 printf("Selected item: %s\n", item.c_str());
                 //when a user selects, that event is generated and the item is selected along with a number box next to it
@@ -709,7 +714,7 @@ inline void Window_Dialogue()
 inline void Window_Debug()//window for debugging
 {
     ImGui::Begin("Debug");
-	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
+    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
         1000.0f / ImGui::GetIO().Framerate,
         ImGui::GetIO().Framerate);
 
@@ -729,7 +734,7 @@ inline void Window_Debug()//window for debugging
     }
 //#endif
 
-	ImGui::End();
+    ImGui::End();
 }
 
 inline void Window_PlayerInventory()
@@ -757,7 +762,7 @@ inline void Window_GameBuilder()
     // Input field to change the object's name
     char objectName[256]; // Assuming a maximum name length of 255 characters
     memset(objectName, 0, sizeof(objectName)); // Clear the memory
-    strcpy_s(objectName, manager_GameBuilder.getGameName().c_str());
+    strcpy(objectName, manager_GameBuilder.getGameName().c_str());
     ImGui::InputText("#GameName", objectName, IM_ARRAYSIZE(objectName));
 
     // Set the object's name if it's changed
@@ -772,7 +777,7 @@ inline void Window_GameBuilder()
     ImGui::Spacing();
     ImGui::Spacing();
 
-	ImGui::Text("Scene List");
+    ImGui::Text("Scene List");
     static std::string selectedName = "";
     ImGui::Text("Starting Scene: ");
     for (auto scene : manager_GameBuilder.getSceneList())
@@ -780,7 +785,7 @@ inline void Window_GameBuilder()
         /*
         if (ImGui::Selectable(clean_string_for_display(scene).c_str(), selectedName == scene)) {
             selectedName = scene;
-            //std::cout<< selectedName; 
+            //std::cout<< selectedName;
         }*/
         ImGui::Text(scene.c_str());
     }
@@ -804,7 +809,7 @@ inline void Window_GameBuilder()
         //manager_GameBuilder.removeSceneFromGame(select_scene());
         manager_GameBuilder.getSceneList().pop_back();
     }
-	//starting scene mark
+    //starting scene mark
 
 
 
@@ -817,7 +822,7 @@ inline void Window_GameBuilder()
 
     ImGui::End();
 
-	//bundle it all up in a single folder
+    //bundle it all up in a single folder
 
 }
 
@@ -830,7 +835,7 @@ void Window_LoadGame()
     {
         std::wstring path = select_SceneFilePath();
         std::filesystem::path gamePath = std::filesystem::path(path);
-        std::wstring a= read_config_file(path);
+        std::wstring a = read_config_file(path);
         Manager_Scene.ReadSceneFromFile(a+L".plip");
         //manager_GameBuilder.setStartScene(read_config_file(path) + ".plip");
     }
