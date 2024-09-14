@@ -3,6 +3,7 @@
 #include <vector>
 #include <locale>
 #ifdef _WIN32
+	#define NOMINMAX
     #include <Windows.h>
     #include <commdlg.h>
     #include <tchar.h>

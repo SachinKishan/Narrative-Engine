@@ -65,7 +65,7 @@ public:
         glm::vec3 localPoint = inverseTransformPoint(p, boxCenter, boxRotation, boxScale);
         glm::vec3 halfExtent =boxScale / 2.0f;
         glm::vec3 q = glm::abs(localPoint) - halfExtent;
-        float dist = glm::length(vecMax(glm::vec3(0.0), q)) + min(max(q.x, max(q.y, q.z)), 0.0f);
+        float dist = glm::length(vecMax(glm::vec3(0.0), q)) + std::min(std::max(q.x, std::max(q.y, q.z)), 0.0f);
         //std::cout << "\nBox dist: " << dist<<"\n";
         return dist;
     }
@@ -95,9 +95,9 @@ public:
 
 private:
     glm::vec3 vecMax(glm::vec3 a, glm::vec3 b) const {
-        float q = max(a.x, b.x);
-        float r = max(a.y, b.y);
-        float s = max(a.z, b.z);
+        float q = std::max(a.x, b.x);
+        float r = std::max(a.y, b.y);
+        float s = std::max(a.z, b.z);
         return { q, r, s };
     }
 
