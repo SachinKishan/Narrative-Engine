@@ -255,7 +255,9 @@ int main()
     	//Window_Basic();
 
     	Window_Debug();
-        
+
+        Window_ProjectManager();
+        GUI_MainMenuBar();
         ImGui::Render();
 
     	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
