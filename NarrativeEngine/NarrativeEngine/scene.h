@@ -170,7 +170,7 @@ public:
                         std::shared_ptr<Platform> newGameObject = std::make_shared<Platform>(name, transform, color);
 
                     	std::filesystem::path gamePath = std::filesystem::path(modelName);
-                        newGameObject->renderData->modelData = Model(convertWStringToString(gamePath));
+                        newGameObject->renderData->modelData = Model(modelName);
                         newGameObject->renderData->hasModel = true;
                         newGameObject->renderData->modelData.fileName =std::wstring (modelName.begin(), modelName.end());
 

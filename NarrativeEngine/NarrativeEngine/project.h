@@ -124,7 +124,7 @@ std::vector<std::wstring> get_files_in_directory(const std::wstring& directoryPa
     HANDLE hFind = FindFirstFile(searchPath.c_str(), &findFileData);
 
     if (hFind == INVALID_HANDLE_VALUE) {
-        wprintf(L"Failed to open directory: %s\n", directoryPath.c_str());
+        //wprintf(L"Failed to open directory: %s\n", directoryPath.c_str());
         return fileNames;
     }
 
@@ -140,11 +140,12 @@ std::vector<std::wstring> get_files_in_directory(const std::wstring& directoryPa
     FindClose(hFind);
     return fileNames;
 }
-
+/*
 void print_directory_contents(const std::wstring& directoryPath)
 {
     std::vector<std::wstring> fileNames = get_files_in_directory(directoryPath);
-
+    static std::wstring additionToPath;
+    additionToPath.erase();
     if (!fileNames.empty()) {
         //wprintf(L"Contents of directory %s:\n", directoryPath.c_str());
         for (const auto& fileName : fileNames) {
@@ -166,3 +167,59 @@ void print_directory_contents(const std::wstring& directoryPath)
         ImGui::Text("No files found or directory is empty.\n");
     }
 }
+*/
+
+void print_directory_contents(const std::wstring& directoryPath)
+{
+    static std::wstring additionToPath;  // To track the current directory within the base path
+
+    // Update the full path to include any subdirectories from additionToPath
+    std::wstring fullPath = directoryPath + additionToPath;
+
+    std::vector<std::wstring> fileNames = get_files_in_directory(fullPath); // Fetch files in the updated path
+
+    // Back navigation - If additionToPath isn't empty, allow going back up one level
+    if (!additionToPath.empty()) {
+        if (ImGui::Selectable(".. (Back)", false)) {
+            // Remove the last directory from additionToPath (move one level up)
+            size_t lastSlashPos = additionToPath.find_last_of(L"//");
+            if (lastSlashPos != std::wstring::npos) {
+                additionToPath = additionToPath.substr(0, lastSlashPos);
+            }
+            else {
+                additionToPath.clear();  // If no slash, clear to return to root
+            }
+        }
+    }
+
+    // Continue with printing the contents of the current directory
+    if (!fileNames.empty()) {
+        for (const auto& fileName : fileNames) {
+            std::string selectedName = "";
+            std::string selectedObject = convertWStringToString(manager_project.GetCurrentlySelectedObject());
+            if (!selectedObject.empty()) selectedName = selectedObject;
+
+            std::string objectName = convertWStringToString(fileName.c_str());
+
+            if (filesystem::is_directory(fullPath + L"\\" + fileName)) {  // Check if it's a directory
+                if (ImGui::Selectable((clean_string_for_display(objectName) + "/").c_str(), false)) {
+                    // Update additionToPath to move into the selected directory
+                    additionToPath += L"\\" + fileName;
+                    // Call the function recursively to explore this subdirectory
+                    print_directory_contents(directoryPath);
+                }
+            }
+            else {  // It's a file
+                if (ImGui::Selectable(clean_string_for_display(objectName).c_str(), selectedName == objectName)) {
+                    selectedName = objectName;
+                    manager_project.SetCurrentlySelectedObject(fullPath + L"\\" + fileName);
+                    std::cout << convertWStringToString(fullPath + L"\\" + fileName);
+                }
+            }
+        }
+    }
+    else {
+        ImGui::Text("No files found or directory is empty.\n");
+    }
+}
+
