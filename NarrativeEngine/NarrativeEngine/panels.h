@@ -752,6 +752,7 @@ inline void Window_Debug()//window for debugging
         	std::filesystem::path gamePath = std::filesystem::path(path);
             newGameObject->renderData->modelData = Model(convertWStringToString(gamePath));
             newGameObject->renderData->hasModel = true;
+            newGameObject->renderData->modelData.fileName = path;
 
         	Manager_Scene.currentScene.AddToScene(newGameObject);
 

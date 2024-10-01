@@ -140,14 +140,19 @@ public:
                     glm::vec3 translation, rotation, scale;
                     glm::vec4 color;
                     int type;
-                    iss >> type;
+
+                    int isModel = 0;
+                    std::string modelName;
+                	iss >> type;
                     iss >> name
                         >> translation.x >> translation.y >> translation.z
                         >> rotation.x >> rotation.y >> rotation.z
                         >> scale.x >> scale.y >> scale.z
                         >> color.r >> color.g >> color.b;
 
-
+                    iss >> isModel;
+                    if (isModel==1)iss >> modelName;
+                    
                     // Create ObjectTransform based on parsed data
                     ObjectTransform transform(translation, rotation, scale);
                     if (type == ObjectType::type_Light)
@@ -163,7 +168,13 @@ public:
                     else if (type == ObjectType::type_Platform)
                     {
                         std::shared_ptr<Platform> newGameObject = std::make_shared<Platform>(name, transform, color);
-                        currentScene.AddToScene(newGameObject);
+
+                    	std::filesystem::path gamePath = std::filesystem::path(modelName);
+                        newGameObject->renderData->modelData = Model(convertWStringToString(gamePath));
+                        newGameObject->renderData->hasModel = true;
+                        newGameObject->renderData->modelData.fileName =std::wstring (modelName.begin(), modelName.end());
+
+                    	currentScene.AddToScene(newGameObject);
                     }
                     else if (type == ObjectType::type_Player)
                     {
@@ -458,6 +469,12 @@ inline void SaveScene(std::vector<std::shared_ptr<GameObject>> gameObjects)
             outFile << gameObject->renderData->material.color.r<< " ";
             outFile << gameObject->renderData->material.color.g<< " ";
             outFile << gameObject->renderData->material.color.b<< " ";
+            outFile << (gameObject->renderData->hasModel ? 1 : 0) << " ";
+            if (gameObject->renderData->hasModel==1)
+            {
+                outFile <<convertWStringToString(gameObject->renderData->modelData.fileName);
+            }
+
             if(gameObject->objectType==type_Light)
             {
                 const auto light = static_cast<Light*>(gameObject.get());
