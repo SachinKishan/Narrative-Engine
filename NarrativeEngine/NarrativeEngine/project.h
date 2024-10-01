@@ -141,6 +141,10 @@ std::vector<std::wstring> get_files_in_directory(const std::wstring& directoryPa
     return fileNames;
 }
 
+std::string getFileExtension(const std::wstring& fileName) {
+    return std::filesystem::path(fileName).extension().string();  // This will return the extension with the dot, e.g., ".obj"
+}
+
 void print_directory_contents(const std::wstring& directoryPath)
 {
     static std::wstring additionToPath;  // To track the current directory within the base path
@@ -180,13 +184,56 @@ void print_directory_contents(const std::wstring& directoryPath)
                     // Call the function recursively to explore this subdirectory
                     print_directory_contents(directoryPath);
                 }
+                ImGui::SameLine();
+                ImGui::Text("Folder");
             }
             else {  // It's a file
                 if (ImGui::Selectable(clean_string_for_display(objectName).c_str(), selectedName == objectName)) {
                     selectedName = objectName;
                     manager_project.SetCurrentlySelectedObject(fullPath + L"\\" + fileName);
-                    std::cout << convertWStringToString(fullPath + L"\\" + fileName);
+                    //std::cout<<"\n" << convertWStringToString(fullPath + L"\\" + fileName);
                 }
+                // Check if the item is hovered and if a double-click occurred
+                if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+                    // Handle double-click action
+                    std::cout << "\nDouble-click detected on: " << convertWStringToString(fullPath + L"\\" + fileName) << std::endl;
+                    std::cout << "\nFile name : " << convertWStringToString(fileName);
+
+                    std::string fileExtension = getFileExtension(fileName);
+                    std::cout << "\nEXTENSION: " << fileExtension;
+                    if (fileExtension==".obj") {
+
+
+                        // Handle .obj file
+                        std::cout << "\nHandling .obj file\n";
+                        if (Manager_Scene.sceneLoaded)//we should reduce this to its own function
+                        {
+                            std::shared_ptr<Platform> newGameObject = std::make_shared<Platform>("platform" + std::to_string(Manager_Scene.currentScene.gameObjectList.size()));
+                            //make object the model
+                            std::wstring path = manager_project.GetCurrentlySelectedObject();
+                            std::filesystem::path gamePath = std::filesystem::path(path);
+                            newGameObject->renderData->modelData = Model(convertWStringToString(gamePath));
+                            newGameObject->renderData->hasModel = true;
+                            newGameObject->renderData->modelData.fileName = path;
+                            Manager_Scene.currentScene.AddToScene(newGameObject);
+
+                        }
+                    }
+                    else if (fileExtension._Equal(".plip")) {
+                        // Handle .plip file
+                        std::cout << "\nHandling .plip file\n";
+
+                        Manager_Scene.ReadSceneFromFile(fullPath + L"\\" + fileName);
+                        
+                    }
+                    else {
+                        // Handle other file types
+                        std::cout << "\nUnknown file type\n";
+                    }
+
+                }
+
+                
             }
         }
     }
