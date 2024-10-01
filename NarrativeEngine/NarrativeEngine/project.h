@@ -140,34 +140,6 @@ std::vector<std::wstring> get_files_in_directory(const std::wstring& directoryPa
     FindClose(hFind);
     return fileNames;
 }
-/*
-void print_directory_contents(const std::wstring& directoryPath)
-{
-    std::vector<std::wstring> fileNames = get_files_in_directory(directoryPath);
-    static std::wstring additionToPath;
-    additionToPath.erase();
-    if (!fileNames.empty()) {
-        //wprintf(L"Contents of directory %s:\n", directoryPath.c_str());
-        for (const auto& fileName : fileNames) {
-            std::string selectedName = "";
-            std::string selectedObject = convertWStringToString(manager_project.GetCurrentlySelectedObject());
-            if (selectedObject != "")selectedName = selectedObject;
-            //wprintf(L"%s\n", fileName.c_str());
-            std::string objectName = convertWStringToString(fileName.c_str());
-            if (ImGui::Selectable(clean_string_for_display(objectName).c_str(), selectedName == objectName)) {
-                selectedName = objectName;
-                
-                manager_project.SetCurrentlySelectedObject(directoryPath+L"\\" + fileName);
-                
-                std::cout<< convertWStringToString(directoryPath+L"\\" + fileName);
-            }
-        }
-    }
-    else {
-        ImGui::Text("No files found or directory is empty.\n");
-    }
-}
-*/
 
 void print_directory_contents(const std::wstring& directoryPath)
 {
