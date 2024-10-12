@@ -20,10 +20,39 @@
 
 #include "CallBack.h"
 
+#include "model_loading.h"
+
+
+void modelRenderTest(Model m)
+{
+    std::wstring exePath = GetExePath();
+    std::filesystem::path shadersPath = std::filesystem::path(exePath) / "Shaders"; // Assuming Shaders folder is in the same directory as the executable
+
+    std::filesystem::current_path(shadersPath);
+
+    Shader s("defaultShader.vert", "colorShader.frag");
+    s.use();
+
+    s.setMat4("projection", projection);
+    view = currentCamera->GetViewMatrix();
+    s.setMat4("view", view);
+
+
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
+    model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
+    s.setMat4("model", model);
+    s.setVec4("objColor", glm::vec4(1, 0, 0, 0));
+	m.Draw(s);
+}
+
 
 
 void render()
 {
+
+
+
     if (Manager_Scene.sceneLoaded)
     {
         for (std::shared_ptr<GameObject> g : Manager_Scene.currentScene.gameObjectList)
@@ -46,14 +75,17 @@ void render()
             view = currentCamera->GetViewMatrix();
             s.setMat4("view", view);
             s.setMat4("model", g->transform.model);
-            if (g->renderData->material.isTextured)
+
+        	if (g->renderData->material.isTextured)
             {
                 glBindTexture(GL_TEXTURE_2D, g->renderData->material.textureID);
                 //glBindTexture(GL_TEXTURE_CUBE_MAP,g.renderData.material.textureID);
             }
             else
                 s.setVec4("objColor", g->renderData->material.color);
-            g->renderData->draw();
+
+            if (g->renderData->hasModel)g->renderData->modelData.Draw(s);
+            else g->renderData->draw();
         }
     }
 }
@@ -135,6 +167,7 @@ int main()
     quad->material.shader.setInt("texture1", 0);
 
 
+
     setCamera(editViewCamera);
     // render loop
     // -----------
@@ -163,13 +196,22 @@ int main()
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
        
-        render();
+        //modelRenderTest(bp);
+
+    	//render();
+
+
+
+
         glBindFramebuffer(GL_FRAMEBUFFER, 0); // back to default
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
         //screenShader.use();
         //glDisable(GL_DEPTH_TEST);
-        render();
+
+    	render();
+        //modelRenderTest(bp);
+
         glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
         
         const float window_width = ImGui::GetContentRegionAvail().x;
@@ -212,9 +254,10 @@ int main()
         Window_General();
 
         //Window_Basic();
+    	Window_Debug();
 
-        Window_Debug();
-        
+        Window_ProjectManager();
+        GUI_MainMenuBar();
         ImGui::Render();
 
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

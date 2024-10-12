@@ -3,6 +3,7 @@
 #include <functional>
 #include "scene.h"
 #include "GameBuilder.h"
+#include "project.h"
 
 
 #ifdef WIN32
@@ -509,6 +510,19 @@ inline void Window_ObjectSelection()
                 selectedObject->renderData->material.color = glm::vec4(newColor[0], newColor[1], newColor[2], newColor[3]);
             }
         }
+        if(selectedObject->objectType==ObjectType::type_Platform)
+        {
+           
+                if(ImGui::Button("Change 3D model"))
+                {
+                    std::wstring path = select_SceneFilePath();
+                    std::filesystem::path gamePath = std::filesystem::path(path);
+                	selectedObject->renderData->modelData = Model(convertWStringToString(gamePath));
+                    selectedObject->renderData->hasModel = true;
+                }
+        }
+
+
         if(selectedObject->objectType==ObjectType::type_Light)
         {
             std::shared_ptr<Light> lightObject = std::dynamic_pointer_cast<Light>(selectedObject);
@@ -727,12 +741,31 @@ inline void Window_Debug()//window for debugging
         Manager_Scene.findPlipFile("example.plip");
     }
 
-//#ifdef ENGINE
-    if (ImGui::Button("find files"))
+    if (ImGui::Button("debug directory path thing"))
     {
         //create directory
+        std::cout <<convertWStringToString(manager_project.GetCurrentlySelectedObject());
+    	//std::wstring path = select_SceneFilePath();
+    	//std::filesystem::path gamePath = std::filesystem::path(path);
+
+        //add object to scene (make sure a scene is there)
+        if(Manager_Scene.sceneLoaded)
+        {
+        	std::shared_ptr<Platform> newGameObject = std::make_shared<Platform>("platform" + std::to_string(Manager_Scene.currentScene.gameObjectList.size()));
+            //make object the model
+            std::wstring path = manager_project.GetCurrentlySelectedObject();
+        	std::filesystem::path gamePath = std::filesystem::path(path);
+            newGameObject->renderData->modelData = Model(convertWStringToString(gamePath));
+            newGameObject->renderData->hasModel = true;
+            newGameObject->renderData->modelData.fileName = path;
+
+        	Manager_Scene.currentScene.AddToScene(newGameObject);
+
+        }
+
+        
+
     }
-//#endif
 
     ImGui::End();
 }
@@ -842,3 +875,81 @@ void Window_LoadGame()
 
     ImGui::End();
 }
+
+void Window_ProjectManager()
+{
+    // Set the window size and position if necessary
+    ImGui::Begin("Project");
+
+    // Add the "Import" button on the top-right corner of the window
+    ImGui::SameLine(ImGui::GetWindowWidth() - 80);  // Adjust the number to position the button
+    if (ImGui::Button("Import"))
+    {
+        // Code for the import functionality goes here
+    }
+
+    // Create a tab bar with tabs for Models, Textures, Animations, and Scenes
+    if (ImGui::BeginTabBar("ProjectTabs"))
+    {
+        if (ImGui::BeginTabItem("Models"))
+        {
+            // Code for handling the Models tab
+            ImGui::Text("Models content goes here.");
+            ImGui::EndTabItem();
+        }
+
+        if (ImGui::BeginTabItem("Textures"))
+        {
+            // Code for handling the Textures tab
+            ImGui::Text("Textures content goes here.");
+            ImGui::EndTabItem();
+        }
+
+        if (ImGui::BeginTabItem("Animation"))
+        {
+            // Code for handling the Animation tab
+            ImGui::Text("Animation content goes here.");
+            ImGui::EndTabItem();
+        }
+
+        if (ImGui::BeginTabItem("Scenes"))
+        {
+            // Code for handling the Scenes tab
+            ImGui::Text("Scenes content goes here.");
+            if (!manager_project.GetCurrentProjectDirectory()._Equal(L" "))
+	            print_directory_contents(manager_project.GetCurrentProjectDirectory()+L"\\Scenes");
+
+            ImGui::EndTabItem();
+        }
+
+        ImGui::EndTabBar();
+    }
+
+    ImGui::End();
+}
+
+void GUI_MainMenuBar()
+{
+    if (ImGui::BeginMainMenuBar())
+    {
+        if (ImGui::BeginMenu("File"))
+        {
+            if (ImGui::MenuItem("New Project"))
+            {
+                // Code to handle "New Project" functionality
+                manager_project.SetCurrentProjectDirectory(dummy());
+            }
+
+            if (ImGui::MenuItem("Load Project"))
+            {
+                    manager_project.SetCurrentProjectDirectory(select_directory());
+                // Code to handle "Load Project" functionality
+            }
+
+            ImGui::EndMenu();
+        }
+
+        ImGui::EndMainMenuBar();
+    }
+}
+
