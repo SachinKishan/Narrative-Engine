@@ -1,10 +1,13 @@
 #pragma once
 #include <codecvt>
 #include <vector>
-#include <tchar.h>
-
-#include <Windows.h>
-#include <commdlg.h>
+#include <locale>
+#ifdef _WIN32
+	#define NOMINMAX
+    #include <Windows.h>
+    #include <commdlg.h>
+    #include <tchar.h>
+#endif
 #include <fstream>
 #include "gamehandler.h"
 #include "gameobject.h"
@@ -33,6 +36,7 @@ std::string clean_string_for_display(std::string uncleanString)
     return uncleanString;
 }
 
+#ifdef _WIN32
 std::string convertWStringToString(const std::wstring& wstr)
 {
     int size_needed = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, NULL, 0, NULL, NULL);
@@ -40,38 +44,45 @@ std::string convertWStringToString(const std::wstring& wstr)
     WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, &strTo[0], size_needed, NULL, NULL);
     return strTo;
 }
+#endif
+#ifdef __APPLE__
+std::string convertWStringToString(const std::wstring& wstr) {
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+    return converter.to_bytes(wstr);
+}
+#endif
 
 class Scene
 {
 public:
-	std::string sceneName;
-	std::vector<std::shared_ptr<GameObject>> gameObjectList;
+    std::string sceneName;
+    std::vector<std::shared_ptr<GameObject>> gameObjectList;
     std::vector<std::shared_ptr<Light>> lightList;
     std::vector<std::shared_ptr<MovementPoint>> movementPointList;
     std::shared_ptr<MovementPoint> currentMovementPoint;
     bool hasPlayer = false;
 
-	void AddToScene(const std::shared_ptr<GameObject> &object)
-	{
-		gameObjectList.push_back(object);
-	}
+    void AddToScene(const std::shared_ptr<GameObject> &object)
+    {
+        gameObjectList.push_back(object);
+    }
     void AddLight(const std::shared_ptr<Light> &light)
-	{
+    {
         lightList.push_back(light);
-	}
+    }
     void AddMovementPoint (const std::shared_ptr<MovementPoint>& point)
     {
-		movementPointList.push_back(point);
+        movementPointList.push_back(point);
     }
-	void RemoveFromScene(const std::shared_ptr<GameObject>& object)
-	{
+    void RemoveFromScene(const std::shared_ptr<GameObject>& object)
+    {
         if (object->objectType == ObjectType::type_Player)hasPlayer = false;
 
-		gameObjectList.erase(
-			std::remove(
-				gameObjectList.begin(), gameObjectList.end(), object),
-			gameObjectList.end());
-	}
+        gameObjectList.erase(
+            std::remove(
+                gameObjectList.begin(), gameObjectList.end(), object),
+            gameObjectList.end());
+    }
     void SceneSetPlayer(const std::shared_ptr<Player>& newPlayer)
     {
         if (!hasPlayer)
@@ -86,11 +97,11 @@ public:
 inline class SceneEditorManager
 {
 private:
-	
+    
 public:
-	
-	bool sceneLoaded;
-	Scene currentScene;
+    
+    bool sceneLoaded;
+    Scene currentScene;
     std::wstring filepath;//file path of currently selected scene, is empty string if no scene is selected
 
     void resetCurrentSceneData()
@@ -128,13 +139,12 @@ public:
         if (inFile.is_open()) {
             std::string line;
             while (std::getline(inFile, line)) {
-                if (line._Equal("OBJECTS"))mode = 0;
-                else if (line._Equal("EVENTS"))mode = 1;
-                else if (line._Equal("CAMERA"))mode = 2;
-                else if (line._Equal("INVENTORY"))mode = 3;
+                if (line.compare("OBJECTS") == 0){mode = 0;}
+                else if (line.compare("EVENTS") == 0){mode = 1;}
+                else if (line.compare("CAMERA") == 0){mode = 2;}
+                else if (line.compare("INVENTORY") == 0){mode = 3;}
                 else if (mode==0)
                 {
-
                     std::istringstream iss(line);
                     std::string name;
                     glm::vec3 translation, rotation, scale;
@@ -192,7 +202,7 @@ public:
                 else if(mode==1)
                 {
                     std::istringstream iss(line);
-                	int type;
+                    int type;
                     int time;
                     std::string eventName;
                     std::string objName;
@@ -201,12 +211,12 @@ public:
                     iss >> type;
                     iss >> objName;
                     iss >> eventName;
-                	iss >> time;
+                    iss >> time;
                     iss >> c;
                     std::cout << std::endl << c;
                     conditional = c == 1;
 
-                	std::shared_ptr<MovementPoint> point;
+                    std::shared_ptr<MovementPoint> point;
                     for (const auto& p : currentScene.movementPointList)
                     {
                         if (objName == p->name){point = p; break;}
@@ -225,7 +235,7 @@ public:
                             printEvent->conditionalEventData.setItem(itemName,count);
                             printEvent->conditionalEventData.setCount(count);
                         }
-                    	point->events.push_back(printEvent);
+                        point->events.push_back(printEvent);
                     }
                     else if (type == EventType::TextBox)
                     {
@@ -245,12 +255,12 @@ public:
                         std::replace(s.begin(), s.end(), '_', ' ');
                         std::shared_ptr<Event_TextBox> printEvent = std::make_shared<Event_TextBox>(eventName, (EventType)type, (EventTime)time, s);
                         printEvent->setConditional(conditional);
-                    	if (conditional)
+                        if (conditional)
                         {
                             printEvent->conditionalEventData.setItem(itemName,count);
                             printEvent->conditionalEventData.setCount(count);
                         }
-                    	point->events.push_back(printEvent);
+                        point->events.push_back(printEvent);
                     }
                     else if(type==EventType::Inventory)
                     {
@@ -272,13 +282,13 @@ public:
                         iss >> count;
                         std::shared_ptr<Event_Inventory> inventoryEvent = std::make_shared<Event_Inventory>(eventName, (EventTime)time, itemName, count);
                         inventoryEvent->setConditional(conditional);
-                    	if (conditional)
+                        if (conditional)
                         {
                             inventoryEvent->conditionalEventData.setItem(citemName,count);
                             inventoryEvent->conditionalEventData.setCount(ccount);
                         }
 
-                    	point->events.push_back(inventoryEvent);
+                        point->events.push_back(inventoryEvent);
                     }
 
                     else if(type==EventType::SceneChange)
@@ -315,26 +325,22 @@ public:
                     float pitch;
                     float yaw;
 
-                    iss >> pos.x;
-                    iss >> pos.y;
-                    iss >> pos.z;
-                    iss >> up.x;
-                    iss >> up.y;
-                    iss >> up.z;
-                    iss >> pitch;
-                    iss >> yaw;
+                    iss >> pos.x >> pos.y >> pos.z
+                        >> up.x >> up.y >> up.z
+                        >> pitch >> yaw;
 
                     gameViewCamera->setCamera(pos,up,yaw,pitch);
                     editViewCamera->copy(gameViewCamera);
                 }
                 else if(mode==3)
                 {
-	                std::istringstream iss(line);
+                    std::istringstream iss(line);
                     std::string name;
                     iss >> name;
                     manager_Inventory.addItemToList(name);
                 }
             }
+            //std::cout << "file closed";
             inFile.close();
         }
         else {
@@ -345,16 +351,16 @@ public:
     }
 
     void findPlipFile(std::string s)//find a scene based on its name, load it
-	{
+    {
         std::filesystem::path currentPath = std::filesystem::current_path();
-    	currentPath = currentPath.parent_path();
-    	currentPath /= "Scenes";
-    	for (const auto& entry : std::filesystem::directory_iterator(currentPath)) {
+        currentPath = currentPath.parent_path();
+        currentPath /= "Scenes";
+        for (const auto& entry : std::filesystem::directory_iterator(currentPath)) {
             if (entry.is_regular_file() && entry.path().extension() == ".plip") {
-                if (s._Equal( entry.path().filename().string()))
+                if (s == entry.path().filename().string())
                 {
                     std::cout << entry.path();
-                    ReadSceneFromFile(entry.path());
+                    ReadSceneFromFile(entry.path().wstring());
                     return;
                 }
             }
@@ -375,7 +381,7 @@ void Event_SceneChange::doThing()
     Manager_Scene.changeScene(sceneFileName);
 }
 
-
+#ifdef _WIN32
 std::wstring select_file(const wchar_t* filter, const wchar_t* defaultExtension, DWORD flags)
 {
     CoInitialize(NULL);
@@ -404,6 +410,7 @@ std::wstring select_file(const wchar_t* filter, const wchar_t* defaultExtension,
         return L"";
     }
 }
+
 
 void LoadScene()
 {
@@ -448,6 +455,75 @@ void CreateNewScene()
     }
 }
 
+#elif __APPLE__
+std::wstring select_file() {
+    std::string script = R"(
+    osascript -e 'set filePath to POSIX path of (choose file with prompt "Select a file")'
+    )";
+    std::array<char, 128> buffer;
+    std::string result;
+    FILE* pipe = popen(script.c_str(), "r");
+    if (!pipe) {
+        throw std::runtime_error("popen() failed!");
+    }
+    try {
+        while (fgets(buffer.data(), buffer.size(), pipe) != nullptr) {
+            result += buffer.data();
+        }
+    } catch (...) {
+        pclose(pipe);
+        throw;
+    }
+    pclose(pipe);
+    
+    // Remove the newline character at the end of the result string
+    if (!result.empty() && result[result.length() - 1] == '\n') {
+        result.erase(result.length() - 1);
+    }
+
+    return std::wstring(result.begin(), result.end());
+}
+
+void LoadScene() {
+    std::wstring filePath = select_file();
+    if (!filePath.empty()) {
+        Manager_Scene.filepath = filePath;
+        Manager_Scene.sceneLoaded = true;
+        Manager_Scene.ReadSceneFromFile(filePath.c_str());
+    }
+}
+
+std::string select_scene() {
+    std::wstring filePath = select_file();
+    if (!filePath.empty()) {
+        std::filesystem::path fsPath(filePath);
+        std::string fileName = fsPath.stem().string();
+        return fileName;
+    }
+    return "null- please delete";
+}
+
+std::wstring select_SceneFilePath() {
+    return select_file();
+}
+
+void CreateNewScene() {
+    std::wstring filePath = select_file();
+    if (!filePath.empty()) {
+        Manager_Scene.sceneLoaded = true;
+        Manager_Scene.resetCurrentSceneData();
+        Manager_Scene.filepath = filePath;
+        std::wstring fileName = filePath.substr(filePath.find_last_of(L"/") + 1);
+        Manager_Scene.setSceneName(fileName);
+        
+        std::ofstream outFile(filePath);
+        if (!outFile.is_open()) {
+            std::wcout << L"Failed to create the file." << std::endl;
+        }
+    }
+}
+#endif
+
 inline void SaveScene(std::vector<std::shared_ptr<GameObject>> gameObjects)
 {
     std::ofstream outFile(Manager_Scene.filepath , std::ios::out | std::ios::trunc);
@@ -456,7 +532,7 @@ inline void SaveScene(std::vector<std::shared_ptr<GameObject>> gameObjects)
         outFile << "OBJECTS\n";
         for (const std::shared_ptr<GameObject> &gameObject : gameObjects) {
             outFile << gameObject->objectType << " ";
-            outFile << gameObject->name<<" "; 
+            outFile << gameObject->name<<" ";
             outFile << gameObject->transform.translation.x << " ";
             outFile << gameObject->transform.translation.y << " ";
             outFile << gameObject->transform.translation.z << " ";
@@ -487,12 +563,12 @@ inline void SaveScene(std::vector<std::shared_ptr<GameObject>> gameObjects)
         outFile << "EVENTS\n";
         for (const auto& point : Manager_Scene.currentScene.movementPointList)
         {
-	        for (const auto& event : point->events)
-	        {
+            for (const auto& event : point->events)
+            {
                 outFile <<event->getType() <<" ";
                 outFile << point->name<<" ";
                 std::string eventname =clean_string_for_file(event->getName());
-	        	outFile << eventname <<" ";
+                outFile << eventname <<" ";
                 outFile <<event->getTime() <<" ";
                 outFile << (event->getIsConditional() ? 1:0) << " ";
                 if (event->getIsConditional())
@@ -504,12 +580,12 @@ inline void SaveScene(std::vector<std::shared_ptr<GameObject>> gameObjects)
                 /*use this to test new event feature changes
                 if (event->getType() == EventType::Print)
                 {
-	                //outFile<<event
+                    //outFile<<event
                     const auto numEvent = static_cast<PrintNum_Event*>(event.get());
                 }
                 */
 
-	        	if (event->getType() == EventType::TextBox)
+                if (event->getType() == EventType::TextBox)
                 {
 
                     const auto printEvent = static_cast<Event_TextBox*>(event.get());
@@ -532,11 +608,11 @@ inline void SaveScene(std::vector<std::shared_ptr<GameObject>> gameObjects)
                 }
                 outFile << "\n";
 
-	        }
+            }
         }
 
         //write camera data to the file
-    	outFile << "CAMERA\n";
+        outFile << "CAMERA\n";
         outFile << gameViewCamera->Position.x<<" ";
         outFile << gameViewCamera->Position.y<<" ";
         outFile << gameViewCamera->Position.z<<" ";
@@ -565,7 +641,7 @@ inline void SaveScene(std::vector<std::shared_ptr<GameObject>> gameObjects)
 
 
 
-// Function to create a directory
+#ifdef _WIN32
 bool createDirectory(const std::wstring& directoryPath) {
     return CreateDirectory(directoryPath.c_str(), NULL) || ERROR_ALREADY_EXISTS == GetLastError();
 }
@@ -604,18 +680,65 @@ bool copyFilesToDirectory(const std::vector<std::wstring>& filePaths, const std:
     }
 }
 
+#elif __APPLE__
+bool createDirectory(const std::wstring& directoryPath) {
+    if (!std::filesystem::exists(directoryPath.c_str())){
+        return std::filesystem::create_directory(directoryPath.c_str());
+    } else { return false ;}
+}
 
+// Function to copy file
+bool copyFile(const std::wstring& sourceFile, const std::wstring& destFile) {
+    try{
+        std::filesystem::copy(sourceFile.c_str(), destFile.c_str());
+        return true;
+    }catch(...){
+        return false;
+    }
+    
+}
+
+// Function to copy files to a new directory
+bool copyFilesToDirectory(const std::vector<std::wstring>& filePaths, const std::wstring& directoryPath, const std::wstring& configfilePath) {
+    // Create directory
+    if (!createDirectory(directoryPath)) {
+        std::cerr << "Failed to create directory." << std::endl;
+        return false;
+    }
+    else
+    {
+        // Copy files
+        for (const std::wstring& filePath : filePaths)
+        {
+            std::filesystem::path fsPath(filePath);
+            std::wstring fileName = fsPath.stem().wstring();
+
+            std::wstring destFilePath = directoryPath + L"\\" + fileName + L".plip";
+            if (!copyFile(filePath, destFilePath))
+            {
+                std::cerr << "Failed to copy file: " << convertWStringToString(filePath.c_str()) << std::endl;
+            }
+
+        }
+        copyFile(configfilePath, directoryPath + L"\\" + L"plipconfigs.config");
+
+        std::cout << "Files copied successfully to directory: " << convertWStringToString(directoryPath.c_str()) << std::endl;
+        return true;
+    }
+}
+
+#endif
 //read config file
 //load accordingly
 
 std::wstring read_config_file(std::wstring path)
 {
-	std::ifstream configFile(path);
+    std::ifstream configFile(path);
     if (configFile.is_open()) {
         std::string line;
-        while (std::getline(configFile, line)) 
+        while (std::getline(configFile, line))
         {
-            if(line._Equal("STARTING SCENE "))
+            if (line.compare("STARTING SCENE") == 1)
             {
                 std::string sceneName;
                 std::getline(configFile, sceneName);

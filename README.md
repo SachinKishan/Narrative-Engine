@@ -56,7 +56,11 @@ For additional help, visit WineHQ's website for FAQs and general troubleshooting
 
 That's it, you should be able to open the Windows executable build for NarrativeEngine using Wine's Application Loader. Be sure to install any additional dependencies Wine prompts while running the NarrativeEngine for the first time. :)
 ### Mac
-Currently some features do not work on Mac devices.
+The project requires XCode as an IDE. Simply fork the repo and open it up in XCode.
+1. Go to Targets -> Build Phases -> Link Binary with Libraries
+   	Add the Mac binaries from the lib folder and add the OpenGL.framework
+2. Go to Targets -> Build Settings -> Search paths
+   	Add library and header search path to "your-location/NarrativeEngine/NarrativeEngine/Libraries/include"
 
 <hr>
 

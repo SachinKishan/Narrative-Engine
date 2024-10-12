@@ -24,6 +24,7 @@
 #include <string.h>
 #include <glad/glad.h>
 
+
 static void* get_proc(const char *namez);
 
 #if defined(_WIN32) || defined(__CYGWIN__)
@@ -1120,6 +1121,7 @@ int gladLoadGLLoader(GLADloadproc load) {
 	glGetString = (PFNGLGETSTRINGPROC)load("glGetString");
 	if(glGetString == NULL) return 0;
 	if(glGetString(GL_VERSION) == NULL) return 0;
+    
 	find_coreGL();
 	load_GL_VERSION_1_0(load);
 	load_GL_VERSION_1_1(load);
@@ -1132,8 +1134,9 @@ int gladLoadGLLoader(GLADloadproc load) {
 	load_GL_VERSION_3_0(load);
 	load_GL_VERSION_3_1(load);
 	load_GL_VERSION_3_2(load);
-	load_GL_VERSION_3_3(load);
-
+#ifdef WIN32
+    load_GL_VERSION_3_3(load);
+#endif
 	if (!find_extensionsGL()) return 0;
 	return GLVersion.major != 0 || GLVersion.minor != 0;
 }

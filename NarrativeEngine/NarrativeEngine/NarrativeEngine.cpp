@@ -1,20 +1,22 @@
+#include <locale.h>
+#include <iostream>
+#include <memory>
+#include <vector>
+
+
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/norm.hpp>
+#include <filesystem>
+
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 
-
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include <iostream>
-#include <thread>
-#include <vector>
-
-
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include<glm/gtx/norm.hpp>
 
 #include "CallBack.h"
 
@@ -92,15 +94,19 @@ void render()
 
 int main()
 {
+    //setlocale(LC_ALL, "C");
     renderInitalise();
 
 #ifdef __APPLE__
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // Required on macOS
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // Use Core Profile
 #endif
-
     // glfw window creation
     // --------------------
     GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Engine", NULL, NULL);
+
 
     if (window == NULL)
     {
@@ -110,13 +116,17 @@ int main()
     }
     initialiseWindow(window);
     
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    //working till here
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
+    
 
-	ImguiInitialise(window);
+
+    ImguiInitialise(window);
+    
 
     glEnable(GL_DEPTH_TEST);
     //render buffer things
@@ -130,6 +140,7 @@ int main()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D, 0);
+    
 
     // attach it to currently bound framebuffer object
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
@@ -140,16 +151,14 @@ int main()
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, SCR_WIDTH, SCR_HEIGHT);
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo);
-
+    
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     std::wstring exePath = GetExePath();
     std::filesystem::path shadersPath = std::filesystem::path(exePath) / "Shaders"; // Assuming Shaders folder is in the same directory as the executable
-
-
     //quad for framebuffer
-	std::filesystem::current_path(shadersPath);
+    std::filesystem::current_path(shadersPath);
     Shader screenShader("screenShaderVert.vert", "textureFragShader.frag");
     std::shared_ptr<ScreenQuad> quad = std::make_shared<ScreenQuad>();
     Material m(glm::vec4(1, 1, 1, 1));
@@ -158,21 +167,13 @@ int main()
     quad->material.shader.setInt("texture1", 0);
 
 
-	setCamera(editViewCamera);
 
-    exePath = GetExePath();
-    std::filesystem::current_path(exePath); //setting path
-
-    Model bp("backpack/backpack.obj");
-
-
-
-
+    setCamera(editViewCamera);
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window) && shouldRun)
     {
-    	// input
+        // input
         // -----
         float currentFrame = static_cast<float>(glfwGetTime());
         deltaTime = currentFrame - lastFrame;
@@ -187,7 +188,7 @@ int main()
         glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
         //glBindFramebuffer(GL_FRAMEBUFFER, 0);
         //glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-        //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); 
+        //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glEnable(GL_DEPTH_TEST);
 
         //after clearing buffer, declare new frame
@@ -220,7 +221,7 @@ int main()
         /*
         ImGui::Begin("BUFFER WINDOW FRAMEBUFFER ");
 
-        ImVec2 imageSize(SCR_WIDTH / 1.5, SCR_HEIGHT / 1.5);  
+        ImVec2 imageSize(SCR_WIDTH / 1.5, SCR_HEIGHT / 1.5);
         ImVec2 imagePos = ImGui::GetCursorScreenPos();
 
         ImGui::GetWindowDrawList()->AddImage(
@@ -232,7 +233,7 @@ int main()
         ImGui::End();
         */
 
-    	if (manager_EditorState.getState() == state_EditorView)
+        if (manager_EditorState.getState() == state_EditorView)
         {
             //editor windows
             Window_Inventory();
@@ -250,26 +251,25 @@ int main()
             Window_Dialogue();
         }
 
-    	Window_General();
+        Window_General();
 
-    	//Window_Basic();
-
+        //Window_Basic();
     	Window_Debug();
 
         Window_ProjectManager();
         GUI_MainMenuBar();
         ImGui::Render();
 
-    	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        
         glfwSwapBuffers(window);
         glfwPollEvents();
+        
     }
 
-	ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
     glfwTerminate();
     return 0;
 }
-
